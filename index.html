@@ -16,7 +16,7 @@
         .offline { background-color: #e74c3c; }
         /* สไตล์สำหรับตาราง Checklist */
         .checklist-container { overflow-x: auto; }
-        .checklist-table { min-width: 900px; }
+        .checklist-table { min-width: 1200px; } 
         .checklist-table th, .checklist-table td { padding: 4px 6px; border: 1px solid #e5e7eb; vertical-align: top; }
         .checklist-table th { background-color: #f3f4f6; text-align: left; font-size: 0.75rem; color: #374151; font-weight: 600; }
         .checklist-item { background-color: #ffffff; }
@@ -27,8 +27,7 @@
             height: 30px; 
             border-radius: 4px; 
             border: 1px solid #d1d5db;
-            /* เพิ่มความกว้างให้พอดีกับช่อง */
-            min-width: 70px; 
+            min-width: 60px; 
             max-width: 100%;
         }
         .narrative-textarea { 
@@ -38,23 +37,20 @@
             resize: vertical; 
             line-height: 1.2;
         }
-        /* กำหนดความกว้างคอลัมน์ (ปรับได้ตามความเหมาะสม) */
-        .code-col { width: 6%; min-width: 70px; }
-        .desc-col { width: 13%; min-width: 100px; }
-        .sop-col { width: 4%; min-width: 70px; }
-        .item-col { width: 25%; }
-        .narrative-col { width: 33%; }
-
-        /* สีพื้นหลังสำหรับช่อง Code/Narrative */
-        .bg-t { background-color: #e6ffec; } /* Green Light */
-        .bg-e { background-color: #fff9e6; } /* Yellow Light */
-        .bg-u { background-color: #ffe6e6; } /* Red Light */
-        .bg-c { background-color: #e6f0ff; } /* Blue Light */
+        /* กำหนดความกว้างคอลัมน์ใหม่ (SOP, 4xTEM Codes, 1xFinal Narrative) */
+        .item-col { width: 25%; } 
+        .sop-col { width: 8%; } 
+        .code-col { width: 10%; } /* 4 x 10% = 40% */
+        .narrative-col { width: 27%; } 
         
-        /* สไตล์สำหรับ Required Field ใน HTML */
+        .bg-t { background-color: #e6ffec; } 
+        .bg-e { background-color: #fff9e6; } 
+        .bg-u { background-color: #ffe6e6; } 
+        .bg-c { background-color: #e6f0ff; } 
+        
         .required-asterisk::after {
             content: " *";
-            color: #ef4444; /* red-500 */
+            color: #ef4444; 
         }
     </style>
 </head>
@@ -132,7 +128,7 @@
             <hr class="my-6">
             
             <h2 class="text-lg font-bold text-gray-800 mb-4">III. Observational Checklist by Flight Phase</h2>
-            <p class="text-sm text-gray-600 mb-4">For each phase, note compliance with SOPs, observed TEM elements, and provide a brief narrative. (Refer to Section II for TEM Codes).</p>
+            <p class="text-sm text-gray-600 mb-4">For each phase, note compliance with SOPs, observed TEM elements, and provide a brief narrative.</p>
             <div id="checklist-container" class="checklist-container">
                 </div>
 
@@ -197,9 +193,10 @@
 
     <script>
         // *** ⚠️ CONFIGURATION: ACTION URL AND MAPPING ⚠️ ***
-        // แทนที่ YOUR_FORM_RESPONSE_URL_HERE ด้วย URL ที่คุณได้ค้นหามา
+        // ACTION URL ที่ถูกต้อง (URL ที่ลงท้ายด้วย /formResponse)
         const GOOGLE_FORM_ACTION_URL = "https://docs.google.com/forms/d/e/1FAIpQLSfmWKqOSxQRksH_m6aA4kgX4oOfK5QI6llIniylyQ8ijBU9ZQ/formResponse"; 
         
+        // MAPPED INPUT ID (ใช้ ID ที่คุณได้ให้มา)
         const INPUT_MAPPING = {
             "observationDate": "entry.527507690",
             "inspectorName": "entry.1805582914",
@@ -905,7 +902,7 @@
             'Countermeasures': TEM_CODES.CM
         };
 
-        // *** III. OBSERVATIONAL CHECKLIST DEFINITION (ส่วนที่ 3) ***
+        // *** III. OBSERVATIONAL CHECKLIST DEFINITION (โครงสร้าง) ***
         const CHECKLIST_DEFINITIONS = [
             { id: 'A', title: 'A. Pre-Flight & Crew Briefing', items: [
                 { id: 'A1', label: '1. Crew Briefing (All Crew - Flight & Cabin)', isGroup: true, subItems: [
@@ -1052,38 +1049,40 @@
             Toast.fire({ icon: icon, title: message });
         }
 
+        // Custom Dropdown Creator
         function createDropdown(name, options, isTEM = false, isSOP = false) {
             const select = document.createElement('select');
             select.name = name;
             select.className = `w-full border rounded-lg bg-white ${isTEM ? 'temp-code-dropdown' : 'sop-dropdown'}`;
-            // ⚠️ REMOVED: Removed 'required' attribute here to bypass browser's default validation on non-selected dropdowns
             
-            // Add initial blank option for Code/Narrative fields or "-- Select --" for others
-            if (isTEM || !isSOP) {
-                const defaultOption = document.createElement('option');
-                defaultOption.value = "";
-                defaultOption.textContent = isTEM ? "Code" : "-- Select --";
-                select.appendChild(defaultOption);
+            if (isSOP) {
+                select.required = true;
+            } else {
+                select.required = false; 
             }
+            
+            const defaultOption = document.createElement('option');
+            defaultOption.value = "";
+            defaultOption.textContent = isTEM ? "Select Code" : (isSOP ? "-- Select --" : "Select");
+            select.appendChild(defaultOption);
 
-            for (const value in options) {
-                const option = document.createElement('option');
-                option.value = options[value]; // Set value as the full code description (for consistency with Google Form Choices)
-                option.textContent = options[value].split(':')[0]; // Display only the code part (e.g., T_TE)
-                select.appendChild(option);
-            }
-            // For SOP, the actual values are Y, N, NA, which are simple labels.
             if (isSOP) {
                  select.innerHTML = '';
+                 select.innerHTML += `<option value="" disabled selected>-- Select --</option>`;
                  ['Y', 'N', 'NA'].forEach(v => {
-                    const option = document.createElement('option');
-                    option.value = v;
-                    option.textContent = v;
-                    select.appendChild(option);
+                    select.innerHTML += `<option value="${v}">${v}</option>`;
                  });
-                 // Re-add required only for SOP field if needed, otherwise rely on the default select
-                 select.required = true;
+            } else {
+                 for (const key in options) {
+                    const option = document.createElement('option');
+                    option.value = options[key]; 
+                    // Display: Show the code (e.g., T_TE) or part of description if code not clear
+                    // Split TEM Code (T_TE: Environmental...) to show only the code (T_TE)
+                    option.textContent = key; 
+                    select.appendChild(option);
+                }
             }
+            
             return select.outerHTML;
         }
 
@@ -1095,64 +1094,48 @@
             let html = '';
             CHECKLIST_DEFINITIONS.forEach(section => {
                 html += `<div class="mb-8">`;
-                html += `<h3 class="text-md font-bold text-white bg-red-500 p-2 rounded-t-lg">${section.title}</h3>`;
+                html += `<h3 class="text-md font-bold text-white bg-red-600 p-2 rounded-t-lg">${section.title}</h3>`;
                 html += `<div class="overflow-x-auto"><table class="checklist-table w-full">`; 
                 html += `<thead><tr>`;
                 html += `<th class="item-col">Check Item / Area of Observation</th>`;
                 html += `<th class="sop-col required-asterisk">SOP Met (Y/N/NA)</th>`;
                 html += `<th class="code-col bg-t">Threats (Code)</th>`;
-                html += `<th class="desc-col bg-t">Describe</th>`;
                 html += `<th class="code-col bg-e">Errors (Code)</th>`;
-                html += `<th class="desc-col bg-e">Describe</th>`;
                 html += `<th class="code-col bg-u">UCS (Code)</th>`;
-                html += `<th class="desc-col bg-u">Describe</th>`;
                 html += `<th class="code-col bg-c">CM (Code)</th>`;
-                html += `<th class="desc-col bg-c">Describe</th>`;
-                html += `<th class="narrative-col">Narrative/Comments</th>`;
+                html += `<th class="narrative-col">Narrative/Comments</th>`; // Single Narrative column
                 html += `</tr></thead><tbody>`;
 
                 section.items.forEach(item => {
-                    // Collect all sub-items, including the item itself if it's not a group (e.g., E3)
                     const itemsToRender = item.isGroup && item.subItems ? item.subItems : [item];
                     
                     if (item.isGroup && item.subItems) {
-                        html += `<tr class="checklist-item-group"><td colspan="11" class="text-sm font-semibold">${item.label}</td></tr>`;
+                        html += `<tr class="checklist-item-group"><td colspan="7" class="text-sm font-semibold">${item.label}</td></tr>`;
                     }
 
                     itemsToRender.forEach(subItem => {
                         const baseName = `${subItem.id}`; 
                         
-                        // SOP Dropdown (required in Google Form, but forced selection in HTML via 'required' attribute)
+                        // Dropdown SOP
                         const sopDropdown = createDropdown(`${baseName}_SOP`, { 'Y': 'Y', 'N': 'N', 'NA': 'NA' }, false, true); 
                         
-                        // TEM Code Dropdowns (Not Required in HTML, rely on Form Action URL Mapping)
-                        const tDropdown = createDropdown(`${baseName}_T`, TEM_OPTIONS_MAP.THREATS, true);
-                        const tNarrative = createTextArea(`${baseName}_N_T`, 'Threat narrative...');
-                        
-                        const eDropdown = createDropdown(`${baseName}_E`, TEM_OPTIONS_MAP.ERRORS, true);
-                        const eNarrative = createTextArea(`${baseName}_N_E`, 'Error narrative...');
-
+                        // TEM Code Dropdowns
+                        const tDropdown = createDropdown(`${baseName}_T`, TEM_OPTIONS_MAP.Threats, true);
+                        const eDropdown = createDropdown(`${baseName}_E`, TEM_OPTIONS_MAP.Errors, true);
                         const ucsDropdown = createDropdown(`${baseName}_U`, TEM_OPTIONS_MAP.UCS, true);
-                        const ucsNarrative = createTextArea(`${baseName}_N_U`, 'UCS narrative...');
-
                         const cmDropdown = createDropdown(`${baseName}_C`, TEM_OPTIONS_MAP.CM, true);
-                        const cmNarrative = createTextArea(`${baseName}_N_C`, 'CM narrative...');
 
-                        // Final Narrative field (mapped to the generic Narrative ID if exists, otherwise left blank)
-                        const mainNarrative = createTextArea(`${baseName}_N`, 'Overall comments...');
+                        // Single Narrative/Comment (MAPPED to the first narrative field: N_T)
+                        const mainNarrative = createTextArea(`${baseName}_N_T`, 'Narrative/Describe here...'); 
 
                         html += `<tr class="checklist-item text-xs">`;
                         html += `<td class="font-normal">${subItem.label}</td>`;
                         html += `<td>${sopDropdown}</td>`;
                         html += `<td class="bg-t">${tDropdown}</td>`;
-                        html += `<td class="bg-t">${tNarrative}</td>`;
                         html += `<td class="bg-e">${eDropdown}</td>`;
-                        html += `<td class="bg-e">${eNarrative}</td>`;
                         html += `<td class="bg-u">${ucsDropdown}</td>`;
-                        html += `<td class="bg-u">${ucsNarrative}</td>`;
                         html += `<td class="bg-c">${cmDropdown}</td>`;
-                        html += `<td class="bg-c">${cmNarrative}</td>`;
-                        html += `<td>${mainNarrative}</td>`;
+                        html += `<td class="bg-t">${mainNarrative}</td>`; // Use the main narrative field
                         html += `</tr>`;
                     });
                 });
@@ -1164,11 +1147,6 @@
 
 
         // PWA/Offline Functions (Unchanged)
-        function showToast(message, icon = 'success') {
-            const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, timerProgressBar: true, });
-            Toast.fire({ icon: icon, title: message });
-        }
-
         function showSyncConfirmation() {
             const submissions = JSON.parse(localStorage.getItem('pendingSubmissions') || '[]');
             if (submissions.length === 0 || !navigator.onLine || hasShownSyncPrompt) {
@@ -1252,11 +1230,9 @@
             for (const submission of submissions) {
                 const formData = new FormData();
                 
-                // Append all data from the submission object using the INPUT_MAPPING
                 for (const key in submission) {
                     const entryId = INPUT_MAPPING[key];
                     if (entryId) {
-                        // Ensure that all values, including blank ones from unselected dropdowns, are sent as strings
                         formData.append(entryId, submission[key] || ""); 
                     }
                 }
@@ -1312,10 +1288,28 @@
             const allInputs = form.querySelectorAll('select, textarea, input[type="text"], input[type="number"], input[type="date"]');
             allInputs.forEach(input => {
                 const name = input.name;
+                const value = formData.get(name) || "";
+                
                 // ดึงข้อมูลทั้งหมดที่สร้างแบบไดนามิก (A11_SOP, A11_T, A11_N_T, etc.)
+                // ใช้ regex เพื่อดึงชื่อ field ที่มีรูปแบบ [A-G][0-9][0-9]_[A-Z]_?[A-Z]?
                 if (name.match(/^[A-G][0-9][0-9]_[A-Z]_?[A-Z]?$/) || name.match(/^E3_[A-Z]_?[A-Z]?$/)) { 
-                    // เก็บค่า หรือเก็บค่าว่าง ('') ถ้าไม่มีการเลือก/กรอก
-                    data[name] = formData.get(name) || ""; 
+                    
+                    // ⚠️ IMPORTANT: Custom logic for mapping the single HTML Narrative field
+                    // The HTML uses the N_T name for the single textarea. We copy this value 
+                    // to all four narrative fields (N_T, N_E, N_U, N_C) as expected by the Google Form structure.
+                    if (name.match(/_N_T$/)) {
+                        const base = name.replace('_N_T', '');
+                        data[`${base}_N_T`] = value; // N_T
+                        data[`${base}_N_E`] = value; // N_E
+                        data[`${base}_N_U`] = value; // N_U
+                        data[`${base}_N_C`] = value; // N_C
+                    } else if (name.match(/_N_E|_N_U|_N_C$/)) {
+                        // Skip the redundant N_E, N_U, N_C names from the form data 
+                        // because their values will be set by the N_T field mapping above.
+                    } else {
+                        // Collect all other fields (SOP, T, E, U, C dropdowns)
+                        data[name] = value;
+                    }
                 }
             });
             
