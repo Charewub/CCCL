@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -16,46 +17,48 @@
         .offline { background-color: #e74c3c; }
         /* สไตล์สำหรับตาราง Checklist */
         .checklist-container { overflow-x: auto; }
-        .checklist-table { min-width: 1200px; } 
-        .checklist-table th, .checklist-table td { padding: 4px 6px; border: 1px solid #e5e7eb; vertical-align: top; }
-        .checklist-table th { background-color: #f3f4f6; text-align: left; font-size: 0.75rem; color: #374151; font-weight: 600; }
+        .checklist-table { min-width: 900px; } /* ลดขนาดตารางให้กระชับขึ้น */
+        .checklist-table th, .checklist-table td { padding: 4px; border: 1px solid #e5e7eb; vertical-align: middle; } /* ลด padding */
+        .checklist-table th { background-color: #f3f4f6; text-align: left; font-size: 0.7rem; color: #374151; font-weight: 600; } /* ลดขนาด font header */
         .checklist-item { background-color: #ffffff; }
-        .checklist-item-group td { background-color: #f0f0f0; font-weight: bold; font-size: 0.875rem; padding: 8px 6px; }
-        .temp-code-dropdown, .sop-dropdown { 
-            font-size: 0.7rem; 
-            padding: 2px; 
-            height: 30px; 
-            border-radius: 4px; 
-            border: 1px solid #d1d5db;
-            min-width: 60px; 
-            max-width: 100%;
+        .checklist-item-group td { background-color: #f0f0f0; font-weight: bold; font-size: 0.8rem; padding: 6px 4px; } /* ลดขนาด font group */
+
+        /* ปรับขนาด Dropdown ให้ใหญ่และกดง่ายขึ้น */
+        .tem-dropdown, .sop-dropdown {
+             font-size: 0.75rem; /* เพิ่มขนาด font */
+             padding: 4px 6px; /* เพิ่ม padding ให้ใหญ่ขึ้น */
+             height: 38px; /* เพิ่มความสูงเพื่อให้กดง่าย */
+             border-radius: 6px;
+             border: 1px solid #d1d5db;
+             min-width: 65px; /* เพิ่มความกว้างขั้นต่ำ */
+             max-width: 100%;
         }
-        .narrative-textarea { 
-            font-size: 0.7rem; 
-            padding: 3px; 
-            min-height: 50px; 
-            resize: vertical; 
-            line-height: 1.2;
+        .narrative-textarea {
+             font-size: 0.7rem;
+             padding: 3px;
+             min-height: 38px; /* ปรับให้พอดีกับ dropdown */
+             resize: vertical;
+             line-height: 1.2;
         }
-        /* กำหนดความกว้างคอลัมน์ใหม่ (SOP, 4xTEM Codes, 1xFinal Narrative) */
-        .item-col { width: 25%; } 
-        .sop-col { width: 8%; } 
+        
+        /* กำหนดความกว้างคอลัมน์ใหม่ให้กระชับ */
+        .item-col { width: 25%; font-size: 0.75rem; } /* ลดความกว้าง */
+        .sop-col { width: 9%; } 
         .code-col { width: 10%; } /* 4 x 10% = 40% */
-        .narrative-col { width: 27%; } 
-        
-        .bg-t { background-color: #e6ffec; } 
-        .bg-e { background-color: #fff9e6; } 
-        .bg-u { background-color: #ffe6e6; } 
-        .bg-c { background-color: #e6f0ff; } 
-        
+        .narrative-col { width: 26%; }
+
+        .bg-t { background-color: #e6ffec; }
+        .bg-e { background-color: #fff9e6; }
+        .bg-u { background-color: #ffe6e6; }
+        .bg-c { background-color: #e6f0ff; }
+
+        /* ลบดาวแดง */
         .required-asterisk::after {
-            content: " *";
-            color: #ef4444; 
+            content: none !important;
         }
     </style>
 </head>
 <body class="bg-gray-100">
-
     <div class="container mx-auto max-w-4xl p-2 sm:p-4">
         <header class="bg-red-600 text-white p-4 rounded-lg shadow-md mb-4 flex justify-between items-center">
             <div>
@@ -67,47 +70,43 @@
                 <span id="status-dot" class="status-dot offline"></span>
             </div>
         </header>
-
         <form id="checklist-form" class="bg-white p-4 sm:p-6 rounded-lg shadow-md">
-            
-            <h2 class="text-lg font-bold text-gray-800 mb-4">I. Flight & Audit Details</h2>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                <div>
-                    <label for="observation-date" class="block text-gray-700 font-bold mb-2 required-asterisk">Date of Observation:</label>
+                        <h2 class="text-lg font-bold text-gray-800 mb-4">I. Flight & Audit Details</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4 text-sm"> <div>
+                    <label for="observation-date" class="block text-gray-700 font-bold mb-1 required-asterisk">Date of Observation:</label>
                     <input type="date" id="observation-date" name="observation-date" class="w-full px-3 py-2 border rounded-lg" required>
                 </div>
                 <div>
-                    <label for="flight-number-new" class="block text-gray-700 font-bold mb-2 required-asterisk">Flight Number:</label>
+                    <label for="flight-number-new" class="block text-gray-700 font-bold mb-1 required-asterisk">Flight Number:</label>
                     <input type="text" id="flight-number-new" name="flight-number-new" class="w-full px-3 py-2 border rounded-lg" placeholder="e.g., FD3001" required>
                 </div>
                 <div>
-                    <label for="route-from" class="block text-gray-700 font-bold mb-2 required-asterisk">Route (From):</label>
+                    <label for="route-from" class="block text-gray-700 font-bold mb-1 required-asterisk">Route (From):</label>
                     <input type="text" id="route-from" name="route-from" class="w-full px-3 py-2 border rounded-lg" placeholder="e.g., BKK" required>
                 </div>
                 <div>
-                    <label for="route-to" class="block text-gray-700 font-bold mb-2 required-asterisk">Route (To):</label>
+                    <label for="route-to" class="block text-gray-700 font-bold mb-1 required-asterisk">Route (To):</label>
                     <input type="text" id="route-to" name="route-to" class="w-full px-3 py-2 border rounded-lg" placeholder="e.g., CNX" required>
                 </div>
                 <div>
-                    <label for="aircraft-type" class="block text-gray-700 font-bold mb-2 required-asterisk">Aircraft Type:</label>
+                    <label for="aircraft-type" class="block text-gray-700 font-bold mb-1 required-asterisk">Aircraft Type:</label>
                     <input type="text" id="aircraft-type" name="aircraft-type" class="w-full px-3 py-2 border rounded-lg" placeholder="e.g., A320" required>
                 </div>
                 <div>
-                    <label for="observer-id" class="block text-gray-700 font-bold mb-2">Observer ID (if applicable):</label>
+                    <label for="observer-id" class="block text-gray-700 font-bold mb-1">Observer ID (if applicable):</label>
                     <input type="text" id="observer-id" name="observer-id" class="w-full px-3 py-2 border rounded-lg" placeholder="e.g., LOSA001">
                 </div>
                 <div>
-                    <label for="crew-observed" class="block text-gray-700 font-bold mb-2 required-asterisk">No. of Cabin Crew Observed:</label>
+                    <label for="crew-observed" class="block text-gray-700 font-bold mb-1 required-asterisk">No. of Cabin Crew Observed:</label>
                     <input type="number" id="crew-observed" name="crew-observed" class="w-full px-3 py-2 border rounded-lg" placeholder="e.g., 4" required>
                 </div>
                 <div>
-                    <label for="load-factor" class="block text-gray-700 font-bold mb-2">Load Factor (Approx. % full):</label>
+                    <label for="load-factor" class="block text-gray-700 font-bold mb-1">Load Factor (Approx. % full):</label>
                     <input type="text" id="load-factor" name="load-factor" class="w-full px-3 py-2 border rounded-lg" placeholder="e.g., 85%">
                 </div>
             </div>
-
-            <div class="mb-4">
-                <label for="inspector-name" class="block text-gray-700 font-bold mb-2 required-asterisk">Inspector Name:</label>
+            <div class="mb-4 text-sm">
+                <label for="inspector-name" class="block text-gray-700 font-bold mb-1 required-asterisk">Inspector Name:</label>
                 <select id="inspector-name" name="inspector-name" class="w-full px-3 py-2 border rounded-lg bg-white" required>
                     <option value="" disabled selected>-- Select Name --</option>
                     <option value="Naparin Boonchuaylue">Naparin Boonchuaylue</option>
@@ -123,62 +122,55 @@
                     <option value="Busabong Promkhuntod">Busabong Promkhuntod</option>
                 </select>
             </div>
-            <input type="hidden" id="flight-number" name="flight-number" value=""> 
-
+            <input type="hidden" id="flight-number" name="flight-number" value="">
             <hr class="my-6">
-            
-            <h2 class="text-lg font-bold text-gray-800 mb-4">III. Observational Checklist by Flight Phase</h2>
+                        <h2 class="text-lg font-bold text-gray-800 mb-4">III. Observational Checklist by Flight Phase</h2>
             <p class="text-sm text-gray-600 mb-4">For each phase, note compliance with SOPs, observed TEM elements, and provide a brief narrative.</p>
             <div id="checklist-container" class="checklist-container">
                 </div>
-
             <hr class="my-6">
-
             <h2 class="text-lg font-bold text-gray-800 mb-4">IV. Overall Observations & Summary</h2>
-            <div class="mb-4">
-                <label for="sig-threat" class="block text-gray-700 font-bold mb-2">Most significant Threat(s) observed during the flight:</label>
+            <div class="mb-4 text-sm">
+                <label for="sig-threat" class="block text-gray-700 font-bold mb-1">Most significant Threat(s) observed during the flight:</label>
                 <textarea id="sig-threat" name="sig-threat" rows="2" class="w-full px-3 py-2 border rounded-lg"></textarea>
             </div>
-            <div class="mb-4">
-                <label for="sig-error" class="block text-gray-700 font-bold mb-2">Most significant Error(s) observed (or potential errors successfully managed):</label>
+            <div class="mb-4 text-sm">
+                <label for="sig-error" class="block text-gray-700 font-bold mb-1">Most significant Error(s) observed (or potential errors successfully managed):</label>
                 <textarea id="sig-error" name="sig-error" rows="2" class="w-full px-3 py-2 border rounded-lg"></textarea>
             </div>
-            <div class="mb-4">
-                <label for="effective-cm" class="block text-gray-700 font-bold mb-2">Most effective Countermeasure(s) observed:</label>
+            <div class="mb-4 text-sm">
+                <label for="effective-cm" class="block text-gray-700 font-bold mb-1">Most effective Countermeasure(s) observed:</label>
                 <textarea id="effective-cm" name="effective-cm" rows="2" class="w-full px-3 py-2 border rounded-lg"></textarea>
             </div>
-            <div class="mb-4">
-                <label for="general-comments" class="block text-gray-700 font-bold mb-2">General comments on crew performance, teamwork, and adherence to SOPs:</label>
+            <div class="mb-4 text-sm">
+                <label for="general-comments" class="block text-gray-700 font-bold mb-1">General comments on crew performance, teamwork, and adherence to SOPs:</label>
                 <textarea id="general-comments" name="general-comments" rows="3" class="w-full px-3 py-2 border rounded-lg"></textarea>
             </div>
-            <div class="mb-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="mb-4 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                 <div>
-                    <label for="areas-of-strength" class="block text-gray-700 font-bold mb-2">Areas of strength:</label>
+                    <label for="areas-of-strength" class="block text-gray-700 font-bold mb-1">Areas of strength:</label>
                     <textarea id="areas-of-strength" name="areas-of-strength" rows="2" class="w-full px-3 py-2 border rounded-lg"></textarea>
                 </div>
                 <div>
-                    <label for="opportunities-for-improvement" class="block text-gray-700 font-bold mb-2">Opportunities for improvement (e.g., training, procedures, equipment):</label>
+                    <label for="opportunities-for-improvement" class="block text-gray-700 font-bold mb-1">Opportunities for improvement (e.g., training, procedures, equipment):</label>
                     <textarea id="opportunities-for-improvement" name="opportunities-for-improvement" rows="2" class="w-full px-3 py-2 border rounded-lg"></textarea>
                 </div>
             </div>
-            <div class="mb-4">
-                <label for="observer-signature" class="block text-gray-700 font-bold mb-2">Observer's Signature (If applicable):</label>
+            <div class="mb-4 text-sm">
+                <label for="observer-signature" class="block text-gray-700 font-bold mb-1">Observer's Signature (If applicable):</label>
                 <input type="text" id="observer-signature" name="observer-signature" class="w-full px-3 py-2 border rounded-lg">
             </div>
-            <div class="mb-4">
-                <label for="report-completion-date" class="block text-gray-700 font-bold mb-2 required-asterisk">Date of Report Completion:</label>
+            <div class="mb-4 text-sm">
+                <label for="report-completion-date" class="block text-gray-700 font-bold mb-1 required-asterisk">Date of Report Completion:</label>
                 <input type="date" id="report-completion-date" name="report-completion-date" class="w-full px-3 py-2 border rounded-lg" required>
             </div>
             <p class="text-xs text-gray-500 italic">The purpose of this tool is to contribute to the continuous improvement of our cabin safety performance and the effectiveness of our training programs. Your diligence in ensuring its proper adaptation and approved use is crucial for maintaining Thai AirAsia's commitment to the highest safety standards.</p>
-
             <hr class="my-6">
-
             <button type="submit" class="w-full bg-red-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-red-700 mt-6">
                 Save Checklist
             </button>
         </form>
-        
-        <div class="mt-6">
+                <div class="mt-6">
             <div class="flex justify-between items-center mb-2">
                  <h2 class="text-lg sm:text-xl font-bold text-gray-800">Pending Sync (<span id="pending-count">0</span>)</h2>
                  <button id="manual-sync-btn" class="bg-green-500 hover:bg-green-600 text-white font-bold py-1 px-3 rounded text-sm hidden">
@@ -190,12 +182,10 @@
             </div>
         </div>
     </div>
-
     <script>
         // *** ⚠️ CONFIGURATION: ACTION URL AND MAPPING ⚠️ ***
-        // ACTION URL ที่ถูกต้อง (URL ที่ลงท้ายด้วย /formResponse)
-        const GOOGLE_FORM_ACTION_URL = "https://docs.google.com/forms/d/e/1FAIpQLSfmWKqOSxQRksH_m6aA4kgX4oOfK5QI6llIniylyQ8ijBU9ZQ/formResponse"; 
-        
+        const GOOGLE_FORM_ACTION_URL = "https://docs.google.com/forms/d/e/1FAIpQLSfmWKqOSxQRksH_m6aA4kgX4oOfK5QI6llIniylyQ8ijBU9ZQ/formResponse";
+
         // MAPPED INPUT ID (ใช้ ID ที่คุณได้ให้มา)
         const INPUT_MAPPING = {
             "observationDate": "entry.527507690",
@@ -1049,37 +1039,38 @@
             Toast.fire({ icon: icon, title: message });
         }
 
-        // Custom Dropdown Creator
+        // Custom Dropdown Creator (ใช้สำหรับ SOP และ TEM Codes)
         function createDropdown(name, options, isTEM = false, isSOP = false) {
             const select = document.createElement('select');
             select.name = name;
-            select.className = `w-full border rounded-lg bg-white ${isTEM ? 'temp-code-dropdown' : 'sop-dropdown'}`;
-            
-            if (isSOP) {
-                select.required = true;
-            } else {
-                select.required = false; 
-            }
-            
+            select.className = `w-full border rounded-lg bg-white ${isTEM ? 'tem-dropdown' : 'sop-dropdown'}`;
+            select.required = isSOP;
+
             const defaultOption = document.createElement('option');
             defaultOption.value = "";
-            defaultOption.textContent = isTEM ? "Select Code" : (isSOP ? "-- Select --" : "Select");
+            defaultOption.textContent = isTEM ? "-- Code --" : (isSOP ? "-- Select --" : "Select");
+            defaultOption.disabled = true;
+            defaultOption.selected = true;
             select.appendChild(defaultOption);
 
+
             if (isSOP) {
-                 select.innerHTML = '';
-                 select.innerHTML += `<option value="" disabled selected>-- Select --</option>`;
-                 ['Y', 'N', 'NA'].forEach(v => {
+                // Options for Y/N/NA
+                ['Y', 'N', 'NA'].forEach(v => {
                     select.innerHTML += `<option value="${v}">${v}</option>`;
-                 });
-            } else {
-                 for (const key in options) {
-                    const option = document.createElement('option');
-                    option.value = options[key]; 
-                    // Display: Show the code (e.g., T_TE) or part of description if code not clear
-                    // Split TEM Code (T_TE: Environmental...) to show only the code (T_TE)
-                    option.textContent = key; 
-                    select.appendChild(option);
+                });
+            } else if (isTEM) {
+                // Options for TEM Codes (Threats, Errors, UCS, Countermeasures)
+                for (const code in options) {
+                    if (options.hasOwnProperty(code)) {
+                        const description = options[code];
+                        const option = document.createElement('option');
+                        // Value sent to Google Form: The full description
+                        option.value = description;
+                        // Displayed text: The short code (e.g., T_TE)
+                        option.textContent = code;
+                        select.appendChild(option);
+                    }
                 }
             }
             
@@ -1095,8 +1086,8 @@
             CHECKLIST_DEFINITIONS.forEach(section => {
                 html += `<div class="mb-8">`;
                 html += `<h3 class="text-md font-bold text-white bg-red-600 p-2 rounded-t-lg">${section.title}</h3>`;
-                html += `<div class="overflow-x-auto"><table class="checklist-table w-full">`; 
-                html += `<thead><tr>`;
+                html += `<div class="overflow-x-auto"><table class="checklist-table w-full">`;
+                 html += `<thead><tr>`;
                 html += `<th class="item-col">Check Item / Area of Observation</th>`;
                 html += `<th class="sop-col required-asterisk">SOP Met (Y/N/NA)</th>`;
                 html += `<th class="code-col bg-t">Threats (Code)</th>`;
@@ -1108,29 +1099,31 @@
 
                 section.items.forEach(item => {
                     const itemsToRender = item.isGroup && item.subItems ? item.subItems : [item];
-                    
+
                     if (item.isGroup && item.subItems) {
                         html += `<tr class="checklist-item-group"><td colspan="7" class="text-sm font-semibold">${item.label}</td></tr>`;
                     }
 
                     itemsToRender.forEach(subItem => {
-                        const baseName = `${subItem.id}`; 
-                        
+                        const baseName = `${subItem.id}`;
+
                         // Dropdown SOP
-                        const sopDropdown = createDropdown(`${baseName}_SOP`, { 'Y': 'Y', 'N': 'N', 'NA': 'NA' }, false, true); 
-                        
-                        // TEM Code Dropdowns
-                        const tDropdown = createDropdown(`${baseName}_T`, TEM_OPTIONS_MAP.Threats, true);
-                        const eDropdown = createDropdown(`${baseName}_E`, TEM_OPTIONS_MAP.Errors, true);
-                        const ucsDropdown = createDropdown(`${baseName}_U`, TEM_OPTIONS_MAP.UCS, true);
-                        const cmDropdown = createDropdown(`${baseName}_C`, TEM_OPTIONS_MAP.CM, true);
+                        // Note: ต้องส่ง options ว่างไป ถ้า isSOP เป็น true
+                        const sopDropdown = createDropdown(`${baseName}_SOP`, {}, false, true);
+
+                        // TEM Code Dropdowns (Single Select)
+                        const tDropdown = createDropdown(`${baseName}_T`, TEM_OPTIONS_MAP.Threats, true, false);
+                        const eDropdown = createDropdown(`${baseName}_E`, TEM_OPTIONS_MAP.Errors, true, false);
+                        const ucsDropdown = createDropdown(`${baseName}_U`, TEM_OPTIONS_MAP.UCS, true, false);
+                        const cmDropdown = createDropdown(`${baseName}_C`, TEM_OPTIONS_MAP.CM, true, false);
 
                         // Single Narrative/Comment (MAPPED to the first narrative field: N_T)
-                        const mainNarrative = createTextArea(`${baseName}_N_T`, 'Narrative/Describe here...'); 
+                        const mainNarrative = createTextArea(`${baseName}_N_T`, 'Narrative/Describe here...');
 
                         html += `<tr class="checklist-item text-xs">`;
                         html += `<td class="font-normal">${subItem.label}</td>`;
                         html += `<td>${sopDropdown}</td>`;
+                        // ใช้ Dropdown ที่สร้างใหม่
                         html += `<td class="bg-t">${tDropdown}</td>`;
                         html += `<td class="bg-e">${eDropdown}</td>`;
                         html += `<td class="bg-u">${ucsDropdown}</td>`;
@@ -1144,7 +1137,6 @@
 
             checklistContainer.innerHTML = html;
         }
-
 
         // PWA/Offline Functions (Unchanged)
         function showSyncConfirmation() {
@@ -1164,7 +1156,6 @@
                 }
             });
         }
-
         function updateOnlineStatus() {
             const isOnline = navigator.onLine;
             statusText.textContent = isOnline ? 'Online' : 'Offline';
@@ -1176,7 +1167,6 @@
             }
             updatePendingUI();
         }
-
         function saveDataLocally(data) {
             const submissions = JSON.parse(localStorage.getItem('pendingSubmissions') || '[]');
             submissions.push(data);
@@ -1184,11 +1174,10 @@
             updatePendingUI();
             Swal.fire({ title: 'Checklist Saved!', text: 'Data saved locally. Will sync when online.', icon: 'success', confirmButtonColor: '#DC2626', confirmButtonText: 'OK' });
         }
-
         function updatePendingUI() {
             const submissions = JSON.parse(localStorage.getItem('pendingSubmissions') || '[]');
             pendingCount.textContent = submissions.length;
-            pendingList.innerHTML = submissions.length === 0 ? '<p class="text-gray-500 text-center">No pending items.</p>' : submissions.map((sub) => 
+            pendingList.innerHTML = submissions.length === 0 ? '<p class="text-gray-500 text-center">No pending items.</p>' : submissions.map((sub) =>
                 `<div class="flex justify-between items-center p-2 border-b">
                     <div>
                         <strong class="text-sm">${sub.inspectorName} - FD${sub.flightNumberNew || sub.flightNumber || 'N/A'}</strong>
@@ -1202,7 +1191,6 @@
             const isOnline = navigator.onLine;
             manualSyncBtn.classList.toggle('hidden', !isOnline || submissions.length === 0);
         }
-
         function deletePendingItem(timestamp) {
              Swal.fire({
                 title: 'Confirm Deletion', text: "Are you sure you want to delete this record?", icon: 'warning',
@@ -1218,7 +1206,6 @@
                 }
             })
         }
-
         async function syncData() {
             if (!navigator.onLine) return;
             let submissions = JSON.parse(localStorage.getItem('pendingSubmissions') || '[]');
@@ -1229,14 +1216,18 @@
 
             for (const submission of submissions) {
                 const formData = new FormData();
-                
+
                 for (const key in submission) {
                     const entryId = INPUT_MAPPING[key];
+                    const value = submission[key];
+
                     if (entryId) {
-                        formData.append(entryId, submission[key] || ""); 
+                        // For Single-choice Dropdown (now used for TEM), just append the single value.
+                        // (Unlike the previous checkbox solution which required appending multiple times for the same entryId).
+                        formData.append(entryId, value || "");
                     }
                 }
-                
+
                 try {
                     await fetch(GOOGLE_FORM_ACTION_URL, {
                         method: 'POST', body: formData, mode: 'no-cors'
@@ -1245,7 +1236,7 @@
                 } catch (error) {
                     console.error('Sync Error:', error);
                     showToast('Sync failed. Please check connection and try again.', 'error');
-                    break;  
+                    break;
                 }
             }
 
@@ -1262,7 +1253,7 @@
             const formData = new FormData(form);
             const data = { timestamp: new Date().toISOString() };
 
-            // I. Flight & Audit Details & IV. Summary (ใช้ชื่อฟิลด์จาก HTML)
+            // I. Flight & Audit Details & IV. Summary
             data['observationDate'] = formData.get('observation-date');
             data['flightNumberNew'] = formData.get('flight-number-new');
             data['routeFrom'] = formData.get('route-from');
@@ -1272,7 +1263,7 @@
             data['crewObserved'] = formData.get('crew-observed');
             data['loadFactor'] = formData.get('load-factor');
             data['inspectorName'] = formData.get('inspector-name');
-            data['flightNumber'] = formData.get('flight-number-new'); 
+            data['flightNumber'] = formData.get('flight-number-new');
 
             data['sigThreat'] = formData.get('sig-threat') || "";
             data['sigError'] = formData.get('sig-error') || "";
@@ -1283,43 +1274,35 @@
             data['observerSignature'] = formData.get('observer-signature') || "";
             data['reportCompletionDate'] = formData.get('report-completion-date');
 
-
-            // III. Observational Checklist (Dynamic Items)
+            // III. Observational Checklist (Dynamic Items - Dropdowns and Textarea)
             const allInputs = form.querySelectorAll('select, textarea, input[type="text"], input[type="number"], input[type="date"]');
+
             allInputs.forEach(input => {
                 const name = input.name;
                 const value = formData.get(name) || "";
-                
+
                 // ดึงข้อมูลทั้งหมดที่สร้างแบบไดนามิก (A11_SOP, A11_T, A11_N_T, etc.)
                 // ใช้ regex เพื่อดึงชื่อ field ที่มีรูปแบบ [A-G][0-9][0-9]_[A-Z]_?[A-Z]?
-                if (name.match(/^[A-G][0-9][0-9]_[A-Z]_?[A-Z]?$/) || name.match(/^E3_[A-Z]_?[A-Z]?$/)) { 
-                    
+                if (name.match(/^[A-G][0-9][0-9]_[A-Z]$/) || name.match(/^E3_[A-Z]$/)) {
+                    // Collect single-select dropdowns (SOP, T, E, U, C)
+                    data[name] = value;
+                } else if (name.match(/_N_T$/) || name.match(/^E3_N_T$/)) {
                     // ⚠️ IMPORTANT: Custom logic for mapping the single HTML Narrative field
-                    // The HTML uses the N_T name for the single textarea. We copy this value 
-                    // to all four narrative fields (N_T, N_E, N_U, N_C) as expected by the Google Form structure.
-                    if (name.match(/_N_T$/)) {
-                        const base = name.replace('_N_T', '');
-                        data[`${base}_N_T`] = value; // N_T
-                        data[`${base}_N_E`] = value; // N_E
-                        data[`${base}_N_U`] = value; // N_U
-                        data[`${base}_N_C`] = value; // N_C
-                    } else if (name.match(/_N_E|_N_U|_N_C$/)) {
-                        // Skip the redundant N_E, N_U, N_C names from the form data 
-                        // because their values will be set by the N_T field mapping above.
-                    } else {
-                        // Collect all other fields (SOP, T, E, U, C dropdowns)
-                        data[name] = value;
-                    }
+                    const base = name.replace('_N_T', '');
+                    data[`${base}_N_T`] = value; // N_T
+                    data[`${base}_N_E`] = value; // N_E
+                    data[`${base}_N_U`] = value; // N_U
+                    data[`${base}_N_C`] = value; // N_C
                 }
             });
-            
+
             saveDataLocally(data);
             form.reset();
         });
 
         document.addEventListener('DOMContentLoaded', () => {
             generateChecklistHTML(); // สร้างตาราง checklist
-            updateOnlineStatus(); 
+            updateOnlineStatus();
             updatePendingUI();
 
             pendingList.addEventListener('click', (e) => {
@@ -1327,7 +1310,7 @@
                     deletePendingItem(e.target.dataset.timestamp);
                 }
             });
-            
+
             manualSyncBtn.addEventListener('click', syncData);
 
             if ('serviceWorker' in navigator) {
@@ -1335,14 +1318,53 @@
                 if (window.location.protocol === 'blob:') {
                     console.warn("Service Worker registration skipped: Cannot register from a 'blob:' URL. This is expected in preview environments and will work correctly on the deployed site.");
                 } else {
-                    navigator.serviceWorker.register('sw.js')
-                        .then(reg => console.log('Service Worker registered successfully'))
-                        .catch(err => console.error('Service worker registration failed:', err));
+                    // Ensure sw.js is available if this section is needed
+                    // navigator.serviceWorker.register('sw.js')
+                    //     .then(reg => console.log('Service Worker registered successfully'))
+                    //     .catch(err => console.error('Service worker registration failed:', err));
                 }
             }
             window.addEventListener('online', updateOnlineStatus);
             window.addEventListener('offline', updateOnlineStatus);
         });
     </script>
+<!-- Code injected by live-server -->
+<script>
+	// <![CDATA[  <-- For SVG support
+	if ('WebSocket' in window) {
+		(function () {
+			function refreshCSS() {
+				var sheets = [].slice.call(document.getElementsByTagName("link"));
+				var head = document.getElementsByTagName("head")[0];
+				for (var i = 0; i < sheets.length; ++i) {
+					var elem = sheets[i];
+					var parent = elem.parentElement || head;
+					parent.removeChild(elem);
+					var rel = elem.rel;
+					if (elem.href && typeof rel != "string" || rel.length == 0 || rel.toLowerCase() == "stylesheet") {
+						var url = elem.href.replace(/(&|\?)_cacheOverride=\d+/, '');
+						elem.href = url + (url.indexOf('?') >= 0 ? '&' : '?') + '_cacheOverride=' + (new Date().valueOf());
+					}
+					parent.appendChild(elem);
+				}
+			}
+			var protocol = window.location.protocol === 'http:' ? 'ws://' : 'wss://';
+			var address = protocol + window.location.host + window.location.pathname + '/ws';
+			var socket = new WebSocket(address);
+			socket.onmessage = function (msg) {
+				if (msg.data == 'reload') window.location.reload();
+				else if (msg.data == 'refreshcss') refreshCSS();
+			};
+			if (sessionStorage && !sessionStorage.getItem('IsThisFirstTime_Log_From_LiveServer')) {
+				console.log('Live reload enabled.');
+				sessionStorage.setItem('IsThisFirstTime_Log_From_LiveServer', true);
+			}
+		})();
+	}
+	else {
+		console.error('Upgrade your browser. This Browser is NOT supported WebSocket for Live-Reloading.');
+	}
+	// ]]>
+</script>
 </body>
 </html>
