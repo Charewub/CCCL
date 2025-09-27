@@ -989,10 +989,12 @@
                     { id: 'D31', label: '- Medical situations' },
                     { id: 'D32', label: '- Unruly/disruptive passengers' },
                     { id: 'D33', label: '- Others' }
-                ]},
+                ]}
+                ,
                 { id: 'D4', label: '4. Communication with Flight Crew (if any)', isGroup: true, subItems: [
                     { id: 'D41', label: '- Reporting irregularities (If any)' }
-                ]},
+                ]}
+                ,
                 { id: 'D5', label: '5. Turbulence Management', isGroup: true, subItems: [
                     { id: 'D51', label: '- Follow turbulance management procedure' },
                     { id: 'D52', label: '- Secure self' }
@@ -1230,6 +1232,8 @@
                 }
             })
         }
+        
+        // *** แก้ไข: ปรับ syncData ให้ส่งค่า Checkbox เป็น String เดียว ***
         async function syncData() {
             if (!navigator.onLine) return;
             let submissions = JSON.parse(localStorage.getItem('pendingSubmissions') || '[]');
@@ -1239,27 +1243,23 @@
             const successfullySynced = [];
 
             for (const submission of submissions) {
-    const formData = new FormData();
-    
-    for (const key in submission) {
-        const entryId = INPUT_MAPPING[key];
-        const value = submission[key];
-        
-        if (entryId) {
-            // **การปรับปรุงที่นี่:** ตรวจสอบว่าเป็น Array (จาก Checkbox) หรือไม่
-            if (Array.isArray(value)) {
-                // ถ้าเป็น Checkbox ที่ติ๊กหลายอัน ให้ append แต่ละค่าไปยัง entry ID เดิม
-                value.forEach(v => {
-                    formData.append(entryId, v || "");
-                });
-            } else {
-                // ถ้าเป็นค่าเดียว (SOP, Narrative, Details) ให้ append ค่าเดียว
-                formData.append(entryId, value || "");
-            }
-        }
-    }
+                const formData = new FormData();
+
+                for (const key in submission) {
+                    const entryId = INPUT_MAPPING[key];
+                    const value = submission[key];
+                    
+                    if (entryId) {
+                        // ส่งค่าทั้งหมดเป็น String เดียว (รวมถึงค่าที่เคยเป็น Array จาก Checkbox)
+                        // ไม่ต้องใช้ Array.isArray เนื่องจากถูกแปลงเป็น String แล้วใน submit handler
+                        if (value !== null && value !== "") { 
+                            formData.append(entryId, value);
+                        }
+                    }
+                }
 
                 try {
+                    // ใช้ fetch API ในการส่งข้อมูล
                     await fetch(GOOGLE_FORM_ACTION_URL, {
                         method: 'POST', body: formData, mode: 'no-cors'
                     });
@@ -1279,6 +1279,7 @@
             }
         }
 
+        // *** แก้ไข: ปรับ form.addEventListener เพื่อแปลง Checkbox เป็น String ***
         form.addEventListener('submit', (e) => {
             e.preventDefault();
             const formData = new FormData(form);
@@ -1305,51 +1306,59 @@
             data['observerSignature'] = formData.get('observer-signature') || "";
             data['reportCompletionDate'] = formData.get('report-completion-date');
 
+            // III. Observational Checklist (รวบรวม Checkbox และ Narrative)
             const allInputs = form.querySelectorAll('select, textarea, input[type="text"], input[type="number"], input[type="date"], input[type="checkbox"]');
+            
+            // Object เพื่อเก็บค่า Checkbox (TEM Codes)
+            const temData = {}; 
+            const singleData = {}; 
 
-// ใช้ Object เพื่อเก็บค่า Checkbox หลายรายการ
-const checkboxData = {}; 
+            allInputs.forEach(input => {
+                const name = input.name;
+                const value = input.value || "";
 
-allInputs.forEach(input => {
-    const name = input.name;
-    
-    // สำหรับ Checkbox: ต้องรวบรวมค่าทั้งหมดที่มี name เดียวกัน
-    if (input.type === 'checkbox') {
-        if (input.checked) {
-            if (!checkboxData[name]) {
-                checkboxData[name] = [];
+                if (input.type === 'checkbox') {
+                    if (input.checked) {
+                        if (!temData[name]) {
+                            temData[name] = [];
+                        }
+                        // เก็บค่าเต็ม (full description)
+                        temData[name].push(value); 
+                    }
+                } 
+                else {
+                    singleData[name] = value;
+                }
+            });
+
+            // 1. จัดการ Checkbox: แปลง Array ของ TEM Codes เป็นข้อความที่คั่นด้วยตัวแบ่ง (String)
+            for (const name in temData) {
+                // ใช้ join(' | ') เพื่อรวม Array เป็น String เดียวสำหรับส่งเข้าช่อง Text ของ Google Form
+                data[name] = temData[name].join(' | '); 
             }
-            // Checkbox value คือ full description
-            checkboxData[name].push(input.value); 
-        }
-    } 
-    // สำหรับ Dropdown (SOP) และ Textarea (Narrative/Summary)
-    else {
-        const value = formData.get(name) || "";
 
-        // Collect SOP values (single dropdown)
-        if (name.match(/^[A-G][0-9][0-9]_SOP$/) || name.match(/^E3_SOP$/)) {
-            data[name] = value;
-        } 
-        // จัดการ Narrative Fields
-        else if (name.match(/_N_T$/) || name.match(/^E3_N_T$/)) {
-            const base = name.replace('_N_T', '');
-            data[`${base}_N_T`] = value; // N_T
-            data[`${base}_N_E`] = value; // N_E
-            data[`${base}_N_U`] = value; // N_U
-            data[`${base}_N_C`] = value; // N_C
-        }
-        // เก็บค่าอื่นๆ ที่ไม่ใช่ Checkbox, Dropdown หรือ Narrative
-        if (!data.hasOwnProperty(name)) { 
-            data[name] = value;
-        }
-    }
-});
-
-// รวม Checkbox Data เข้าไปใน data หลัก (แทนที่ค่าเดิมที่เป็น Dropdown ว่าง)
-Object.assign(data, checkboxData);
-
-// ... (ส่วนท้ายของ form.addEventListener เหมือนเดิม)
+            // 2. จัดการ SOP และ Narrative Fields
+            for (const name in singleData) {
+                const value = singleData[name];
+                
+                // Collect SOP values (single dropdown)
+                if (name.match(/^[A-G][0-9][0-9]_SOP$/) || name.match(/^E3_SOP$/)) {
+                    data[name] = value;
+                } 
+                // จัดการ Narrative Fields: คัดลอกค่าเดียวไปยัง 4 ช่อง (N_T, N_E, N_U, N_C)
+                else if (name.match(/_N_T$/) || name.match(/^E3_N_T$/)) {
+                    const base = name.replace('_N_T', '');
+                    data[`${base}_N_T`] = value; 
+                    data[`${base}_N_E`] = value; 
+                    data[`${base}_N_U`] = value; 
+                    data[`${base}_N_C`] = value; 
+                }
+                // เก็บค่าอื่นๆ (Details, Summary)
+                else if (!data.hasOwnProperty(name)) { 
+                     data[name] = value;
+                }
+            }
+            
             saveDataLocally(data);
             form.reset();
         });
@@ -1372,7 +1381,7 @@ Object.assign(data, checkboxData);
                 if (window.location.protocol === 'blob:') {
                     console.warn("Service Worker registration skipped: Cannot register from a 'blob:' URL. This is expected in preview environments and will work correctly on the deployed site.");
                 } else {
-                    // หากต้องการใช้ PWA โปรดตรวจสอบว่ามีไฟล์ sw.js อยู่ในตำแหน่งเดียวกัน
+                    // PWA Service Worker code (If you have sw.js)
                     // navigator.serviceWorker.register('sw.js')
                     //     .then(reg => console.log('Service Worker registered successfully'))
                     //     .catch(err => console.error('Service worker registration failed:', err));
