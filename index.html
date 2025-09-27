@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cabin Crew Checklist</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#DC2626"/>
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <style>
+        body { font-family: 'Inter', 'Kanit', sans-serif; }
+        .status-dot { height: 12px; width: 12px; border-radius: 50%; display: inline-block; }
+        .online { background-color: #2ecc71; }
+        .offline { background-color: #e74c3c; }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+    <div class="container mx-auto max-w-lg p-2 sm:p-4">
+        <header class="bg-red-600 text-white p-4 rounded-lg shadow-md mb-4 flex justify-between items-center">
+            <div>
+                <h1 class="text-xl sm:text-2xl font-bold">Cabin Crew Checklist</h1>
+                <p class="text-xs sm:text-sm opacity-90">Pre-Flight Safety & Procedure</p>
+            </div>
+            <div class="flex items-center space-x-2 text-right">
+                <span id="status-text" class="font-semibold text-sm">Offline</span>
+                <span id="status-dot" class="status-dot offline"></span>
+            </div>
+        </header>
+
+        <form id="checklist-form" class="bg-white p-4 sm:p-6 rounded-lg shadow-md">
+            <div class="mb-4">
+                <label for="inspector-name" class="block text-gray-700 font-bold mb-2">Inspector Name:</label>
+                <select id="inspector-name" name="inspector-name" class="w-full px-3 py-2 border rounded-lg bg-white" required>
+                    <option value="" disabled selected>-- Select Name --</option>
+                    <option value="Naparin Boonchuaylue">Naparin Boonchuaylue</option>
+                    <option value="Khathawut Benjachinsuwan">Khathawut Benjachinsuwan</option>
+                    <option value="Parichat Srithongkul">Parichat Srithongkul</option>
+                    <option value="Twankorn Chen">Twankorn Chen</option>
+                    <option value="Phinlaphat Aphinyaupatham">Phinlaphat Aphinyaupatham</option>
+                    <option value="Alisara Usavagovitwong">Alisara Usavagovitwong</option>
+                    <option value="Janpen Vorawanitcha">Janpen Vorawanitcha</option>
+                    <option value="Adisorn Usmanbaha">Adisorn Usmanbaha</option>
+                    <option value="Chotika Totrakool">Chotika Totrakool</option>
+                    <option value="Kittitat Chanta-amornlertkul">Kittitat Chanta-amornlertkul</option>
+                    <option value="Busabong Promkhuntod">Busabong Promkhuntod</option>
+                </select>
+            </div>
+            <div class="mb-4">
+                <label for="flight-number" class="block text-gray-700 font-bold mb-2">Flight Number (Numbers only):</label>
+                <input type="number" id="flight-number" name="flight-number" class="w-full px-3 py-2 border rounded-lg" placeholder="e.g., 3001" required>
+            </div>
+            <hr class="my-6">
+            <div id="checklist-items"></div>
+            <div class="mt-6">
+                <label for="remarks" class="block text-gray-700 font-bold mb-2">Remarks:</label>
+                <textarea id="remarks" name="remarks" rows="3" class="w-full px-3 py-2 border rounded-lg"></textarea>
+            </div>
+            <button type="submit" class="w-full bg-red-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-red-700 mt-6">
+                Save Checklist
+            </button>
+        </form>
+        
+        <div class="mt-6">
+            <h2 class="text-lg sm:text-xl font-bold text-gray-800">Pending Sync (<span id="pending-count">0</span>)</h2>
+            <div id="pending-list" class="mt-2 bg-white p-4 rounded-lg shadow-md max-h-48 overflow-y-auto">
+                <p class="text-gray-500 text-center">No pending items.</p>
+            </div>
+        </div>
+        <p class="text-center text-xs text-gray-400 mt-4">v4.0 - Standalone</p>
+    </div>
+
+    <script>
+        const SCRIPT_URL = "PASTE_YOUR_APPS_SCRIPT_URL_HERE"; 
+
+        const CHECKLIST_DEFINITIONS = [
+            { id: 'emergency_equipment', label: 'Emergency Equipment (Flashlight, Megaphone) - Serviceable' },
+            { id: 'medical_kits', label: 'Medical Kits (First Aid, EMK) - Seals Intact' },
+            { id: 'galley_security', label: 'Galley Security (Latches, Carts) - Secured' },
+            { id: 'cabin_condition', label: 'Cabin Condition (Overhead Bins, Aisles) - Clear & Secure' },
+            { id: 'safety_cards', label: 'Safety Information Cards - Correct Type & Quantity' },
+            { id: 'doors_slides', label: 'Doors & Slides - Correct Mode (Armed/Disarmed)' },
+            { id: 'interphone_pa', label: 'Interphone & PA System - Functionality Check' },
+            { id: 'lavatory_checks', label: 'Lavatory Checks (Smoke Detector, Waste Bin) - Verified' },
+            { id: 'crew_briefing', label: 'Pre-Flight Briefing - Acknowledged' },
+            { id: 'cabin_lighting', label: 'Cabin Lighting System - Set for Phase of Flight' }
+        ];
+
+        const form = document.getElementById('checklist-form');
+        const statusText = document.getElementById('status-text');
+        const statusDot = document.getElementById('status-dot');
+        const pendingCount = document.getElementById('pending-count');
+        const pendingList = document.getElementById('pending-list');
+        const checklistItemsContainer = document.getElementById('checklist-items');
+
+        function showToast(message, icon = 'success') {
+            const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, timerProgressBar: true });
+            Toast.fire({ icon: icon, title: message });
+        }
+
+        function generateChecklistItems() {
+            checklistItemsContainer.innerHTML = CHECKLIST_DEFINITIONS.map(item => `
+                <div class="mb-4">
+                    <label for="${item.id}" class="block text-gray-700 mb-2">${item.label}:</label>
+                    <select id="${item.id}" name="${item.id}" class="w-full px-3 py-2 border rounded-lg bg-white" required>
+                        <option value="OK">OK</option>
+                        <option value="Action Required">Action Required</option>
+                        <option value="N/A">N/A</option>
+                    </select>
+                </div>
+            `).join('');
+        }
+
+        function updateOnlineStatus() {
+            const isOnline = navigator.onLine;
+            statusText.textContent = isOnline ? 'Online' : 'Offline';
+            statusDot.className = `status-dot ${isOnline ? 'online' : 'offline'}`;
+            if (isOnline) syncData();
+        }
+
+        function saveDataLocally(data) {
+            const submissions = JSON.parse(localStorage.getItem('pendingSubmissions') || '[]');
+            submissions.push(data);
+            localStorage.setItem('pendingSubmissions', JSON.stringify(submissions));
+            updatePendingUI();
+            Swal.fire({ title: 'Checklist Saved!', text: 'Data saved locally. Will sync when online.', icon: 'success', confirmButtonColor: '#DC2626', confirmButtonText: 'OK' });
+        }
+
+        function updatePendingUI() {
+            const submissions = JSON.parse(localStorage.getItem('pendingSubmissions') || '[]');
+            pendingCount.textContent = submissions.length;
+            pendingList.innerHTML = submissions.length === 0 ? '<p class="text-gray-500 text-center">No pending items.</p>' : submissions.map((sub, index) => 
+                `<div class="p-2 border-b text-sm"><strong>#${index + 1}:</strong> ${sub.inspectorName} - FD${sub.flightNumber} <span class="text-xs text-gray-500 block">${new Date(sub.timestamp).toLocaleString()}</span></div>`
+            ).join('');
+        }
+
+        async function syncData() {
+            if (!navigator.onLine) return;
+            let submissions = JSON.parse(localStorage.getItem('pendingSubmissions') || '[]');
+            if (submissions.length === 0) return;
+
+            showToast(`Syncing ${submissions.length} item(s)...`, 'info');
+            const successfullySynced = [];
+
+            for (const submission of submissions) {
+                try {
+                    const response = await fetch(SCRIPT_URL, {
+                        method: 'POST',
+                        redirect: 'follow',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify(submission)
+                    });
+                    const result = await response.json();
+                    if (result.status === 'success') {
+                        successfullySynced.push(submission);
+                    } else {
+                        throw new Error(result.message || 'Unknown server error');
+                    }
+                } catch (error) {
+                    showToast(`Sync Error: ${error.message}`, 'error');
+                    break;
+                }
+            }
+
+            if (successfullySynced.length > 0) {
+                const newSubmissions = submissions.filter(sub => !successfullySynced.find(s => s.timestamp === sub.timestamp));
+                localStorage.setItem('pendingSubmissions', JSON.stringify(newSubmissions));
+                updatePendingUI();
+                showToast(`Successfully synced ${successfullySynced.length} item(s)!`, 'success');
+            }
+        }
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const formData = new FormData(form);
+            const data = { timestamp: new Date().toISOString(), inspectorName: formData.get('inspector-name'), flightNumber: formData.get('flight-number'), remarks: formData.get('remarks') };
+            CHECKLIST_DEFINITIONS.forEach(item => { data[item.label] = formData.get(item.id); });
+            saveDataLocally(data);
+            form.reset();
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (SCRIPT_URL === "PASTE_YOUR_APPS_SCRIPT_URL_HERE") {
+                document.body.innerHTML = `<div style="padding: 2em; text-align: center;"><h1>Configuration Needed</h1><p>Please edit the index.html file and paste your Google Apps Script URL into the SCRIPT_URL variable.</p></div>`;
+                return;
+            }
+            generateChecklistItems();
+            updateOnlineStatus();
+            updatePendingUI();
+            
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => console.log('Service Worker registered successfully', reg))
+                    .catch(err => console.error('Service worker registration failed:', err));
+            }
+            window.addEventListener('online', updateOnlineStatus);
+            window.addEventListener('offline', updateOnlineStatus);
+        });
+    </script>
+</body>
+</html>
