@@ -73,7 +73,9 @@
     </div>
 
     <script>
-        const SCRIPT_URL = "PASTE_YOUR_APPS_SCRIPT_URL_HERE"; 
+        // *** IMPORTANT ***
+        // PASTE YOUR GOOGLE APPS SCRIPT URL HERE
+        const SCRIPT_URL = "PASTE_YOUR_NEW_WEB_APP_URL_HERE"; 
 
         const CHECKLIST_DEFINITIONS = [
             { id: 'emergency_equipment', label: 'Emergency Equipment (Flashlight, Megaphone) - Serviceable' },
@@ -88,6 +90,7 @@
             { id: 'cabin_lighting', label: 'Cabin Lighting System - Set for Phase of Flight' }
         ];
 
+        // The rest of the script is the same...
         const form = document.getElementById('checklist-form');
         const statusText = document.getElementById('status-text');
         const statusDot = document.getElementById('status-dot');
