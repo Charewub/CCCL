@@ -64,8 +64,13 @@
         </form>
         
         <div class="mt-6">
-            <h2 class="text-lg sm:text-xl font-bold text-gray-800">Pending Sync (<span id="pending-count">0</span>)</h2>
-            <div id="pending-list" class="mt-2 bg-white p-4 rounded-lg shadow-md max-h-48 overflow-y-auto">
+            <div class="flex justify-between items-center mb-2">
+                 <h2 class="text-lg sm:text-xl font-bold text-gray-800">Pending Sync (<span id="pending-count">0</span>)</h2>
+                 <button id="manual-sync-btn" class="bg-green-500 hover:bg-green-600 text-white font-bold py-1 px-3 rounded text-sm hidden">
+                    Sync Now
+                 </button>
+            </div>
+            <div id="pending-list" class="bg-white p-4 rounded-lg shadow-md max-h-48 overflow-y-auto">
                 <p class="text-gray-500 text-center">No pending items.</p>
             </div>
         </div>
@@ -103,19 +108,20 @@
             { id: 'cabin_lighting', label: 'Cabin Lighting System - Set for Phase of Flight' }
         ];
 
-        // The rest of the script is the same...
         const form = document.getElementById('checklist-form');
         const statusText = document.getElementById('status-text');
         const statusDot = document.getElementById('status-dot');
         const pendingCount = document.getElementById('pending-count');
         const pendingList = document.getElementById('pending-list');
         const checklistItemsContainer = document.getElementById('checklist-items');
-        
-        function showToast(message, icon = 'success') { 
+        const manualSyncBtn = document.getElementById('manual-sync-btn');
+        let hasShownSyncPrompt = false;
+
+        function showToast(message, icon = 'success') {
             const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, timerProgressBar: true, });
             Toast.fire({ icon: icon, title: message });
         }
-        
+
         function generateChecklistItems() {
             checklistItemsContainer.innerHTML = CHECKLIST_DEFINITIONS.map(item => `
                 <div class="mb-4">
@@ -129,13 +135,36 @@
             `).join('');
         }
         
+        function showSyncConfirmation() {
+            const submissions = JSON.parse(localStorage.getItem('pendingSubmissions') || '[]');
+            if (submissions.length === 0 || !navigator.onLine || hasShownSyncPrompt) {
+                return;
+            }
+            hasShownSyncPrompt = true;
+
+            Swal.fire({
+                title: 'Connection Detected', text: `You have ${submissions.length} item(s) waiting. Sync now?`, icon: 'info',
+                showCancelButton: true, confirmButtonColor: '#28a745', cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, sync now!', cancelButtonText: 'Later'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    syncData();
+                }
+            });
+        }
+
         function updateOnlineStatus() {
             const isOnline = navigator.onLine;
             statusText.textContent = isOnline ? 'Online' : 'Offline';
             statusDot.className = `status-dot ${isOnline ? 'online' : 'offline'}`;
-            if (isOnline) syncData();
+            if (isOnline) {
+                showSyncConfirmation();
+            } else {
+                hasShownSyncPrompt = false; // Reset prompt flag when offline
+            }
+            updatePendingUI(); // Update button visibility
         }
-        
+
         function saveDataLocally(data) {
             const submissions = JSON.parse(localStorage.getItem('pendingSubmissions') || '[]');
             submissions.push(data);
@@ -143,15 +172,40 @@
             updatePendingUI();
             Swal.fire({ title: 'Checklist Saved!', text: 'Data saved locally. Will sync when online.', icon: 'success', confirmButtonColor: '#DC2626', confirmButtonText: 'OK' });
         }
-        
+
         function updatePendingUI() {
             const submissions = JSON.parse(localStorage.getItem('pendingSubmissions') || '[]');
             pendingCount.textContent = submissions.length;
-            pendingList.innerHTML = submissions.length === 0 ? '<p class="text-gray-500 text-center">No pending items.</p>' : submissions.map((sub, index) => 
-                `<div class="p-2 border-b text-sm"><strong>#${index + 1}:</strong> ${sub.inspectorName} - FD${sub.flightNumber} <span class="text-xs text-gray-500 block">${new Date(sub.timestamp).toLocaleString()}</span></div>`
+            pendingList.innerHTML = submissions.length === 0 ? '<p class="text-gray-500 text-center">No pending items.</p>' : submissions.map((sub) => 
+                `<div class="flex justify-between items-center p-2 border-b">
+                    <div>
+                        <strong class="text-sm">${sub.inspectorName} - FD${sub.flightNumber}</strong>
+                        <span class="text-xs text-gray-500 block">${new Date(sub.timestamp).toLocaleString()}</span>
+                    </div>
+                    <button data-timestamp="${sub.timestamp}" class="delete-btn bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-2 rounded text-xs">
+                        ลบ
+                    </button>
+                </div>`
             ).join('');
+            manualSyncBtn.classList.toggle('hidden', !navigator.onLine || submissions.length === 0);
         }
-        
+
+        function deletePendingItem(timestamp) {
+            Swal.fire({
+                title: 'Confirm Deletion', text: "Are you sure you want to delete this record?", icon: 'warning',
+                showCancelButton: true, confirmButtonColor: '#d33', cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!', cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    let submissions = JSON.parse(localStorage.getItem('pendingSubmissions') || '[]');
+                    submissions = submissions.filter(sub => sub.timestamp !== timestamp);
+                    localStorage.setItem('pendingSubmissions', JSON.stringify(submissions));
+                    updatePendingUI();
+                    showToast('Record deleted', 'success');
+                }
+            })
+        }
+
         async function syncData() {
             if (!navigator.onLine) return;
             let submissions = JSON.parse(localStorage.getItem('pendingSubmissions') || '[]');
@@ -171,9 +225,7 @@
                 
                 try {
                     await fetch(GOOGLE_FORM_ACTION_URL, {
-                        method: 'POST',
-                        body: formData,
-                        mode: 'no-cors'
+                        method: 'POST', body: formData, mode: 'no-cors'
                     });
                     successfullySynced.push(submission);
                 } catch (error) {
@@ -190,12 +242,11 @@
                 showToast(`Successfully synced ${successfullySynced.length} item(s)!`, 'success');
             }
         }
-        
+
         form.addEventListener('submit', (e) => {
             e.preventDefault();
             const formData = new FormData(form);
             const data = { timestamp: new Date().toISOString() };
-            // Manually map form fields because formData.entries() doesn't work well with select
             data['inspectorName'] = formData.get('inspector-name');
             data['flightNumber'] = formData.get('flight-number');
             data['remarks'] = formData.get('remarks');
@@ -205,15 +256,23 @@
             saveDataLocally(data);
             form.reset();
         });
-        
-        document.addEventListener('DOMContentLoaded', () => { 
+
+        document.addEventListener('DOMContentLoaded', () => {
             generateChecklistItems();
             updateOnlineStatus();
             updatePendingUI();
+
+            pendingList.addEventListener('click', (e) => {
+                if (e.target && e.target.classList.contains('delete-btn')) {
+                    deletePendingItem(e.target.dataset.timestamp);
+                }
+            });
+            
+            manualSyncBtn.addEventListener('click', showSyncConfirmation);
             
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.register('sw.js')
-                    .then(reg => console.log('Service Worker registered successfully', reg))
+                    .then(reg => console.log('Service Worker registered successfully'))
                     .catch(err => console.error('Service worker registration failed:', err));
             }
             window.addEventListener('online', updateOnlineStatus);
