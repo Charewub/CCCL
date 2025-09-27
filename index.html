@@ -67,7 +67,7 @@
             <div class="flex justify-between items-center mb-2">
                  <h2 class="text-lg sm:text-xl font-bold text-gray-800">Pending Sync (<span id="pending-count">0</span>)</h2>
                  <button id="manual-sync-btn" class="bg-green-500 hover:bg-green-600 text-white font-bold py-1 px-3 rounded text-sm hidden">
-                    Sync Now
+                   Sync Now
                  </button>
             </div>
             <div id="pending-list" class="bg-white p-4 rounded-lg shadow-md max-h-48 overflow-y-auto">
@@ -77,22 +77,23 @@
     </div>
 
     <script>
-        // *** CONFIGURATION FROM YOUR GOOGLE FORM ***
-        const GOOGLE_FORM_ACTION_URL = "https://docs.google.com/forms/d/e/1FAIpQLSfryHEWS12ZITGVzK1k_xqf6DEtLkz2YAp4_rl7XjMYnEHdeA/formResponse";
+        // *** CONFIGURATION FROM YOUR GOOGLE FORM (UPDATED) ***
+        const GOOGLE_FORM_ACTION_URL = "https://docs.google.com/forms/u/0/d/e/1FAIpQLSfpzLVtj2woSVC7U6M9TLu2sjOah_7c1WY8TynM5wc-L4W16g/formResponse";
+        
         const INPUT_MAPPING = {
-            "inspectorName": "entry.459033323",
-            "flightNumber": "entry.1416235421",
-            "emergency_equipment": "entry.1179754241",
-            "medical_kits": "entry.1760449290",
-            "galley_security": "entry.142801117",
-            "cabin_condition": "entry.1248244072",
-            "safety_cards": "entry.778054275",
-            "doors_slides": "entry.1447015447",
-            "interphone_pa": "entry.931891350",
-            "lavatory_checks": "entry.1947480487",
-            "crew_briefing": "entry.1304852098",
-            "cabin_lighting": "entry.613148466",
-            "remarks": "entry.440026726"
+            "inspectorName": "entry.1142013855",
+            "flightNumber": "entry.780213826",
+            "emergency_equipment": "entry.1431413878",
+            "medical_kits": "entry.1507260337",
+            "galley_security": "entry.167439753",
+            "cabin_condition": "entry.922799890",
+            "safety_cards": "entry.1039599256",
+            "doors_slides": "entry.1648783742",
+            "interphone_pa": "entry.1111743032",
+            "lavatory_checks": "entry.354720466",
+            "crew_briefing": "entry.1822737982",
+            "cabin_lighting": "entry.296803603",
+            "remarks": "entry.1516677690"
         };
 
         const CHECKLIST_DEFINITIONS = [
@@ -282,8 +283,7 @@
             }
             window.addEventListener('online', updateOnlineStatus);
             window.addEventListener('offline', updateOnlineStatus);
-         });
+       });
     </script>
 </body>
 </html>
-
