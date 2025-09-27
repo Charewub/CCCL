@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cabin Crew Checklist</title>
+    <title>Cabin Crew LOSA Checklist</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="manifest" href="manifest.json">
@@ -14,14 +14,56 @@
         .status-dot { height: 12px; width: 12px; border-radius: 50%; display: inline-block; }
         .online { background-color: #2ecc71; }
         .offline { background-color: #e74c3c; }
+        /* สไตล์สำหรับตาราง Checklist */
+        .checklist-container { overflow-x: auto; }
+        .checklist-table { min-width: 900px; }
+        .checklist-table th, .checklist-table td { padding: 4px 6px; border: 1px solid #e5e7eb; vertical-align: top; }
+        .checklist-table th { background-color: #f3f4f6; text-align: left; font-size: 0.75rem; color: #374151; font-weight: 600; }
+        .checklist-item { background-color: #ffffff; }
+        .checklist-item-group td { background-color: #f0f0f0; font-weight: bold; font-size: 0.875rem; padding: 8px 6px; }
+        .temp-code-dropdown, .sop-dropdown { 
+            font-size: 0.7rem; 
+            padding: 2px; 
+            height: 30px; 
+            border-radius: 4px; 
+            border: 1px solid #d1d5db;
+            /* เพิ่มความกว้างให้พอดีกับช่อง */
+            min-width: 70px; 
+            max-width: 100%;
+        }
+        .narrative-textarea { 
+            font-size: 0.7rem; 
+            padding: 3px; 
+            min-height: 50px; 
+            resize: vertical; 
+            line-height: 1.2;
+        }
+        /* กำหนดความกว้างคอลัมน์ (ปรับได้ตามความเหมาะสม) */
+        .code-col { width: 6%; min-width: 70px; }
+        .desc-col { width: 13%; min-width: 100px; }
+        .sop-col { width: 4%; min-width: 70px; }
+        .item-col { width: 25%; }
+        .narrative-col { width: 33%; }
+
+        /* สีพื้นหลังสำหรับช่อง Code/Narrative */
+        .bg-t { background-color: #e6ffec; } /* Green Light */
+        .bg-e { background-color: #fff9e6; } /* Yellow Light */
+        .bg-u { background-color: #ffe6e6; } /* Red Light */
+        .bg-c { background-color: #e6f0ff; } /* Blue Light */
+        
+        /* สไตล์สำหรับ Required Field ใน HTML */
+        .required-asterisk::after {
+            content: " *";
+            color: #ef4444; /* red-500 */
+        }
     </style>
 </head>
 <body class="bg-gray-100">
 
-    <div class="container mx-auto max-w-lg p-2 sm:p-4">
+    <div class="container mx-auto max-w-4xl p-2 sm:p-4">
         <header class="bg-red-600 text-white p-4 rounded-lg shadow-md mb-4 flex justify-between items-center">
             <div>
-                <h1 class="text-xl sm:text-2xl font-bold">Cabin Crew Checklist</h1>
+                <h1 class="text-xl sm:text-2xl font-bold">Cabin Crew LOSA Checklist</h1>
                 <p class="text-xs sm:text-sm opacity-90">Line Operations Safety Audit (LOSA)</p>
             </div>
             <div class="flex items-center space-x-2 text-right">
@@ -31,8 +73,45 @@
         </header>
 
         <form id="checklist-form" class="bg-white p-4 sm:p-6 rounded-lg shadow-md">
+            
+            <h2 class="text-lg font-bold text-gray-800 mb-4">I. Flight & Audit Details</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label for="observation-date" class="block text-gray-700 font-bold mb-2 required-asterisk">Date of Observation:</label>
+                    <input type="date" id="observation-date" name="observation-date" class="w-full px-3 py-2 border rounded-lg" required>
+                </div>
+                <div>
+                    <label for="flight-number-new" class="block text-gray-700 font-bold mb-2 required-asterisk">Flight Number:</label>
+                    <input type="text" id="flight-number-new" name="flight-number-new" class="w-full px-3 py-2 border rounded-lg" placeholder="e.g., FD3001" required>
+                </div>
+                <div>
+                    <label for="route-from" class="block text-gray-700 font-bold mb-2 required-asterisk">Route (From):</label>
+                    <input type="text" id="route-from" name="route-from" class="w-full px-3 py-2 border rounded-lg" placeholder="e.g., BKK" required>
+                </div>
+                <div>
+                    <label for="route-to" class="block text-gray-700 font-bold mb-2 required-asterisk">Route (To):</label>
+                    <input type="text" id="route-to" name="route-to" class="w-full px-3 py-2 border rounded-lg" placeholder="e.g., CNX" required>
+                </div>
+                <div>
+                    <label for="aircraft-type" class="block text-gray-700 font-bold mb-2 required-asterisk">Aircraft Type:</label>
+                    <input type="text" id="aircraft-type" name="aircraft-type" class="w-full px-3 py-2 border rounded-lg" placeholder="e.g., A320" required>
+                </div>
+                <div>
+                    <label for="observer-id" class="block text-gray-700 font-bold mb-2">Observer ID (if applicable):</label>
+                    <input type="text" id="observer-id" name="observer-id" class="w-full px-3 py-2 border rounded-lg" placeholder="e.g., LOSA001">
+                </div>
+                <div>
+                    <label for="crew-observed" class="block text-gray-700 font-bold mb-2 required-asterisk">No. of Cabin Crew Observed:</label>
+                    <input type="number" id="crew-observed" name="crew-observed" class="w-full px-3 py-2 border rounded-lg" placeholder="e.g., 4" required>
+                </div>
+                <div>
+                    <label for="load-factor" class="block text-gray-700 font-bold mb-2">Load Factor (Approx. % full):</label>
+                    <input type="text" id="load-factor" name="load-factor" class="w-full px-3 py-2 border rounded-lg" placeholder="e.g., 85%">
+                </div>
+            </div>
+
             <div class="mb-4">
-                <label for="inspector-name" class="block text-gray-700 font-bold mb-2">Inspector Name:</label>
+                <label for="inspector-name" class="block text-gray-700 font-bold mb-2 required-asterisk">Inspector Name:</label>
                 <select id="inspector-name" name="inspector-name" class="w-full px-3 py-2 border rounded-lg bg-white" required>
                     <option value="" disabled selected>-- Select Name --</option>
                     <option value="Naparin Boonchuaylue">Naparin Boonchuaylue</option>
@@ -48,16 +127,56 @@
                     <option value="Busabong Promkhuntod">Busabong Promkhuntod</option>
                 </select>
             </div>
-            <div class="mb-4">
-                <label for="flight-number" class="block text-gray-700 font-bold mb-2">Flight Number (Numbers only):</label>
-                <input type="number" id="flight-number" name="flight-number" class="w-full px-3 py-2 border rounded-lg" placeholder="e.g., 3001" required>
-            </div>
+            <input type="hidden" id="flight-number" name="flight-number" value=""> 
+
             <hr class="my-6">
-            <div id="checklist-items"></div>
-            <div class="mt-6">
-                <label for="remarks" class="block text-gray-700 font-bold mb-2">Remarks:</label>
-                <textarea id="remarks" name="remarks" rows="3" class="w-full px-3 py-2 border rounded-lg"></textarea>
+            
+            <h2 class="text-lg font-bold text-gray-800 mb-4">III. Observational Checklist by Flight Phase</h2>
+            <p class="text-sm text-gray-600 mb-4">For each phase, note compliance with SOPs, observed TEM elements, and provide a brief narrative. (Refer to Section II for TEM Codes).</p>
+            <div id="checklist-container" class="checklist-container">
+                </div>
+
+            <hr class="my-6">
+
+            <h2 class="text-lg font-bold text-gray-800 mb-4">IV. Overall Observations & Summary</h2>
+            <div class="mb-4">
+                <label for="sig-threat" class="block text-gray-700 font-bold mb-2">Most significant Threat(s) observed during the flight:</label>
+                <textarea id="sig-threat" name="sig-threat" rows="2" class="w-full px-3 py-2 border rounded-lg"></textarea>
             </div>
+            <div class="mb-4">
+                <label for="sig-error" class="block text-gray-700 font-bold mb-2">Most significant Error(s) observed (or potential errors successfully managed):</label>
+                <textarea id="sig-error" name="sig-error" rows="2" class="w-full px-3 py-2 border rounded-lg"></textarea>
+            </div>
+            <div class="mb-4">
+                <label for="effective-cm" class="block text-gray-700 font-bold mb-2">Most effective Countermeasure(s) observed:</label>
+                <textarea id="effective-cm" name="effective-cm" rows="2" class="w-full px-3 py-2 border rounded-lg"></textarea>
+            </div>
+            <div class="mb-4">
+                <label for="general-comments" class="block text-gray-700 font-bold mb-2">General comments on crew performance, teamwork, and adherence to SOPs:</label>
+                <textarea id="general-comments" name="general-comments" rows="3" class="w-full px-3 py-2 border rounded-lg"></textarea>
+            </div>
+            <div class="mb-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label for="areas-of-strength" class="block text-gray-700 font-bold mb-2">Areas of strength:</label>
+                    <textarea id="areas-of-strength" name="areas-of-strength" rows="2" class="w-full px-3 py-2 border rounded-lg"></textarea>
+                </div>
+                <div>
+                    <label for="opportunities-for-improvement" class="block text-gray-700 font-bold mb-2">Opportunities for improvement (e.g., training, procedures, equipment):</label>
+                    <textarea id="opportunities-for-improvement" name="opportunities-for-improvement" rows="2" class="w-full px-3 py-2 border rounded-lg"></textarea>
+                </div>
+            </div>
+            <div class="mb-4">
+                <label for="observer-signature" class="block text-gray-700 font-bold mb-2">Observer's Signature (If applicable):</label>
+                <input type="text" id="observer-signature" name="observer-signature" class="w-full px-3 py-2 border rounded-lg">
+            </div>
+            <div class="mb-4">
+                <label for="report-completion-date" class="block text-gray-700 font-bold mb-2 required-asterisk">Date of Report Completion:</label>
+                <input type="date" id="report-completion-date" name="report-completion-date" class="w-full px-3 py-2 border rounded-lg" required>
+            </div>
+            <p class="text-xs text-gray-500 italic">The purpose of this tool is to contribute to the continuous improvement of our cabin safety performance and the effectiveness of our training programs. Your diligence in ensuring its proper adaptation and approved use is crucial for maintaining Thai AirAsia's commitment to the highest safety standards.</p>
+
+            <hr class="my-6">
+
             <button type="submit" class="w-full bg-red-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-red-700 mt-6">
                 Save Checklist
             </button>
@@ -67,7 +186,7 @@
             <div class="flex justify-between items-center mb-2">
                  <h2 class="text-lg sm:text-xl font-bold text-gray-800">Pending Sync (<span id="pending-count">0</span>)</h2>
                  <button id="manual-sync-btn" class="bg-green-500 hover:bg-green-600 text-white font-bold py-1 px-3 rounded text-sm hidden">
-                   Sync Now
+                     Sync Now
                  </button>
             </div>
             <div id="pending-list" class="bg-white p-4 rounded-lg shadow-md max-h-48 overflow-y-auto">
@@ -77,65 +196,979 @@
     </div>
 
     <script>
-        // *** CONFIGURATION FROM YOUR GOOGLE FORM (UPDATED) ***
-        const GOOGLE_FORM_ACTION_URL = "https://docs.google.com/forms/u/0/d/e/1FAIpQLSfpzLVtj2woSVC7U6M9TLu2sjOah_7c1WY8TynM5wc-L4W16g/formResponse";
+        // *** ⚠️ CONFIGURATION: ACTION URL AND MAPPING ⚠️ ***
+        // แทนที่ YOUR_FORM_RESPONSE_URL_HERE ด้วย URL ที่คุณได้ค้นหามา
+        const GOOGLE_FORM_ACTION_URL = "https://docs.google.com/forms/d/e/1FAIpQLSfmWKqOSxQRksH_m6aA4kgX4oOfK5QI6llIniylyQ8ijBU9ZQ/formResponse"; 
         
         const INPUT_MAPPING = {
-            "inspectorName": "entry.1142013855",
-            "flightNumber": "entry.780213826",
-            "emergency_equipment": "entry.1431413878",
-            "medical_kits": "entry.1507260337",
-            "galley_security": "entry.167439753",
-            "cabin_condition": "entry.922799890",
-            "safety_cards": "entry.1039599256",
-            "doors_slides": "entry.1648783742",
-            "interphone_pa": "entry.1111743032",
-            "lavatory_checks": "entry.354720466",
-            "crew_briefing": "entry.1822737982",
-            "cabin_lighting": "entry.296803603",
-            "remarks": "entry.1516677690"
+            "observationDate": "entry.527507690",
+            "inspectorName": "entry.1805582914",
+            "flightNumberNew": "entry.630057086",
+            "routeFrom": "entry.1674197795",
+            "routeTo": "entry.976258351",
+            "aircraftType": "entry.160033035",
+            "observerId": "entry.558534690",
+            "crewObserved": "entry.751267304",
+            "loadFactor": "entry.2127515060",
+            "A11_SOP": "entry.1501263053",
+            "A11_T": "entry.34135335",
+            "A11_N_T": "entry.690459325",
+            "A11_E": "entry.965677204",
+            "A11_N_E": "entry.243963283",
+            "A11_U": "entry.1506623913",
+            "A11_N_U": "entry.1457061027",
+            "A11_C": "entry.1074232302",
+            "A11_N_C": "entry.223277126",
+            "A12_SOP": "entry.1309673354",
+            "A12_T": "entry.1606116766",
+            "A12_N_T": "entry.2052121544",
+            "A12_E": "entry.1441981194",
+            "A12_N_E": "entry.623195109",
+            "A12_U": "entry.996809708",
+            "A12_N_U": "entry.193947015",
+            "A12_C": "entry.407197938",
+            "A12_N_C": "entry.2052253106",
+            "A13_SOP": "entry.1286303501",
+            "A13_T": "entry.1047961868",
+            "A13_N_T": "entry.455891474",
+            "A13_E": "entry.823947089",
+            "A13_N_E": "entry.1335469243",
+            "A13_U": "entry.991026790",
+            "A13_N_U": "entry.1644082358",
+            "A13_C": "entry.1120198537",
+            "A13_N_C": "entry.1743941064",
+            "A14_SOP": "entry.338953715",
+            "A14_T": "entry.131763645",
+            "A14_N_T": "entry.1250288881",
+            "A14_E": "entry.1854331881",
+            "A14_N_E": "entry.833178046",
+            "A14_U": "entry.408364466",
+            "A14_N_U": "entry.174713875",
+            "A14_C": "entry.1209783852",
+            "A14_N_C": "entry.41240829",
+            "A15_SOP": "entry.1460763780",
+            "A15_T": "entry.1247439388",
+            "A15_N_T": "entry.2045683676",
+            "A15_E": "entry.107115814",
+            "A15_N_E": "entry.343730995",
+            "A15_U": "entry.1938738300",
+            "A15_N_U": "entry.174937015",
+            "A15_C": "entry.371023665",
+            "A15_N_C": "entry.1264541604",
+            "A16_SOP": "entry.1327595682",
+            "A16_T": "entry.1717247304",
+            "A16_N_T": "entry.552414380",
+            "A16_E": "entry.1519658321",
+            "A16_N_E": "entry.1528099443",
+            "A16_U": "entry.955235249",
+            "A16_N_U": "entry.586049076",
+            "A16_C": "entry.2091497681",
+            "A16_N_C": "entry.882679624",
+            "A17_SOP": "entry.669960515",
+            "A17_T": "entry.1017735742",
+            "A17_N_T": "entry.470824612",
+            "A17_E": "entry.1047821188",
+            "A17_N_E": "entry.391102797",
+            "A17_U": "entry.867263335",
+            "A17_N_U": "entry.706986754",
+            "A17_C": "entry.656426053",
+            "A17_N_C": "entry.1206637461",
+            "A21_SOP": "entry.92167180",
+            "A21_T": "entry.258138043",
+            "A21_N_T": "entry.609449085",
+            "A21_E": "entry.976279828",
+            "A21_N_E": "entry.2084401094",
+            "A21_U": "entry.396596166",
+            "A21_N_U": "entry.1577329399",
+            "A21_C": "entry.1329707347",
+            "A21_N_C": "entry.1300075083",
+            "A22_SOP": "entry.842232517",
+            "A22_T": "entry.667060123",
+            "A22_N_T": "entry.951980942",
+            "A22_E": "entry.1076941605",
+            "A22_N_E": "entry.2064834017",
+            "A22_U": "entry.2011988224",
+            "A22_N_U": "entry.189174389",
+            "A22_C": "entry.2034093551",
+            "A22_N_C": "entry.1880321377",
+            "A23_SOP": "entry.1478382461",
+            "A23_T": "entry.1463626040",
+            "A23_N_T": "entry.1045924083",
+            "A23_E": "entry.136159978",
+            "A23_N_E": "entry.1434572548",
+            "A23_U": "entry.1000304333",
+            "A23_N_U": "entry.366922622",
+            "A23_C": "entry.560351738",
+            "A23_N_C": "entry.23456561",
+            "A24_SOP": "entry.1084726018",
+            "A24_T": "entry.1942000720",
+            "A24_N_T": "entry.1432975498",
+            "A24_E": "entry.838799858",
+            "A24_N_E": "entry.1730557144",
+            "A24_U": "entry.1377840155",
+            "A24_N_U": "entry.401488463",
+            "A24_C": "entry.715330607",
+            "A24_N_C": "entry.272401309",
+            "A25_SOP": "entry.1777343087",
+            "A25_T": "entry.54281278",
+            "A25_N_T": "entry.502281116",
+            "A25_E": "entry.860276544",
+            "A25_N_E": "entry.1143976148",
+            "A25_U": "entry.1956733233",
+            "A25_N_U": "entry.258697084",
+            "A25_C": "entry.912547849",
+            "A25_N_C": "entry.242473756",
+            "A31_SOP": "entry.1726000845",
+            "A31_T": "entry.1991037317",
+            "A31_N_T": "entry.184116482",
+            "A31_E": "entry.289398487",
+            "A31_N_E": "entry.294522363",
+            "A31_U": "entry.1945710119",
+            "A31_N_U": "entry.278270083",
+            "A31_C": "entry.219226988",
+            "A31_N_C": "entry.103547969",
+            "A32_SOP": "entry.570331926",
+            "A32_T": "entry.1940244682",
+            "A32_N_T": "entry.1770219998",
+            "A32_E": "entry.1941884405",
+            "A32_N_E": "entry.698570195",
+            "A32_U": "entry.468881169",
+            "A32_N_U": "entry.1359312939",
+            "A32_C": "entry.1159201768",
+            "A32_N_C": "entry.1100090641",
+            "A33_SOP": "entry.1190699211",
+            "A33_T": "entry.1818182487",
+            "A33_N_T": "entry.1749261132",
+            "A33_E": "entry.1597932353",
+            "A33_N_E": "entry.1609395461",
+            "A33_U": "entry.2001068083",
+            "A33_N_U": "entry.1705220764",
+            "A33_C": "entry.1277125633",
+            "A33_N_C": "entry.32085106",
+            "A34_SOP": "entry.120228059",
+            "A34_T": "entry.829265205",
+            "A34_N_T": "entry.1928565874",
+            "A34_E": "entry.1493033691",
+            "A34_N_E": "entry.403355007",
+            "A34_U": "entry.1116394222",
+            "A34_N_U": "entry.1160958851",
+            "A34_C": "entry.2125861533",
+            "A34_N_C": "entry.2104432031",
+            "A35_SOP": "entry.2142813579",
+            "A35_T": "entry.1443889160",
+            "A35_N_T": "entry.542003236",
+            "A35_E": "entry.755107558",
+            "A35_N_E": "entry.811839532",
+            "A35_U": "entry.34541657",
+            "A35_N_U": "entry.1519967629",
+            "A35_C": "entry.1807257754",
+            "A35_N_C": "entry.1060597999",
+            "A36_SOP": "entry.1062903106",
+            "A36_T": "entry.111245985",
+            "A36_N_T": "entry.389599494",
+            "A36_E": "entry.776475644",
+            "A36_N_E": "entry.1213434867",
+            "A36_U": "entry.1836352193",
+            "A36_N_U": "entry.1366204782",
+            "A36_C": "entry.555429901",
+            "A36_N_C": "entry.1175652014",
+            "B11_SOP": "entry.527133120",
+            "B11_T": "entry.1713788068",
+            "B11_N_T": "entry.1498150564",
+            "B11_E": "entry.1792294588",
+            "B11_N_E": "entry.1907756181",
+            "B11_U": "entry.671901686",
+            "B11_N_U": "entry.372426086",
+            "B11_C": "entry.275345165",
+            "B11_N_C": "entry.300634376",
+            "B12_SOP": "entry.874850781",
+            "B12_T": "entry.293391981",
+            "B12_N_T": "entry.453079399",
+            "B12_E": "entry.617406966",
+            "B12_N_E": "entry.445831813",
+            "B12_U": "entry.1354946151",
+            "B12_N_U": "entry.1110919581",
+            "B12_C": "entry.1168580211",
+            "B12_N_C": "entry.502303849",
+            "B13_SOP": "entry.74993925",
+            "B13_T": "entry.44025031",
+            "B13_N_T": "entry.1352712740",
+            "B13_E": "entry.1525013311",
+            "B13_N_E": "entry.842485966",
+            "B13_U": "entry.1511032734",
+            "B13_N_U": "entry.389172463",
+            "B13_C": "entry.1407881286",
+            "B13_N_C": "entry.646950236",
+            "B14_SOP": "entry.834762700",
+            "B14_T": "entry.98466953",
+            "B14_N_T": "entry.192303665",
+            "B14_E": "entry.672641158",
+            "B14_N_E": "entry.160868178",
+            "B14_U": "entry.1846006762",
+            "B14_N_U": "entry.1656406217",
+            "B14_C": "entry.1812309295",
+            "B14_N_C": "entry.354534279",
+            "B15_SOP": "entry.318496448",
+            "B15_T": "entry.1100235652",
+            "B15_N_T": "entry.541055734",
+            "B15_E": "entry.701264326",
+            "B15_N_E": "entry.1253630014",
+            "B15_U": "entry.731066921",
+            "B15_N_U": "entry.287594160",
+            "B15_C": "entry.1420360765",
+            "B15_N_C": "entry.387897195",
+            "B21_SOP": "entry.445503154",
+            "B21_T": "entry.1462864730",
+            "B21_N_T": "entry.1894903572",
+            "B21_E": "entry.554086315",
+            "B21_N_E": "entry.900892941",
+            "B21_U": "entry.185684593",
+            "B21_N_U": "entry.1676630660",
+            "B21_C": "entry.947864237",
+            "B21_N_C": "entry.621586635",
+            "B22_SOP": "entry.1687783583",
+            "B22_T": "entry.681595646",
+            "B22_N_T": "entry.1773595396",
+            "B22_E": "entry.1549680704",
+            "B22_N_E": "entry.2028890031",
+            "B22_U": "entry.1934285454",
+            "B22_N_U": "entry.419587922",
+            "B22_C": "entry.801163840",
+            "B22_N_C": "entry.175776307",
+            "B23_SOP": "entry.1175823265",
+            "B23_T": "entry.905201476",
+            "B23_N_T": "entry.130772413",
+            "B23_E": "entry.1033775716",
+            "B23_N_E": "entry.2108396352",
+            "B23_U": "entry.2071122986",
+            "B23_N_U": "entry.640543997",
+            "B23_C": "entry.666748929",
+            "B23_N_C": "entry.318065752",
+            "B24_SOP": "entry.703335254",
+            "B24_T": "entry.1669126063",
+            "B24_N_T": "entry.475025735",
+            "B24_E": "entry.967375214",
+            "B24_N_E": "entry.894071282",
+            "B24_U": "entry.1078425440",
+            "B24_N_U": "entry.850613208",
+            "B24_C": "entry.608139080",
+            "B24_N_C": "entry.1120082431",
+            "B25_SOP": "entry.747825049",
+            "B25_T": "entry.169846314",
+            "B25_N_T": "entry.890228310",
+            "B25_E": "entry.1593753876",
+            "B25_N_E": "entry.682887057",
+            "B25_U": "entry.802651077",
+            "B25_N_U": "entry.1294061525",
+            "B25_C": "entry.2134105988",
+            "B25_N_C": "entry.556495503",
+            "B26_SOP": "entry.1346741894",
+            "B26_T": "entry.2054409137",
+            "B26_N_T": "entry.1027510564",
+            "B26_E": "entry.1071011171",
+            "B26_N_E": "entry.855342510",
+            "B26_U": "entry.2044494796",
+            "B26_N_U": "entry.400120933",
+            "B26_C": "entry.459336331",
+            "B26_N_C": "entry.1910603491",
+            "B31_SOP": "entry.366103099",
+            "B31_T": "entry.882281935",
+            "B31_N_T": "entry.746312705",
+            "B31_E": "entry.1916022561",
+            "B31_N_E": "entry.1062771042",
+            "B31_U": "entry.235077269",
+            "B31_N_U": "entry.1005809606",
+            "B31_C": "entry.290668053",
+            "B31_N_C": "entry.510049516",
+            "B32_SOP": "entry.427100192",
+            "B32_T": "entry.945971696",
+            "B32_N_T": "entry.1455003019",
+            "B32_E": "entry.2017097198",
+            "B32_N_E": "entry.1950693315",
+            "B32_U": "entry.158169609",
+            "B32_N_U": "entry.1568520588",
+            "B32_C": "entry.580472987",
+            "B32_N_C": "entry.642104613",
+            "C11_SOP": "entry.1755373234",
+            "C11_T": "entry.1241792129",
+            "C11_N_T": "entry.579139834",
+            "C11_E": "entry.1530357553",
+            "C11_N_E": "entry.1970809929",
+            "C11_U": "entry.2042062099",
+            "C11_N_U": "entry.1083290375",
+            "C11_C": "entry.744760425",
+            "C11_N_C": "entry.694865067",
+            "C12_SOP": "entry.681023175",
+            "C12_T": "entry.881072049",
+            "C12_N_T": "entry.1539594562",
+            "C12_E": "entry.1715403788",
+            "C12_N_E": "entry.1527397451",
+            "C12_U": "entry.751134324",
+            "C12_N_U": "entry.2081385736",
+            "C12_C": "entry.184579170",
+            "C12_N_C": "entry.438897627",
+            "C13_SOP": "entry.1121513235",
+            "C13_T": "entry.1080074726",
+            "C13_N_T": "entry.647603003",
+            "C13_E": "entry.300018955",
+            "C13_N_E": "entry.1028652076",
+            "C13_U": "entry.1299589057",
+            "C13_N_U": "entry.1762765124",
+            "C13_C": "entry.693314019",
+            "C13_N_C": "entry.48363866",
+            "C14_SOP": "entry.2057571201",
+            "C14_T": "entry.69259888",
+            "C14_N_T": "entry.739006461",
+            "C14_E": "entry.1242873475",
+            "C14_N_E": "entry.879918606",
+            "C14_U": "entry.250434126",
+            "C14_N_U": "entry.2069755314",
+            "C14_C": "entry.2124993565",
+            "C14_N_C": "entry.552752371",
+            "C21_SOP": "entry.727236343",
+            "C21_T": "entry.165121779",
+            "C21_N_T": "entry.616131553",
+            "C21_E": "entry.1996382171",
+            "C21_N_E": "entry.1551754344",
+            "C21_U": "entry.247266622",
+            "C21_N_U": "entry.1300828664",
+            "C21_C": "entry.1005201957",
+            "C21_N_C": "entry.192159299",
+            "C22_SOP": "entry.1373686488",
+            "C22_T": "entry.1385127931",
+            "C22_N_T": "entry.1395190955",
+            "C22_E": "entry.1418871450",
+            "C22_N_E": "entry.1010431858",
+            "C22_U": "entry.1914529519",
+            "C22_N_U": "entry.633442037",
+            "C22_C": "entry.313840535",
+            "C22_N_C": "entry.526861486",
+            "C23_SOP": "entry.992944871",
+            "C23_T": "entry.1765548399",
+            "C23_N_T": "entry.1256115169",
+            "C23_E": "entry.153381299",
+            "C23_N_E": "entry.558041913",
+            "C23_U": "entry.913488441",
+            "C23_N_U": "entry.1214632999",
+            "C23_C": "entry.1171961368",
+            "C23_N_C": "entry.1299228022",
+            "D11_SOP": "entry.1162598368",
+            "D11_T": "entry.465393926",
+            "D11_N_T": "entry.1297825652",
+            "D11_E": "entry.1917826581",
+            "D11_N_E": "entry.1592276507",
+            "D11_U": "entry.367010354",
+            "D11_N_U": "entry.1514735557",
+            "D11_C": "entry.1566968088",
+            "D11_N_C": "entry.1898419873",
+            "D12_SOP": "entry.2072343363",
+            "D12_T": "entry.944843047",
+            "D12_N_T": "entry.744367032",
+            "D12_E": "entry.144163468",
+            "D12_N_E": "entry.421600909",
+            "D12_U": "entry.636974895",
+            "D12_N_U": "entry.1846212046",
+            "D12_C": "entry.1311666549",
+            "D12_N_C": "entry.1472181778",
+            "D21_SOP": "entry.366801065",
+            "D21_T": "entry.1655577927",
+            "D21_N_T": "entry.122236970",
+            "D21_E": "entry.331796709",
+            "D21_N_E": "entry.1167868993",
+            "D21_U": "entry.1169819898",
+            "D21_N_U": "entry.1436001728",
+            "D21_C": "entry.296038315",
+            "D21_N_C": "entry.1894638120",
+            "D22_SOP": "entry.1636394287",
+            "D22_T": "entry.1164057328",
+            "D22_N_T": "entry.1719687435",
+            "D22_E": "entry.405384086",
+            "D22_N_E": "entry.1943054419",
+            "D22_U": "entry.521464691",
+            "D22_N_U": "entry.348076125",
+            "D22_C": "entry.1567575892",
+            "D22_N_C": "entry.1848241630",
+            "D23_SOP": "entry.1864629364",
+            "D23_T": "entry.1791719704",
+            "D23_N_T": "entry.1776736972",
+            "D23_E": "entry.1936948013",
+            "D23_N_E": "entry.659993862",
+            "D23_U": "entry.1367535691",
+            "D23_N_U": "entry.640631618",
+            "D23_C": "entry.1848791869",
+            "D23_N_C": "entry.1602066764",
+            "D24_SOP": "entry.881808211",
+            "D24_T": "entry.443415078",
+            "D24_N_T": "entry.1706780038",
+            "D24_E": "entry.920414559",
+            "D24_N_E": "entry.888458342",
+            "D24_U": "entry.1300984804",
+            "D24_N_U": "entry.787243689",
+            "D24_C": "entry.865446430",
+            "D24_N_C": "entry.2030513707",
+            "D31_SOP": "entry.755084382",
+            "D31_T": "entry.1714301480",
+            "D31_N_T": "entry.1882933404",
+            "D31_E": "entry.1448912294",
+            "D31_N_E": "entry.435183877",
+            "D31_U": "entry.1573488940",
+            "D31_N_U": "entry.1968681084",
+            "D31_C": "entry.1331343186",
+            "D31_N_C": "entry.250582773",
+            "D32_SOP": "entry.786404590",
+            "D32_T": "entry.428383547",
+            "D32_N_T": "entry.1630851439",
+            "D32_E": "entry.1426581937",
+            "D32_N_E": "entry.1242821031",
+            "D32_U": "entry.1073223517",
+            "D32_N_U": "entry.328092414",
+            "D32_C": "entry.2110066990",
+            "D32_N_C": "entry.2013546851",
+            "D33_SOP": "entry.2075811838",
+            "D33_T": "entry.1373010957",
+            "D33_N_T": "entry.299897115",
+            "D33_E": "entry.820992782",
+            "D33_N_E": "entry.544005503",
+            "D33_U": "entry.143672276",
+            "D33_N_U": "entry.1796820471",
+            "D33_C": "entry.1295507750",
+            "D33_N_C": "entry.1407826172",
+            "D41_SOP": "entry.1854239605",
+            "D41_T": "entry.1594999410",
+            "D41_N_T": "entry.171432504",
+            "D41_E": "entry.2087821670",
+            "D41_N_E": "entry.1901623368",
+            "D41_U": "entry.1792508321",
+            "D41_N_U": "entry.1906572815",
+            "D41_C": "entry.60968274",
+            "D41_N_C": "entry.1182988508",
+            "D51_SOP": "entry.1991528727",
+            "D51_T": "entry.866377984",
+            "D51_N_T": "entry.1325112425",
+            "D51_E": "entry.50060053",
+            "D51_N_E": "entry.1952560795",
+            "D51_U": "entry.877211804",
+            "D51_N_U": "entry.113316968",
+            "D51_C": "entry.1118209661",
+            "D51_N_C": "entry.1418110815",
+            "D52_SOP": "entry.1315474193",
+            "D52_T": "entry.1711126870",
+            "D52_N_T": "entry.618029095",
+            "D52_E": "entry.1343985991",
+            "D52_N_E": "entry.1735385820",
+            "D52_U": "entry.2037632032",
+            "D52_N_U": "entry.685586637",
+            "D52_C": "entry.2135875223",
+            "D52_N_C": "entry.945901103",
+            "E11_SOP": "entry.1859405285",
+            "E11_T": "entry.814824735",
+            "E11_N_T": "entry.178081934",
+            "E11_E": "entry.1855382906",
+            "E11_N_E": "entry.1894005337",
+            "E11_U": "entry.1841009900",
+            "E11_N_U": "entry.1169157279",
+            "E11_C": "entry.2080475060",
+            "E11_N_C": "entry.1556100809",
+            "E21_SOP": "entry.1864537900",
+            "E21_T": "entry.953157089",
+            "E21_N_T": "entry.2073688394",
+            "E21_E": "entry.1803083833",
+            "E21_N_E": "entry.2103334937",
+            "E21_U": "entry.447666450",
+            "E21_N_U": "entry.982562523",
+            "E21_C": "entry.532257095",
+            "E21_N_C": "entry.1090033614",
+            "E22_SOP": "entry.1619977198",
+            "E22_T": "entry.922050565",
+            "E22_N_T": "entry.1358319287",
+            "E22_E": "entry.2110260292",
+            "E22_N_E": "entry.1647699341",
+            "E22_U": "entry.438907208",
+            "E22_N_U": "entry.1227203538",
+            "E22_C": "entry.2110038959",
+            "E22_N_C": "entry.2027801493",
+            "E23_SOP": "entry.245534844",
+            "E23_T": "entry.842184481",
+            "E23_N_T": "entry.1144292461",
+            "E23_E": "entry.966391816",
+            "E23_N_E": "entry.373271426",
+            "E23_U": "entry.649133325",
+            "E23_N_U": "entry.756497355",
+            "E23_C": "entry.244464457",
+            "E23_N_C": "entry.130628054",
+            "E24_SOP": "entry.1735130698",
+            "E24_T": "entry.731688102",
+            "E24_N_T": "entry.468829180",
+            "E24_E": "entry.1689277759",
+            "E24_N_E": "entry.1453301369",
+            "E24_U": "entry.236856754",
+            "E24_N_U": "entry.951874821",
+            "E24_C": "entry.23292519",
+            "E24_N_C": "entry.1584295433",
+            "E3_SOP": "entry.327675460",
+            "E3_T": "entry.1308554877",
+            "E3_N_T": "entry.648830464",
+            "E3_E": "entry.906489735",
+            "E3_N_E": "entry.2086154489",
+            "E3_U": "entry.1343379372",
+            "E3_N_U": "entry.1035870909",
+            "E3_C": "entry.1792981344",
+            "E3_N_C": "entry.528682365",
+            "E41_SOP": "entry.419245374",
+            "E41_T": "entry.616895236",
+            "E41_N_T": "entry.214468190",
+            "E41_E": "entry.1658373410",
+            "E41_N_E": "entry.720262764",
+            "E41_U": "entry.646494137",
+            "E41_N_U": "entry.863117722",
+            "E41_C": "entry.1863139913",
+            "E41_N_C": "entry.612465980",
+            "F11_SOP": "entry.914304058",
+            "F11_T": "entry.619311907",
+            "F11_N_T": "entry.1529097351",
+            "F11_E": "entry.1212124647",
+            "F11_N_E": "entry.1690509051",
+            "F11_U": "entry.808266765",
+            "F11_N_U": "entry.298914468",
+            "F11_C": "entry.1295297172",
+            "F11_N_C": "entry.1422913473",
+            "F12_SOP": "entry.1592347601",
+            "F12_T": "entry.1218625346",
+            "F12_N_T": "entry.1045190017",
+            "F12_E": "entry.1279122365",
+            "F12_N_E": "entry.1829976776",
+            "F12_U": "entry.1822486511",
+            "F12_N_U": "entry.1608502563",
+            "F12_C": "entry.733911836",
+            "F12_N_C": "entry.177172255",
+            "F13_SOP": "entry.1699352993",
+            "F13_T": "entry.777851983",
+            "F13_N_T": "entry.1109144086",
+            "F13_E": "entry.1649883450",
+            "F13_N_E": "entry.106094214",
+            "F13_U": "entry.1669010692",
+            "F13_N_U": "entry.2066936794",
+            "F13_C": "entry.497743675",
+            "F13_N_C": "entry.1460697438",
+            "F14_SOP": "entry.1094608425",
+            "F14_T": "entry.1513185749",
+            "F14_N_T": "entry.1881532491",
+            "F14_E": "entry.1632573890",
+            "F14_N_E": "entry.1950243155",
+            "F14_U": "entry.365944653",
+            "F14_N_U": "entry.1448635352",
+            "F14_C": "entry.75206492",
+            "F14_N_C": "entry.1345423984",
+            "F21_SOP": "entry.86651369",
+            "F21_T": "entry.146206649",
+            "F21_N_T": "entry.1519572722",
+            "F21_E": "entry.1093803818",
+            "F21_N_E": "entry.698886501",
+            "F21_U": "entry.68944982",
+            "F21_N_U": "entry.21087162",
+            "F21_C": "entry.1069915757",
+            "F21_N_C": "entry.1232442209",
+            "F22_SOP": "entry.1936061217",
+            "F22_T": "entry.815612858",
+            "F22_N_T": "entry.1807535008",
+            "F22_E": "entry.1042198321",
+            "F22_N_E": "entry.385766665",
+            "F22_U": "entry.1576813555",
+            "F22_N_U": "entry.367161425",
+            "F22_C": "entry.314625029",
+            "F22_N_C": "entry.112372784",
+            "F23_SOP": "entry.1946955648",
+            "F23_T": "entry.964582365",
+            "F23_N_T": "entry.1627473264",
+            "F23_E": "entry.1448891753",
+            "F23_N_E": "entry.501786913",
+            "F23_U": "entry.914202066",
+            "F23_N_U": "entry.1117863956",
+            "F23_C": "entry.1634144881",
+            "F23_N_C": "entry.672469979",
+            "F24_SOP": "entry.1695848776",
+            "F24_T": "entry.261103986",
+            "F24_N_T": "entry.328625903",
+            "F24_E": "entry.928519768",
+            "F24_N_E": "entry.351566583",
+            "F24_U": "entry.2054456574",
+            "F24_N_U": "entry.642475601",
+            "F24_C": "entry.2114050025",
+            "F24_N_C": "entry.816965548",
+            "F31_SOP": "entry.947828243",
+            "F31_T": "entry.490611338",
+            "F31_N_T": "entry.68216670",
+            "F31_E": "entry.1279253739",
+            "F31_N_E": "entry.765926640",
+            "F31_U": "entry.157881901",
+            "F31_N_U": "entry.2135159064",
+            "F31_C": "entry.13949267",
+            "F31_N_C": "entry.1242417343",
+            "F32_SOP": "entry.1308009925",
+            "F32_T": "entry.740576637",
+            "F32_N_T": "entry.73581218",
+            "F32_E": "entry.1487479950",
+            "F32_N_E": "entry.1418609673",
+            "F32_U": "entry.2019307729",
+            "F32_N_U": "entry.1132146818",
+            "F32_C": "entry.1122661429",
+            "F32_N_C": "entry.1731546653",
+            "F33_SOP": "entry.1671913719",
+            "F33_T": "entry.543229186",
+            "F33_N_T": "entry.388371371",
+            "F33_E": "entry.1566531063",
+            "F33_N_E": "entry.1933131499",
+            "F33_U": "entry.1962438201",
+            "F33_N_U": "entry.315440663",
+            "F33_C": "entry.979384330",
+            "F33_N_C": "entry.978084508",
+            "G11_SOP": "entry.208246383",
+            "G11_T": "entry.578636224",
+            "G11_N_T": "entry.440100023",
+            "G11_E": "entry.356791192",
+            "G11_N_E": "entry.1192471175",
+            "G11_U": "entry.893979880",
+            "G11_N_U": "entry.63066569",
+            "G11_C": "entry.245534574",
+            "G11_N_C": "entry.775264310",
+            "G12_SOP": "entry.904676208",
+            "G12_T": "entry.1225109916",
+            "G12_N_T": "entry.1390610918",
+            "G12_E": "entry.1832330648",
+            "G12_N_E": "entry.2042023480",
+            "G12_U": "entry.1671140190",
+            "G12_N_U": "entry.1781617284",
+            "G12_C": "entry.1323712804",
+            "G12_N_C": "entry.1316480014",
+            "G13_SOP": "entry.291317420",
+            "G13_T": "entry.915668385",
+            "G13_N_T": "entry.516733125",
+            "G13_E": "entry.2117900286",
+            "G13_N_E": "entry.753958257",
+            "G13_U": "entry.942153411",
+            "G13_N_U": "entry.1871155694",
+            "G13_C": "entry.1392030717",
+            "G13_N_C": "entry.551498970",
+            "G21_SOP": "entry.1199302344",
+            "G21_T": "entry.633806163",
+            "G21_N_T": "entry.912514910",
+            "G21_E": "entry.940538319",
+            "G21_N_E": "entry.578990840",
+            "G21_U": "entry.1729692893",
+            "G21_N_U": "entry.2079395395",
+            "G21_C": "entry.918464270",
+            "G21_N_C": "entry.1116153328",
+            "sigThreat": "entry.78035043",
+            "sigError": "entry.2037245747",
+            "effectiveCm": "entry.1565574027",
+            "generalComments": "entry.258257920",
+            "areasOfStrength": "entry.2139378029",
+            "opportunitiesForImprovement": "entry.2059751120",
+            "observerSignature": "entry.1719747227",
+            "reportCompletionDate": "entry.916147239",
+            "flightNumber": "entry.630057086"
         };
 
+        // *** II. TEM FRAMEWORK KEY (รหัส) ***
+        const TEM_CODES = {
+            THREATS: {
+                T_TE: "TE: Environmental (Weather, Turbulence, Airport Conditions, Time of Day)",
+                T_TO: "TO: Operational (Delays, Aircraft Changes/MEL, ATC, Ground Handling, Catering)",
+                T_TC: "TC: Cabin/Passenger (Unruly Pax, Medical, Equipment Malfunction)",
+                T_TT: "TT: Team/Crew (Fatigue, Conflict, Inexperience, Communication Breakdown)",
+                T_TL: "TL: Latent (Flawed Procedures, Inadequate Training, Poor Equipment Design)"
+            },
+            ERRORS: {
+                E_EP: "EP: Procedural (Non-compliance with SOPs, Checklist errors, Incorrect use of equipment)",
+                E_EC: "EC: Communication (Misunderstood instructions, Poor handover, Lack of assertiveness)",
+                E_ED: "ED: Decision (Flawed risk assessment, Poor judgment, Incorrect problem-solving)",
+                E_ES: "ES: Skill-based/Proficiency (Slip, Lapse, Incorrect execution of a learned skill)",
+                E_EV: "EV: Violation (Intentional Non-Compliance)"
+            },
+            UCS: {
+                U_SOP: "UCS-SOP: Deviation from SOP", U_EQP: "UCS-EQP: Incorrect Equipment use", U_PAX: "UCS-PAX: Compromised PAX safety", U_COM: "UCS-COM: Degraded Communication"
+            },
+            CM: {
+                C_PLN: "CM-PLN: Planning (Briefings, 'what-if' scenarios)",
+                C_SOP: "CM-SOP: Procedural (Following checklists, SOPs)",
+                C_COM: "CM-COM: Communication (Clear communication, Cross-checking, Assertiveness)",
+                C_MON: "CM-MON: Monitoring (Vigilance, Scanning, Cross-checking)",
+                C_WSM: "CM-WSM: Workload/Systems Management (Prioritization, Delegation)",
+                C_SPT: "CM-SPT: Support/Teamwork (Seeking assistance, Providing support, Crew coordination)"
+            }
+        };
+
+        const TEM_OPTIONS_MAP = {
+            'Threats': TEM_CODES.THREATS,
+            'Errors': TEM_CODES.ERRORS,
+            'UCS': TEM_CODES.UCS,
+            'Countermeasures': TEM_CODES.CM
+        };
+
+        // *** III. OBSERVATIONAL CHECKLIST DEFINITION (ส่วนที่ 3) ***
         const CHECKLIST_DEFINITIONS = [
-            { id: 'emergency_equipment', label: 'Emergency Equipment (Flashlight, Megaphone) - Serviceable' },
-            { id: 'medical_kits', label: 'Medical Kits (First Aid, EMK) - Seals Intact' },
-            { id: 'galley_security', label: 'Galley Security (Latches, Carts) - Secured' },
-            { id: 'cabin_condition', label: 'Cabin Condition (Overhead Bins, Aisles) - Clear & Secure' },
-            { id: 'safety_cards', label: 'Safety Information Cards - Correct Type & Quantity' },
-            { id: 'doors_slides', label: 'Doors & Slides - Correct Mode (Armed/Disarmed)' },
-            { id: 'interphone_pa', label: 'Interphone & PA System - Functionality Check' },
-            { id: 'lavatory_checks', label: 'Lavatory Checks (Smoke Detector, Waste Bin) - Verified' },
-            { id: 'crew_briefing', label: 'Pre-Flight Briefing - Acknowledged' },
-            { id: 'cabin_lighting', label: 'Cabin Lighting System - Set for Phase of Flight' }
+            { id: 'A', title: 'A. Pre-Flight & Crew Briefing', items: [
+                { id: 'A1', label: '1. Crew Briefing (All Crew - Flight & Cabin)', isGroup: true, subItems: [
+                    { id: 'A11', label: '- Attendance/ Punctuality/ Grooming' },
+                    { id: 'A12', label: '- Documentation (Flight document)' },
+                    { id: 'A13', label: '- Review updated safety information' },
+                    { id: 'A14', label: '- Safety/First aid/Security/DG Review' },
+                    { id: 'A15', label: '- Service Review (if applicable)' },
+                    { id: 'A16', label: '- TEM discussion (anticipated threats)' },
+                    { id: 'A17', label: '- Crew Co-ordination & Communication established' }
+                ]},
+                { id: 'A2', label: '2. Cabin Crew Briefing (Cabin Specific)', isGroup: true, subItems: [
+                    { id: 'A21', label: '- Allocation of CC station' },
+                    { id: 'A22', label: '- A/C type and equipment fitted' },
+                    { id: 'A23', label: '- Emergency Procedures Review' },
+                    { id: 'A24', label: '- Security Procedures Review (e.g., checked, search, risk level)' },
+                    { id: 'A25', label: '- Special Categoried Passenger Info (e.g., PRMs, YPTA)' }
+                ]},
+                { id: 'A3', label: '3. Pre-Flight Cabin Checks', isGroup: true, subItems: [
+                    { id: 'A31', label: '- Doors (pre-flight check, serviceablility)' },
+                    { id: 'A32', label: '- Emergency Equipment (location, serviceability)' },
+                    { id: 'A33', label: '- Security Checks (cabin, lavatories, galleys, attendant station)' },
+                    { id: 'A34', label: '- Cabin Cleanliness & Appearance' },
+                    { id: 'A35', label: '- Catering/Supplies (if applicable)' },
+                    { id: 'A36', label: '- Interphone/PA System Check' }
+                ]}
+            ]},
+            { id: 'B', title: 'B. Boarding', items: [
+                { id: 'B1', label: '1. Passenger Greeting & Assistance', isGroup: true, subItems: [
+                    { id: 'B11', label: '- Monitoring carry-on baggage (size, quantity)' },
+                    { id: 'B12', label: '- Refuelling procedure' },
+                    { id: 'B13', label: '- Exit row briefing & compliance' },
+                    { id: 'B14', label: '- Assistance and briefing to special categoried passengers (e.g., PRMs)' },
+                    { id: 'B15', label: '- Managing passenger flow' }
+                ]},
+                { id: 'B2', label: '2. Pre-Departure Cabin Secure', isGroup: true, subItems: [
+                    { id: 'B21', label: '- Overhead bins closed' },
+                    { id: 'B22', label: '- Galley equipment secured' },
+                    { id: 'B23', label: '- Doors/Aisles/Exits clear' },
+                    { id: 'B24', label: '- Passenger count reconciliation' },
+                    { id: 'B25', label: '- Doors armed / Cross-check procedure' },
+                    { id: 'B26', label: '- Welcome Announcement' }
+                ]},
+                { id: 'B3', label: '3. Safety Demonstration', isGroup: true, subItems: [
+                    { id: 'B31', label: '- Clarity, accuracy, visibility' },
+                    { id: 'B32', label: '- Passenger attentiveness (managed if needed)' }
+                ]}
+            ]},
+            { id: 'C', title: 'C. Taxi-Out, Take-off & Climb', items: [
+                { id: 'C1', label: '1. Final Cabin Checks', isGroup: true, subItems: [
+                    { id: 'C11', label: '- Take off preparation' },
+                    { id: 'C12', label: '- Report cabin readiness' },
+                    { id: 'C13', label: '- Cabin lighting' },
+                    { id: 'C14', label: '- Performing Brace position' }
+                ]},
+                { id: 'C2', label: '2. Response to Take-off/Climb', isGroup: true, subItems: [
+                    { id: 'C21', label: '- Sterile Flight Deck Adherence' },
+                    { id: 'C22', label: '- Monitoring cabin condition' },
+                    { id: 'C23', label: '- Awareness of adhoc situation' }
+                ]}
+            ]},
+            { id: 'D', title: 'D. Cruise', items: [
+                { id: 'D1', label: '1. Service Delivery (if applicable)', isGroup: true, subItems: [
+                    { id: 'D11', label: '- Efficiency, safety during service' },
+                    { id: 'D12', label: '- Galley management' }
+                ]},
+                { id: 'D2', label: '2. Cabin Surveillance', isGroup: true, subItems: [
+                    { id: 'D21', label: '- Periodically check cabin' },
+                    { id: 'D22', label: '- Periodically check on flght crew' },
+                    { id: 'D23', label: '- Periodically check Lavatory' },
+                    { id: 'D24', label: '- Response to call light and Reset' }
+                ]},
+                { id: 'D3', label: '3. Passenger Handling (if any)', isGroup: true, subItems: [
+                    { id: 'D31', label: '- Medical situations' },
+                    { id: 'D32', label: '- Unruly/disruptive passengers' },
+                    { id: 'D33', label: '- Others' }
+                ]},
+                { id: 'D4', label: '4. Communication with Flight Crew (if any)', isGroup: true, subItems: [
+                    { id: 'D41', label: '- Reporting irregularities (If any)' }
+                ]},
+                { id: 'D5', label: '5. Turbulence Management', isGroup: true, subItems: [
+                    { id: 'D51', label: '- Follow turbulance management procedure' },
+                    { id: 'D52', label: '- Secure self' }
+                ]}
+            ]},
+            { id: 'E', title: 'E. Descent, Approach & Landing', items: [
+                { id: 'E1', label: '1. Pre-Landing Announcements & Cabin Prep', isGroup: true, subItems: [
+                    { id: 'E11', label: '- Pre-landing preparation' }
+                ]},
+                { id: 'E2', label: '2. Final Cabin Checks (Landing)', isGroup: true, subItems: [
+                    { id: 'E21', label: '- Seatbelts, tray tables, seatbacks, PEDs, etc.' },
+                    { id: 'E22', label: '- Report cabin readiness' },
+                    { id: 'E23', label: '- Cabin lighting' },
+                    { id: 'E24', label: '- Performing Brace position' }
+                ]},
+                { id: 'E3', label: '3. Sterile Flight Deck Adherence' },
+                { id: 'E4', label: '4. Response to Landing', isGroup: true, subItems: [
+                    { id: 'E41', label: '- Monitoring cabin condition' }
+                ]}
+            ]},
+            { id: 'F', title: 'F. Taxi-In & Disembarkation', items: [
+                { id: 'F1', label: '1. Arrival Duties', isGroup: true, subItems: [
+                    { id: 'F11', label: '- Arrival Announcement' },
+                    { id: 'F12', label: '- Cabin monitoring' },
+                    { id: 'F13', label: '- Doors Disarmed / Cross-check procedure' },
+                    { id: 'F14', label: '- Doors Opening Procedure' }
+                ]},
+                { id: 'F2', label: '2. Disembarkation Process', isGroup: true, subItems: [
+                    { id: 'F21', label: '- Cabin monitoring' },
+                    { id: 'F22', label: '- Assistance to special categoried passenger' },
+                    { id: 'F23', label: '- Refueling procedure (If any)' },
+                    { id: 'F24', label: '- Cabin check after passenger disembarkation and Report' }
+                ]},
+                { id: 'F3', label: '3. Post-Flight Cabin Checks', isGroup: true, subItems: [
+                    { id: 'F31', label: '- Perform Security Checks' },
+                    { id: 'F32', label: '- Perform transit duties' },
+                    { id: 'F33', label: '- Reporting cabin defects (If any)' }
+                ]}
+            ]},
+            { id: 'G', title: 'G. Post-Flight / Debrief (Observed if possible)', items: [
+                { id: 'G1', label: '1. Crew Debrief', isGroup: true, subItems: [
+                    { id: 'G11', label: '- Discussion of flight events' },
+                    { id: 'G12', label: '- Sharing idea' },
+                    { id: 'G13', label: '- Feedback on TEM' }
+                ]},
+                { id: 'G2', label: '2. Reporting System', isGroup: true, subItems: [
+                    { id: 'G21', label: '- Redeye' }
+                ]}
+            ]}
         ];
 
         const form = document.getElementById('checklist-form');
+        const checklistContainer = document.getElementById('checklist-container');
         const statusText = document.getElementById('status-text');
         const statusDot = document.getElementById('status-dot');
         const pendingCount = document.getElementById('pending-count');
         const pendingList = document.getElementById('pending-list');
-        const checklistItemsContainer = document.getElementById('checklist-items');
         const manualSyncBtn = document.getElementById('manual-sync-btn');
         let hasShownSyncPrompt = false;
 
+        // *** HELPER FUNCTIONS ***
         function showToast(message, icon = 'success') {
             const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, timerProgressBar: true, });
             Toast.fire({ icon: icon, title: message });
         }
 
-        function generateChecklistItems() {
-            checklistItemsContainer.innerHTML = CHECKLIST_DEFINITIONS.map(item => `
-                <div class="mb-4">
-                    <label for="${item.id}" class="block text-gray-700 mb-2">${item.label}:</label>
-                    <select id="${item.id}" name="${item.id}" class="w-full px-3 py-2 border rounded-lg bg-white" required>
-                        <option value="OK">OK</option>
-                        <option value="Action Required">Action Required</option>
-                        <option value="N/A">N/A</option>
-                    </select>
-                </div>
-            `).join('');
+        function createDropdown(name, options, isTEM = false, isSOP = false) {
+            const select = document.createElement('select');
+            select.name = name;
+            select.className = `w-full border rounded-lg bg-white ${isTEM ? 'temp-code-dropdown' : 'sop-dropdown'}`;
+            // ⚠️ REMOVED: Removed 'required' attribute here to bypass browser's default validation on non-selected dropdowns
+            
+            // Add initial blank option for Code/Narrative fields or "-- Select --" for others
+            if (isTEM || !isSOP) {
+                const defaultOption = document.createElement('option');
+                defaultOption.value = "";
+                defaultOption.textContent = isTEM ? "Code" : "-- Select --";
+                select.appendChild(defaultOption);
+            }
+
+            for (const value in options) {
+                const option = document.createElement('option');
+                option.value = options[value]; // Set value as the full code description (for consistency with Google Form Choices)
+                option.textContent = options[value].split(':')[0]; // Display only the code part (e.g., T_TE)
+                select.appendChild(option);
+            }
+            // For SOP, the actual values are Y, N, NA, which are simple labels.
+            if (isSOP) {
+                 select.innerHTML = '';
+                 ['Y', 'N', 'NA'].forEach(v => {
+                    const option = document.createElement('option');
+                    option.value = v;
+                    option.textContent = v;
+                    select.appendChild(option);
+                 });
+                 // Re-add required only for SOP field if needed, otherwise rely on the default select
+                 select.required = true;
+            }
+            return select.outerHTML;
         }
-        
+
+        function createTextArea(name, placeholder) {
+            return `<textarea name="${name}" rows="1" class="w-full border rounded-lg narrative-textarea" placeholder="${placeholder}"></textarea>`;
+        }
+
+        function generateChecklistHTML() {
+            let html = '';
+            CHECKLIST_DEFINITIONS.forEach(section => {
+                html += `<div class="mb-8">`;
+                html += `<h3 class="text-md font-bold text-white bg-red-500 p-2 rounded-t-lg">${section.title}</h3>`;
+                html += `<div class="overflow-x-auto"><table class="checklist-table w-full">`; 
+                html += `<thead><tr>`;
+                html += `<th class="item-col">Check Item / Area of Observation</th>`;
+                html += `<th class="sop-col required-asterisk">SOP Met (Y/N/NA)</th>`;
+                html += `<th class="code-col bg-t">Threats (Code)</th>`;
+                html += `<th class="desc-col bg-t">Describe</th>`;
+                html += `<th class="code-col bg-e">Errors (Code)</th>`;
+                html += `<th class="desc-col bg-e">Describe</th>`;
+                html += `<th class="code-col bg-u">UCS (Code)</th>`;
+                html += `<th class="desc-col bg-u">Describe</th>`;
+                html += `<th class="code-col bg-c">CM (Code)</th>`;
+                html += `<th class="desc-col bg-c">Describe</th>`;
+                html += `<th class="narrative-col">Narrative/Comments</th>`;
+                html += `</tr></thead><tbody>`;
+
+                section.items.forEach(item => {
+                    // Collect all sub-items, including the item itself if it's not a group (e.g., E3)
+                    const itemsToRender = item.isGroup && item.subItems ? item.subItems : [item];
+                    
+                    if (item.isGroup && item.subItems) {
+                        html += `<tr class="checklist-item-group"><td colspan="11" class="text-sm font-semibold">${item.label}</td></tr>`;
+                    }
+
+                    itemsToRender.forEach(subItem => {
+                        const baseName = `${subItem.id}`; 
+                        
+                        // SOP Dropdown (required in Google Form, but forced selection in HTML via 'required' attribute)
+                        const sopDropdown = createDropdown(`${baseName}_SOP`, { 'Y': 'Y', 'N': 'N', 'NA': 'NA' }, false, true); 
+                        
+                        // TEM Code Dropdowns (Not Required in HTML, rely on Form Action URL Mapping)
+                        const tDropdown = createDropdown(`${baseName}_T`, TEM_OPTIONS_MAP.THREATS, true);
+                        const tNarrative = createTextArea(`${baseName}_N_T`, 'Threat narrative...');
+                        
+                        const eDropdown = createDropdown(`${baseName}_E`, TEM_OPTIONS_MAP.ERRORS, true);
+                        const eNarrative = createTextArea(`${baseName}_N_E`, 'Error narrative...');
+
+                        const ucsDropdown = createDropdown(`${baseName}_U`, TEM_OPTIONS_MAP.UCS, true);
+                        const ucsNarrative = createTextArea(`${baseName}_N_U`, 'UCS narrative...');
+
+                        const cmDropdown = createDropdown(`${baseName}_C`, TEM_OPTIONS_MAP.CM, true);
+                        const cmNarrative = createTextArea(`${baseName}_N_C`, 'CM narrative...');
+
+                        // Final Narrative field (mapped to the generic Narrative ID if exists, otherwise left blank)
+                        const mainNarrative = createTextArea(`${baseName}_N`, 'Overall comments...');
+
+                        html += `<tr class="checklist-item text-xs">`;
+                        html += `<td class="font-normal">${subItem.label}</td>`;
+                        html += `<td>${sopDropdown}</td>`;
+                        html += `<td class="bg-t">${tDropdown}</td>`;
+                        html += `<td class="bg-t">${tNarrative}</td>`;
+                        html += `<td class="bg-e">${eDropdown}</td>`;
+                        html += `<td class="bg-e">${eNarrative}</td>`;
+                        html += `<td class="bg-u">${ucsDropdown}</td>`;
+                        html += `<td class="bg-u">${ucsNarrative}</td>`;
+                        html += `<td class="bg-c">${cmDropdown}</td>`;
+                        html += `<td class="bg-c">${cmNarrative}</td>`;
+                        html += `<td>${mainNarrative}</td>`;
+                        html += `</tr>`;
+                    });
+                });
+                html += `</tbody></table></div></div>`;
+            });
+
+            checklistContainer.innerHTML = html;
+        }
+
+
+        // PWA/Offline Functions (Unchanged)
+        function showToast(message, icon = 'success') {
+            const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, timerProgressBar: true, });
+            Toast.fire({ icon: icon, title: message });
+        }
+
         function showSyncConfirmation() {
             const submissions = JSON.parse(localStorage.getItem('pendingSubmissions') || '[]');
             if (submissions.length === 0 || !navigator.onLine || hasShownSyncPrompt) {
@@ -161,9 +1194,9 @@
             if (isOnline) {
                 showSyncConfirmation();
             } else {
-                hasShownSyncPrompt = false; // Reset prompt flag when offline
+                hasShownSyncPrompt = false;
             }
-            updatePendingUI(); // Update button visibility
+            updatePendingUI();
         }
 
         function saveDataLocally(data) {
@@ -180,7 +1213,7 @@
             pendingList.innerHTML = submissions.length === 0 ? '<p class="text-gray-500 text-center">No pending items.</p>' : submissions.map((sub) => 
                 `<div class="flex justify-between items-center p-2 border-b">
                     <div>
-                        <strong class="text-sm">${sub.inspectorName} - FD${sub.flightNumber}</strong>
+                        <strong class="text-sm">${sub.inspectorName} - FD${sub.flightNumberNew || sub.flightNumber || 'N/A'}</strong>
                         <span class="text-xs text-gray-500 block">${new Date(sub.timestamp).toLocaleString()}</span>
                     </div>
                     <button data-timestamp="${sub.timestamp}" class="delete-btn bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-2 rounded text-xs">
@@ -188,11 +1221,12 @@
                     </button>
                 </div>`
             ).join('');
-            manualSyncBtn.classList.toggle('hidden', !navigator.onLine || submissions.length === 0);
+            const isOnline = navigator.onLine;
+            manualSyncBtn.classList.toggle('hidden', !isOnline || submissions.length === 0);
         }
 
         function deletePendingItem(timestamp) {
-            Swal.fire({
+             Swal.fire({
                 title: 'Confirm Deletion', text: "Are you sure you want to delete this record?", icon: 'warning',
                 showCancelButton: true, confirmButtonColor: '#d33', cancelButtonColor: '#3085d6',
                 confirmButtonText: 'Yes, delete it!', cancelButtonText: 'Cancel'
@@ -217,12 +1251,15 @@
 
             for (const submission of submissions) {
                 const formData = new FormData();
-                formData.append(INPUT_MAPPING.inspectorName, submission.inspectorName);
-                formData.append(INPUT_MAPPING.flightNumber, submission.flightNumber);
-                formData.append(INPUT_MAPPING.remarks, submission.remarks);
-                CHECKLIST_DEFINITIONS.forEach(item => {
-                    formData.append(INPUT_MAPPING[item.id], submission[item.id]);
-                });
+                
+                // Append all data from the submission object using the INPUT_MAPPING
+                for (const key in submission) {
+                    const entryId = INPUT_MAPPING[key];
+                    if (entryId) {
+                        // Ensure that all values, including blank ones from unselected dropdowns, are sent as strings
+                        formData.append(entryId, submission[key] || ""); 
+                    }
+                }
                 
                 try {
                     await fetch(GOOGLE_FORM_ACTION_URL, {
@@ -231,8 +1268,8 @@
                     successfullySynced.push(submission);
                 } catch (error) {
                     console.error('Sync Error:', error);
-                    showToast('Sync failed. Please try again.', 'error');
-                    break; 
+                    showToast('Sync failed. Please check connection and try again.', 'error');
+                    break;  
                 }
             }
 
@@ -248,19 +1285,47 @@
             e.preventDefault();
             const formData = new FormData(form);
             const data = { timestamp: new Date().toISOString() };
+
+            // I. Flight & Audit Details & IV. Summary (ใช้ชื่อฟิลด์จาก HTML)
+            data['observationDate'] = formData.get('observation-date');
+            data['flightNumberNew'] = formData.get('flight-number-new');
+            data['routeFrom'] = formData.get('route-from');
+            data['routeTo'] = formData.get('route-to');
+            data['aircraftType'] = formData.get('aircraft-type');
+            data['observerId'] = formData.get('observer-id');
+            data['crewObserved'] = formData.get('crew-observed');
+            data['loadFactor'] = formData.get('load-factor');
             data['inspectorName'] = formData.get('inspector-name');
-            data['flightNumber'] = formData.get('flight-number');
-            data['remarks'] = formData.get('remarks');
-            CHECKLIST_DEFINITIONS.forEach(item => {
-                 data[item.id] = formData.get(item.id);
+            data['flightNumber'] = formData.get('flight-number-new'); 
+
+            data['sigThreat'] = formData.get('sig-threat') || "";
+            data['sigError'] = formData.get('sig-error') || "";
+            data['effectiveCm'] = formData.get('effective-cm') || "";
+            data['generalComments'] = formData.get('general-comments') || "";
+            data['areasOfStrength'] = formData.get('areas-of-strength') || "";
+            data['opportunitiesForImprovement'] = formData.get('opportunities-for-improvement') || "";
+            data['observerSignature'] = formData.get('observer-signature') || "";
+            data['reportCompletionDate'] = formData.get('report-completion-date');
+
+
+            // III. Observational Checklist (Dynamic Items)
+            const allInputs = form.querySelectorAll('select, textarea, input[type="text"], input[type="number"], input[type="date"]');
+            allInputs.forEach(input => {
+                const name = input.name;
+                // ดึงข้อมูลทั้งหมดที่สร้างแบบไดนามิก (A11_SOP, A11_T, A11_N_T, etc.)
+                if (name.match(/^[A-G][0-9][0-9]_[A-Z]_?[A-Z]?$/) || name.match(/^E3_[A-Z]_?[A-Z]?$/)) { 
+                    // เก็บค่า หรือเก็บค่าว่าง ('') ถ้าไม่มีการเลือก/กรอก
+                    data[name] = formData.get(name) || ""; 
+                }
             });
+            
             saveDataLocally(data);
             form.reset();
         });
 
         document.addEventListener('DOMContentLoaded', () => {
-            generateChecklistItems();
-            updateOnlineStatus();
+            generateChecklistHTML(); // สร้างตาราง checklist
+            updateOnlineStatus(); 
             updatePendingUI();
 
             pendingList.addEventListener('click', (e) => {
@@ -269,8 +1334,8 @@
                 }
             });
             
-            manualSyncBtn.addEventListener('click', showSyncConfirmation);
-            
+            manualSyncBtn.addEventListener('click', syncData);
+
             if ('serviceWorker' in navigator) {
                 // Check if the page is loaded from a blob URL (common in preview environments)
                 if (window.location.protocol === 'blob:') {
@@ -283,8 +1348,7 @@
             }
             window.addEventListener('online', updateOnlineStatus);
             window.addEventListener('offline', updateOnlineStatus);
-       });
+        });
     </script>
 </body>
 </html>
-
