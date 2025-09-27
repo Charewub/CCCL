@@ -271,9 +271,14 @@
             manualSyncBtn.addEventListener('click', showSyncConfirmation);
             
             if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('sw.js')
-                    .then(reg => console.log('Service Worker registered successfully'))
-                    .catch(err => console.error('Service worker registration failed:', err));
+                // Check if the page is loaded from a blob URL (common in preview environments)
+                if (window.location.protocol === 'blob:') {
+                    console.warn("Service Worker registration skipped: Cannot register from a 'blob:' URL. This is expected in preview environments and will work correctly on the deployed site.");
+                } else {
+                    navigator.serviceWorker.register('sw.js')
+                        .then(reg => console.log('Service Worker registered successfully'))
+                        .catch(err => console.error('Service worker registration failed:', err));
+                }
             }
             window.addEventListener('online', updateOnlineStatus);
             window.addEventListener('offline', updateOnlineStatus);
