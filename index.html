@@ -4,14 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cabin Crew LOSA Checklist (Offline Ready)</title>
-    <link rel="manifest" href="manifest.json"> 
+    <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#DC2626"/>
     <link rel="apple-touch-icon" href="icon-192.png">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        /* CSS Styles */
         .required-asterisk::after { content: " *"; color: #ef4444; }
         .checklist-container { overflow-x: auto; }
         .checklist-table { min-width: 900px; }
@@ -22,6 +21,7 @@
         .sop-dropdown, .narrative-textarea { height: 38px; font-size: 0.75rem; border-radius: 6px; }
         .bg-t { background-color: #e6ffec; } .bg-e { background-color: #fff9e6; } .bg-u { background-color: #ffe6e6; } .bg-c { background-color: #e6f0ff; }
         .checklist-table td { font-size: 0.75rem; }
+        .sop-fail-row { background-color: #fee2e2 !important; }
     </style>
 </head>
 <body class="bg-gray-100 p-4 sm:p-8">
@@ -32,54 +32,43 @@
 
             <section class="mb-8 p-6 bg-red-50 border-l-4 border-red-500 rounded-lg shadow-inner">
                 <h2 class="text-xl font-bold text-red-800 mb-4">I. Flight & Audit Details</h2>
-                
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4 text-sm">
-                    
                     <div>
-                        <label for="observationDate" class="block text-gray-700 font-bold mb-1">Date of Observation:</label>
-                        <input type="date" id="observationDate" name="observationDate" class="w-full px-3 py-2 border rounded-lg">
+                        <label for="observationDate" class="block text-gray-700 font-bold mb-1 required-asterisk">Date of Observation:</label>
+                        <input type="date" id="observationDate" name="observationDate" class="w-full px-3 py-2 border rounded-lg" required>
                     </div>
-                    
                     <div>
-                        <label for="flightNumberNew" class="block text-gray-700 font-bold mb-1">Flight Number:</label>
-                        <input type="text" id="flightNumberNew" name="flightNumberNew" class="w-full px-3 py-2 border rounded-lg" placeholder="e.g., FD3001">
+                        <label for="flightNumberNew" class="block text-gray-700 font-bold mb-1 required-asterisk">Flight Number:</label>
+                        <input type="text" id="flightNumberNew" name="flightNumberNew" class="w-full px-3 py-2 border rounded-lg" placeholder="e.g., FD3001" required>
                     </div>
-
                     <div>
                         <label for="routeFrom" class="block text-gray-700 font-bold mb-1">Route (From):</label>
                         <input type="text" id="routeFrom" name="routeFrom" class="w-full px-3 py-2 border rounded-lg" placeholder="e.g., BKK">
                     </div>
-
                     <div>
                         <label for="routeTo" class="block text-gray-700 font-bold mb-1">Route (To):</label>
                         <input type="text" id="routeTo" name="routeTo" class="w-full px-3 py-2 border rounded-lg" placeholder="e.g., CNX">
                     </div>
-                    
                     <div>
                         <label for="aircraftType" class="block text-gray-700 font-bold mb-1">Aircraft Type:</label>
                         <input type="text" id="aircraftType" name="aircraftType" class="w-full px-3 py-2 border rounded-lg" placeholder="e.g., A320">
                     </div>
-                    
                     <div>
-                        <label for="observerId" class="block text-gray-700 font-bold mb-1">Observer ID (if applicable):</label>
+                        <label for="observerId" class="block text-gray-700 font-bold mb-1">Observer ID:</label>
                         <input type="text" id="observerId" name="observerId" class="w-full px-3 py-2 border rounded-lg" placeholder="e.g., LOSA001">
                     </div>
-                    
                     <div>
                         <label for="crewObserved" class="block text-gray-700 font-bold mb-1">No. of Cabin Crew Observed:</label>
                         <input type="number" id="crewObserved" name="crewObserved" class="w-full px-3 py-2 border rounded-lg" placeholder="e.g., 4">
                     </div>
-                    
                     <div>
-                        <label for="loadFactor" class="block text-gray-700 font-bold mb-1">Load Factor (Approx. % full):</label>
+                        <label for="loadFactor" class="block text-gray-700 font-bold mb-1">Load Factor (%):</label>
                         <input type="text" id="loadFactor" name="loadFactor" class="w-full px-3 py-2 border rounded-lg" placeholder="e.g., 85%">
                     </div>
-                    
                 </div>
-                
                 <div class="mb-4 text-sm">
-                    <label for="inspectorName" class="block text-gray-700 font-bold mb-1">Inspector Name:</label>
-                    <select id="inspectorName" name="inspectorName" class="w-full px-3 py-2 border rounded-lg bg-white">
+                    <label for="inspectorName" class="block text-gray-700 font-bold mb-1 required-asterisk">Inspector Name:</label>
+                    <select id="inspectorName" name="inspectorName" class="w-full px-3 py-2 border rounded-lg bg-white" required>
                         <option value="">-- Select Inspector --</option>
                         <option value="Naparin Boonchuaylue">Naparin Boonchuaylue</option>
                         <option value="Khathawut Benjachinsuwan">Khathawut Benjachinsuwan</option>
@@ -94,55 +83,45 @@
                         <option value="Busabong Promkhuntod">Busabong Promkhuntod</option>
                     </select>
                 </div>
-
             </section>
             
-            <h2 class="text-lg font-bold text-gray-800 mb-4">III. Observational Checklist by Flight Phase</h2>
-            <div id="checklist-container" class="checklist-container">
-                </div>
+            <h2 class="text-lg font-bold text-gray-800 mb-4">III. Observational Checklist</h2>
+            <div id="checklist-container" class="checklist-container"></div>
             
             <hr class="my-6">
             
             <section class="mb-8 p-6 bg-yellow-50 border-l-4 border-yellow-500 rounded-lg shadow-inner">
                 <h2 class="text-lg font-bold text-yellow-800 mb-4">IV. Overall Observations & Summary</h2>
-                
                 <div class="mb-4 text-sm">
-                    <label for="sigThreat" class="block text-gray-700 font-bold mb-1">Most significant Threat(s) observed during the flight:</label>
+                    <label for="sigThreat" class="block text-gray-700 font-bold mb-1">Most significant Threat(s):</label>
                     <textarea id="sigThreat" name="sigThreat" rows="2" class="w-full px-3 py-2 border rounded-lg"></textarea>
                 </div>
-                
                 <div class="mb-4 text-sm">
-                    <label for="sigError" class="block text-gray-700 font-bold mb-1">Most significant Error(s) observed:</label>
+                    <label for="sigError" class="block text-gray-700 font-bold mb-1">Most significant Error(s):</label>
                     <textarea id="sigError" name="sigError" rows="2" class="w-full px-3 py-2 border rounded-lg"></textarea>
                 </div>
-                
                 <div class="mb-4 text-sm">
-                    <label for="effectiveCm" class="block text-gray-700 font-bold mb-1">Most effective Countermeasure(s) observed:</label>
+                    <label for="effectiveCm" class="block text-gray-700 font-bold mb-1">Most effective Countermeasure(s):</label>
                     <textarea id="effectiveCm" name="effectiveCm" rows="2" class="w-full px-3 py-2 border rounded-lg"></textarea>
                 </div>
-                
                 <div class="mb-4 text-sm">
                     <label for="generalComments" class="block text-gray-700 font-bold mb-1">General comments:</label>
                     <textarea id="generalComments" name="generalComments" rows="3" class="w-full px-3 py-2 border rounded-lg"></textarea>
                 </div>
-                
                 <div class="mb-4 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                     <div>
                         <label for="areasOfStrength" class="block text-gray-700 font-bold mb-1">Areas of strength:</label>
                         <textarea id="areasOfStrength" name="areasOfStrength" rows="2" class="w-full px-3 py-2 border rounded-lg"></textarea>
                     </div>
-                    
                     <div>
                         <label for="opportunitiesForImprovement" class="block text-gray-700 font-bold mb-1">Opportunities for improvement:</label>
                         <textarea id="opportunitiesForImprovement" name="opportunitiesForImprovement" rows="2" class="w-full px-3 py-2 border rounded-lg"></textarea>
                     </div>
                 </div>
-                
                 <div class="mb-4 text-sm">
                     <label for="observerSignature" class="block text-gray-700 font-bold mb-1">Observer's Signature:</label>
                     <input type="text" id="observerSignature" name="observerSignature" class="w-full px-3 py-2 border rounded-lg">
                 </div>
-                
                 <div class="mb-4 text-sm">
                     <label for="reportCompletionDate" class="block text-gray-700 font-bold mb-1">Date of Report Completion:</label>
                     <input type="date" id="reportCompletionDate" name="reportCompletionDate" class="w-full px-3 py-2 border rounded-lg">
@@ -150,14 +129,14 @@
             </section>
             
             <button type="submit" class="w-full bg-red-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-red-700 mt-6 shadow-xl">
-                💾 Submit Report (Save to Drive & Email)
+                💾 Submit Report
             </button>
             <div id="statusMessage" class="text-center mt-3 text-sm font-semibold"></div>
 
             <div id="pendingSync" class="mt-8 p-4 bg-red-100 border border-red-400 rounded-lg hidden">
                 <p class="font-bold text-red-700">⚠️ ข้อมูลออฟไลน์ที่รอการซิงค์:</p>
                 <ul id="pendingList" class="list-disc pl-5 mt-2 text-sm text-red-600"></ul>
-                <button type="button" id="manualSyncBtn" class="mt-3 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300">
+                <button type="button" id="manualSyncBtn" class="mt-3 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg">
                     🔄 ซิงค์ข้อมูลที่ค้างอยู่ตอนนี้
                 </button>
             </div>
@@ -167,405 +146,224 @@
 
     <script>
         // --- CONFIGURATION ---
-        // ⚠️ ต้องแทนที่ URL นี้ด้วย Web App URL ที่คุณ Deploy แล้ว (/exec) ⚠️
         const GOOGLE_APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzd8MEOIfq-hnGn_j79sH354hJyszK5LsC230K8P699IkdJygtoPie6H0sw33IRHtMX3A/exec'; 
         const EMAIL_DESTINATION = "Guntrakonj@airasia.com";
-        const FORM_KEY = 'checklistSubmissionsJSON'; // Key สำหรับ Local Storage
+        const FORM_KEY = 'checklistSubmissionsJSON_v2';
         
         // --- DATA DEFINITIONS ---
-        
-        // TEM FRAMEWORK KEY (Used for Checkbox values)
         const TEM_CODES = {
             THREATS: { T_TE: "TE: Environmental", T_TO: "TO: Operational", T_TC: "TC: Cabin/Passenger", T_TT: "TT: Team/Crew", T_TL: "TL: Latent" },
             ERRORS: { E_EP: "EP: Procedural", E_EC: "EC: Communication", E_ED: "ED: Decision", E_ES: "ES: Skill-based", E_EV: "EV: Violation (Intentional)" },
             UCS: { U_SOP: "UCS-SOP: Deviation from SOP", U_EQP: "UCS-EQP: Incorrect Equipment use", U_PAX: "UCS-PAX: Compromised PAX safety", U_COM: "UCS-COM: Degraded Communication" },
             CM: { C_PLN: "CM-PLN: Planning", C_SOP: "CM-SOP: Procedural", C_COM: "CM-COM: Communication", C_MON: "CM-MON: Monitoring", C_WSM: "CM-WSM: Workload/Systems Management", C_SPT: "CM-SPT: Support/Teamwork" }
         };
-
-        const TEM_OPTIONS_MAP = { 'Threats': TEM_CODES.THREATS, 'Errors': TEM_CODES.ERRORS, 'UCS': TEM_CODES.UCS, 'Countermeasures': TEM_CODES.CM };
-
-        // --- CHECKLIST DEFINITIONS (COMPLETE STRUCTURE) ---
         const CHECKLIST_DEFINITIONS = [
-            { id: 'A', title: 'A. Pre-Flight & Crew Briefing', items: [
-                { id: 'A1', label: '1. Crew Briefing (All Crew - Flight & Cabin)', isGroup: true, subItems: [
-                    { id: 'A11', label: '- Attendance/ Punctuality/ Grooming' }, { id: 'A12', label: '- Documentation (Flight document)' }, { id: 'A13', label: '- Review updated safety information' }, { id: 'A14', label: '- Safety/First aid/Security/DG Review' }, { id: 'A15', label: '- Service Review (if applicable)' }, { id: 'A16', label: '- TEM discussion (anticipated threats)' }, { id: 'A17', label: '- Crew Co-ordination & Communication established' }
-                ]},
-                { id: 'A2', label: '2. Cabin Crew Briefing (Cabin Specific)', isGroup: true, subItems: [
-                    { id: 'A21', label: '- Allocation of CC station' }, { id: 'A22', label: '- A/C type and equipment fitted' }, { id: 'A23', label: '- Emergency Procedures Review' }, { id: 'A24', label: '- Security Procedures Review (e.g., checked, search, risk level)' }, { id: 'A25', label: '- Special Categoried Passenger Info (e.g., PRMs, YPTA)' }
-                ]},
-                { id: 'A3', label: '3. Pre-Flight Cabin Checks', isGroup: true, subItems: [
-                    { id: 'A31', label: '- Doors (pre-flight check, serviceablility)' }, { id: 'A32', label: '- Emergency Equipment (location, serviceability)' }, { id: 'A33', label: '- Security Checks (cabin, lavatories, galleys, attendant station)' }, { id: 'A34', label: '- Cabin Cleanliness & Appearance' }, { id: 'A35', label: '- Catering/Supplies (if applicable)' }, { id: 'A36', label: '- Interphone/PA System Check' }
-                ]}
-            ]},
-            { id: 'B', title: 'B. Boarding', items: [
-                { id: 'B1', label: '1. Passenger Greeting & Assistance', isGroup: true, subItems: [
-                    { id: 'B11', label: '- Monitoring carry-on baggage (size, quantity)' }, { id: 'B12', label: '- Refuelling procedure' }, { id: 'B13', label: '- Exit row briefing & compliance' }, { id: 'B14', label: '- Assistance and briefing to special categoried passengers (e.g., PRMs)' }, { id: 'B15', label: '- Managing passenger flow' }
-                ]},
-                { id: 'B2', label: '2. Pre-Departure Cabin Secure', isGroup: true, subItems: [
-                    { id: 'B21', label: '- Overhead bins closed' }, { id: 'B22', label: '- Galley equipment secured' }, { id: 'B23', label: '- Doors/Aisles/Exits clear' }, { id: 'B24', label: '- Passenger count reconciliation' }, { id: 'B25', label: '- Doors armed / Cross-check procedure' }, { id: 'B26', label: '- Welcome Announcement' }
-                ]},
-                { id: 'B3', label: '3. Safety Demonstration', isGroup: true, subItems: [
-                    { id: 'B31', label: '- Clarity, accuracy, visibility' }, { id: 'B32', label: '- Passenger attentiveness (managed if needed)' }
-                ]}
-            ]},
-            { id: 'C', title: 'C. Taxi-Out, Take-off & Climb', items: [
-                { id: 'C1', label: '1. Final Cabin Checks', isGroup: true, subItems: [
-                    { id: 'C11', label: '- Take off preparation' }, { id: 'C12', label: '- Report cabin readiness' }, { id: 'C13', label: '- Cabin lighting' }, { id: 'C14', label: '- Performing Brace position' }
-                ]},
-                { id: 'C2', label: '2. Response to Take-off/Climb', isGroup: true, subItems: [
-                    { id: 'C21', label: '- Sterile Flight Deck Adherence' }, { id: 'C22', label: '- Monitoring cabin condition' }, { id: 'C23', label: '- Awareness of adhoc situation' }
-                ]}
-            ]},
-            { id: 'D', title: 'D. Cruise', items: [
-                { id: 'D1', label: '1. Service Delivery (if applicable)', isGroup: true, subItems: [
-                    { id: 'D11', label: '- Efficiency, safety during service' }, { id: 'D12', label: '- Galley management' }
-                ]},
-                { id: 'D2', label: '2. Cabin Surveillance', isGroup: true, subItems: [
-                    { id: 'D21', label: '- Periodically check cabin' }, { id: 'D22', label: '- Periodically check on flght crew' }, { id: 'D23', label: '- Periodically check Lavatory' }, { id: 'D24', label: '- Response to call light and Reset' }
-                ]},
-                { id: 'D3', label: '3. Passenger Handling (if any)', isGroup: true, subItems: [
-                    { id: 'D31', label: '- Medical situations' }, { id: 'D32', label: '- Unruly/disruptive passengers' }, { id: 'D33', label: '- Others' }
-                ]}, { id: 'D4', label: '4. Communication with Flight Crew (if any)', isGroup: true, subItems: [
-                    { id: 'D41', label: '- Reporting irregularities (If any)' }
-                ]}, { id: 'D5', label: '5. Turbulence Management', isGroup: true, subItems: [
-                    { id: 'D51', label: '- Follow turbulance management procedure' }, { id: 'D52', label: '- Secure self' }
-                ]}
-            ]},
-            { id: 'E', title: 'E. Descent, Approach & Landing', items: [
-                { id: 'E1', label: '1. Pre-Landing Announcements & Cabin Prep', isGroup: true, subItems: [
-                    { id: 'E11', label: '- Pre-landing preparation' }
-                ]},
-                { id: 'E2', label: '2. Final Cabin Checks (Landing)', isGroup: true, subItems: [
-                    { id: 'E21', label: '- Seatbelts, tray tables, seatbacks, PEDs, etc.' }, { id: 'E22', label: '- Report cabin readiness' }, { id: 'E23', label: '- Cabin lighting' }, { id: 'E24', label: '- Performing Brace position' }
-                ]}, { id: 'E3', label: '3. Sterile Flight Deck Adherence' },
-                { id: 'E4', label: '4. Response to Landing', isGroup: true, subItems: [
-                    { id: 'E41', label: '- Monitoring cabin condition' }
-                ]}
-            ]},
-            { id: 'F', title: 'F. Taxi-In & Disembarkation', items: [
-                { id: 'F1', label: '1. Arrival Duties', isGroup: true, subItems: [
-                    { id: 'F11', label: '- Arrival Announcement' }, { id: 'F12', label: '- Cabin monitoring' }, { id: 'F13', label: '- Doors Disarmed / Cross-check procedure' }, { id: 'F14', label: '- Doors Opening Procedure' }
-                ]},
-                { id: 'F2', label: '2. Disembarkation Process', isGroup: true, subItems: [
-                    { id: 'F21', label: '- Cabin monitoring' }, { id: 'F22', label: '- Assistance to special categoried passenger' }, { id: 'F23', label: '- Refueling procedure (If any)' }, { id: 'F24', label: '- Cabin check after passenger disembarkation and Report' }
-                ]},
-                { id: 'F3', label: '3. Post-Flight Cabin Checks', isGroup: true, subItems: [
-                    { id: 'F31', label: '- Perform Security Checks' }, { id: 'F32', label: '- Perform transit duties' }, { id: 'F33', label: '- Reporting cabin defects (If any)' }
-                ]}
-            ]},
-            { id: 'G', title: 'G. Post-Flight / Debrief (Observed if possible)', items: [
-                { id: 'G1', label: '1. Crew Debrief', isGroup: true, subItems: [
-                    { id: 'G11', label: '- Discussion of flight events' }, { id: 'G12', label: '- Sharing idea' }, { id: 'G13', label: '- Feedback on TEM' }
-                ]},
-                { id: 'G2', label: '2. Reporting System', isGroup: true, subItems: [
-                    { id: 'G21', label: '- Redeye' }
-                ]}
-            ]}
+            { id: 'A', title: 'A. Pre-Flight & Crew Briefing', items: [ { id: 'A1', label: '1. Crew Briefing', isGroup: true, subItems: [ { id: 'A11', label: '- Attendance/ Punctuality/ Grooming' }, { id: 'A12', label: '- Documentation' }, { id: 'A13', label: '- Review updated safety info' }, { id: 'A14', label: '- Safety/First aid/Security/DG Review' }, { id: 'A15', label: '- Service Review' }, { id: 'A16', label: '- TEM discussion' }, { id: 'A17', label: '- Crew Co-ordination' } ]}, { id: 'A2', label: '2. Cabin Crew Briefing', isGroup: true, subItems: [ { id: 'A21', label: '- Allocation of CC station' }, { id: 'A22', label: '- A/C type and equipment' }, { id: 'A23', label: '- Emergency Procedures Review' }, { id: 'A24', label: '- Security Procedures Review' }, { id: 'A25', label: '- Special Passenger Info' } ]}, { id: 'A3', label: '3. Pre-Flight Cabin Checks', isGroup: true, subItems: [ { id: 'A31', label: '- Doors (pre-flight check)' }, { id: 'A32', label: '- Emergency Equipment' }, { id: 'A33', label: '- Security Checks' }, { id: 'A34', label: '- Cabin Cleanliness' }, { id: 'A35', label: '- Catering/Supplies' }, { id: 'A36', label: '- Interphone/PA System Check' } ]} ]},
+            { id: 'B', title: 'B. Boarding', items: [ { id: 'B1', label: '1. Passenger Greeting & Assistance', isGroup: true, subItems: [ { id: 'B11', label: '- Monitoring carry-on baggage' }, { id: 'B12', label: '- Refuelling procedure' }, { id: 'B13', label: '- Exit row briefing' }, { id: 'B14', label: '- Special passenger assistance' }, { id: 'B15', label: '- Managing passenger flow' } ]}, { id: 'B2', label: '2. Pre-Departure Cabin Secure', isGroup: true, subItems: [ { id: 'B21', label: '- Overhead bins closed' }, { id: 'B22', label: '- Galley secured' }, { id: 'B23', label: '- Exits clear' }, { id: 'B24', label: '- Passenger count' }, { id: 'B25', label: '- Doors armed / Cross-check' }, { id: 'B26', label: '- Welcome Announcement' } ]}, { id: 'B3', label: '3. Safety Demonstration', isGroup: true, subItems: [ { id: 'B31', label: '- Clarity, accuracy' }, { id: 'B32', label: '- Passenger attentiveness' } ]} ]},
+            { id: 'C', title: 'C. Taxi-Out, Take-off & Climb', items: [ { id: 'C1', label: '1. Final Cabin Checks', isGroup: true, subItems: [ { id: 'C11', label: '- Take off preparation' }, { id: 'C12', label: '- Report cabin readiness' }, { id: 'C13', label: '- Cabin lighting' }, { id: 'C14', label: '- Brace position' } ]}, { id: 'C2', label: '2. Response to Take-off/Climb', isGroup: true, subItems: [ { id: 'C21', label: '- Sterile Flight Deck Adherence' }, { id: 'C22', label: '- Monitoring cabin condition' }, { id: 'C23', label: '- Awareness of adhoc situation' } ]} ]},
+            { id: 'D', title: 'D. Cruise', items: [ { id: 'D1', label: '1. Service Delivery', isGroup: true, subItems: [ { id: 'D11', label: '- Efficiency, safety' }, { id: 'D12', label: '- Galley management' } ]}, { id: 'D2', label: '2. Cabin Surveillance', isGroup: true, subItems: [ { id: 'D21', label: '- Periodically check cabin' }, { id: 'D22', label: '- Periodically check on flight crew' }, { id: 'D23', label: '- Periodically check Lavatory' }, { id: 'D24', label: '- Response to call light' } ]}, { id: 'D3', label: '3. Passenger Handling', isGroup: true, subItems: [ { id: 'D31', label: '- Medical situations' }, { id: 'D32', label: '- Unruly passengers' }, { id: 'D33', label: '- Others' } ]}, { id: 'D4', label: '4. Communication with Flight Crew', isGroup: true, subItems: [ { id: 'D41', label: '- Reporting irregularities' } ]}, { id: 'D5', label: '5. Turbulence Management', isGroup: true, subItems: [ { id: 'D51', label: '- Follow procedure' }, { id: 'D52', label: '- Secure self' } ]} ]},
+            { id: 'E', title: 'E. Descent, Approach & Landing', items: [ { id: 'E1', label: '1. Pre-Landing Announcements', isGroup: true, subItems: [ { id: 'E11', label: '- Pre-landing preparation' } ]}, { id: 'E2', label: '2. Final Cabin Checks (Landing)', isGroup: true, subItems: [ { id: 'E21', label: '- Seatbelts, tables, etc.' }, { id: 'E22', label: '- Report cabin readiness' }, { id: 'E23', label: '- Cabin lighting' }, { id: 'E24', label: '- Brace position' } ]}, { id: 'E3', label: '3. Sterile Flight Deck Adherence' }, { id: 'E4', label: '4. Response to Landing', isGroup: true, subItems: [ { id: 'E41', label: '- Monitoring cabin' } ]} ]},
+            { id: 'F', title: 'F. Taxi-In & Disembarkation', items: [ { id: 'F1', label: '1. Arrival Duties', isGroup: true, subItems: [ { id: 'F11', label: '- Arrival Announcement' }, { id: 'F12', label: '- Cabin monitoring' }, { id: 'F13', label: '- Doors Disarmed / Cross-check' }, { id: 'F14', label: '- Doors Opening' } ]}, { id: 'F2', label: '2. Disembarkation', isGroup: true, subItems: [ { id: 'F21', label: '- Cabin monitoring' }, { id: 'F22', label: '- Special passenger assistance' }, { id: 'F23', label: '- Refueling procedure' }, { id: 'F24', label: '- Post-disembarkation check' } ]}, { id: 'F3', label: '3. Post-Flight Checks', isGroup: true, subItems: [ { id: 'F31', label: '- Security Checks' }, { id: 'F32', label: '- Transit duties' }, { id: 'F33', label: '- Reporting defects' } ]} ]},
+            { id: 'G', title: 'G. Post-Flight / Debrief', items: [ { id: 'G1', label: '1. Crew Debrief', isGroup: true, subItems: [ { id: 'G11', label: '- Discussion of flight' }, { id: 'G12', label: '- Sharing ideas' }, { id: 'G13', label: '- Feedback on TEM' } ]}, { id: 'G2', label: '2. Reporting System', isGroup: true, subItems: [ { id: 'G21', label: '- Redeye' } ]} ]}
         ];
-        // --- END CHECKLIST DEFINITIONS ---
 
-        // --- UI GENERATION HELPERS (Code ที่สร้างตาราง) ---
-        
-        function createCheckboxGroup(baseName, typeCode, options) {
-            let html = `<div class="checkbox-container">`;
-            for (const code in options) {
-                if (options.hasOwnProperty(code)) {
-                    const fieldName = `${baseName}_${typeCode}`;
-                    const inputValue = options[code]; 
-                    const shortCode = code.split('_')[1] || code;
+        // --- UI GENERATION ---
+        function generateChecklistHTML() {
+            const container = document.getElementById('checklist-container');
+            let html = CHECKLIST_DEFINITIONS.map(section => {
+                const rows = section.items.map(item => {
+                    const groupHeader = item.isGroup ? `<tr class="checklist-item-group"><td colspan="7">${item.label}</td></tr>` : '';
+                    const subItems = (item.isGroup ? item.subItems : [item]).map(sub => `
+                        <tr class="checklist-item text-xs">
+                            <td class="font-normal">${sub.label}</td>
+                            <td>${createDropdown(`${sub.id}_SOP`, true)}</td>
+                            <td class="bg-t">${createCheckboxGroup(sub.id, 'T', TEM_CODES.THREATS)}</td>
+                            <td class="bg-e">${createCheckboxGroup(sub.id, 'E', TEM_CODES.ERRORS)}</td>
+                            <td class="bg-u">${createCheckboxGroup(sub.id, 'U', TEM_CODES.UCS)}</td>
+                            <td class="bg-c">${createCheckboxGroup(sub.id, 'C', TEM_CODES.CM)}</td>
+                            <td>${createTextArea(`${sub.id}_Narrative`, 'Describe here...')}</td>
+                        </tr>`).join('');
+                    return groupHeader + subItems;
+                }).join('');
 
-                    html += `<label title="${options[code]}" class="inline-flex items-center space-x-1 cursor-pointer">
-                                <input type="checkbox" name="${fieldName}" value="${inputValue}" class="form-checkbox text-red-600 rounded">
-                                <span>${shortCode}</span>
-                            </label>`;
-                }
-            }
-            html += `</div>`;
-            return html;
+                return `
+                    <div class="mb-8">
+                        <h3 class="text-md font-bold text-white bg-red-600 p-2 rounded-t-lg">${section.title}</h3>
+                        <div class="overflow-x-auto">
+                            <table class="checklist-table w-full">
+                                <thead>
+                                    <tr>
+                                        <th class="w-2/5">Check Item / Area of Observation</th>
+                                        <th>SOP Met</th>
+                                        <th class="bg-t">Threats</th><th class="bg-e">Errors</th><th class="bg-u">UCS</th><th class="bg-c">CM</th>
+                                        <th class="w-1/4">Narrative/Comments</th>
+                                    </tr>
+                                </thead>
+                                <tbody>${rows}</tbody>
+                            </table>
+                        </div>
+                    </div>`;
+            }).join('');
+            container.innerHTML = html;
         }
-
-        function createDropdown(name, isSOP = false) { 
-            const select = document.createElement('select');
-            select.name = name;
-            select.className = `w-full border rounded-lg bg-white sop-dropdown`;
-
-            if (isSOP) {
-                select.innerHTML = '';
-                select.innerHTML += `<option value="" selected>-- Select --</option>`;
-                ['Y', 'N', 'NA'].forEach(v => {
-                    select.innerHTML += `<option value="${v}">${v}</option>`;
-                });
-            }
-            return select.outerHTML;
+        function createCheckboxGroup(baseId, type, options) {
+            return `<div class="checkbox-container">${Object.entries(options).map(([code, title]) => `
+                <label title="${title}" class="inline-flex items-center space-x-1 cursor-pointer">
+                    <input type="checkbox" name="${baseId}_${type}" value="${title}" class="form-checkbox text-red-600 rounded">
+                    <span>${code.split('_')[1]}</span>
+                </label>`).join('')}</div>`;
         }
-
+        function createDropdown(name, isSOP) {
+            const options = isSOP ? ['Y', 'N', 'NA'].map(v => `<option value="${v}">${v}</option>`).join('') : '';
+            return `<select name="${name}" class="w-full border rounded-lg bg-white sop-dropdown"><option value="" selected>--</option>${options}</select>`;
+        }
         function createTextArea(name, placeholder) {
             return `<textarea name="${name}" rows="1" class="w-full border rounded-lg narrative-textarea" placeholder="${placeholder}"></textarea>`;
         }
-        
-        function generateChecklistHTML() {
-            const checklistContainer = document.getElementById('checklist-container');
-            let html = '';
+
+        // --- CORE LOGIC ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('checklistForm');
             
-            const TEM_OPTIONS_MAP = { 
-                'Threats': TEM_CODES.THREATS, 'Errors': TEM_CODES.ERRORS, 'UCS': TEM_CODES.UCS, 'Countermeasures': TEM_CODES.CM 
+            const setTodayDate = () => {
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('observationDate').value = today;
+                document.getElementById('reportCompletionDate').value = today;
+            };
+
+            const addSopChangeEventHandlers = () => {
+                form.querySelectorAll('select[name$="_SOP"]').forEach(dropdown => {
+                    dropdown.addEventListener('change', e => {
+                        e.target.closest('tr')?.classList.toggle('sop-fail-row', e.target.value === 'N');
+                    });
+                });
+            };
+
+            const getLocalData = () => JSON.parse(localStorage.getItem(FORM_KEY)) || [];
+            const saveLocalData = (data) => {
+                localStorage.setItem(FORM_KEY, JSON.stringify(data));
+                updatePendingSyncUI();
+            };
+
+            const updatePendingSyncUI = () => {
+                const submissions = getLocalData();
+                const pendingDiv = document.getElementById('pendingSync');
+                const list = document.getElementById('pendingList');
+                list.innerHTML = '';
+                pendingDiv.classList.toggle('hidden', submissions.length === 0);
+                if (submissions.length > 0) {
+                    submissions.forEach((data, index) => {
+                        const li = document.createElement('li');
+                        li.className = 'flex justify-between items-center py-1';
+                        li.innerHTML = `<span>Item ${index + 1}: Flt ${data.flightNumberNew || 'N/A'}</span>`;
+                        const btn = document.createElement('button');
+                        btn.textContent = 'Delete';
+                        btn.type = 'button';
+                        btn.className = 'ml-4 px-2 py-1 text-xs font-bold text-white bg-red-500 rounded hover:bg-red-700';
+                        btn.onclick = () => deleteSpecificData(index);
+                        li.appendChild(btn);
+                        list.appendChild(li);
+                    });
+                }
             };
             
-            CHECKLIST_DEFINITIONS.forEach(section => {
-                html += `<div class="mb-8">`;
-                html += `<h3 class="text-md font-bold text-white bg-red-600 p-2 rounded-t-lg">${section.title}</h3>`;
-                html += `<div class="overflow-x-auto"><table class="checklist-table w-full">`;
-                 html += `<thead><tr>`;
-                html += `<th class="item-col">Check Item / Area of Observation</th>`;
-                html += `<th class="sop-col">SOP Met (Y/N/NA)</th>`;
-                html += `<th class="code-col bg-t">Threats (Code)</th>`;
-                html += `<th class="code-col bg-e">Errors (Code)</th>`;
-                html += `<th class="code-col bg-u">UCS (Code)</th>`;
-                html += `<th class="code-col bg-c">CM (Code)</th>`;
-                html += `<th class="narrative-col">Narrative/Comments</th>`;
-                html += `</tr></thead><tbody>`;
-
-                section.items.forEach(item => {
-                    const itemsToRender = item.isGroup && item.subItems ? item.subItems : [item];
-
-                    if (item.isGroup && item.subItems) {
-                        html += `<tr class="checklist-item-group"><td colspan="7" class="text-sm font-semibold">${item.label}</td></tr>`;
+            const deleteSpecificData = (index) => {
+                Swal.fire({
+                    title: 'Confirm Deletion', text: `Delete pending item ${index + 1}?`, icon: 'warning',
+                    showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'Yes, delete it!'
+                }).then(result => {
+                    if (result.isConfirmed) {
+                        const data = getLocalData();
+                        data.splice(index, 1);
+                        saveLocalData(data);
+                        Swal.fire('Deleted!', 'The item has been removed.', 'success');
                     }
+                });
+            };
 
-                    itemsToRender.forEach(subItem => {
-                        const baseName = `${subItem.id}`;
-
-                        const sopDropdown = createDropdown(`${baseName}_SOP`, true);
-                        const tCheckbox = createCheckboxGroup(baseName, 'T', TEM_OPTIONS_MAP.Threats);
-                        const eCheckbox = createCheckboxGroup(baseName, 'E', TEM_OPTIONS_MAP.Errors);
-                        const ucsCheckbox = createCheckboxGroup(baseName, 'U', TEM_OPTIONS_MAP.UCS);
-                        const cmCheckbox = createCheckboxGroup(baseName, 'C', TEM_OPTIONS_MAP.Countermeasures);
-                        const mainNarrative = createTextArea(`${baseName}_N_T`, 'Narrative/Describe here...');
-
-                        html += `<tr class="checklist-item text-xs">`;
-                        html += `<td class="font-normal">${subItem.label}</td>`;
-                        html += `<td>${sopDropdown}</td>`;
-                        html += `<td class="bg-t">${tCheckbox}</td>`;
-                        html += `<td class="bg-e">${eCheckbox}</td>`;
-                        html += `<td class="bg-u">${ucsCheckbox}</td>`;
-                        html += `<td class="bg-c">${cmCheckbox}</td>`;
-                        html += `<td class="bg-t">${mainNarrative}</td>`; 
-                        html += `</tr>`;
+            const sendDataToServer = async (data) => {
+                document.getElementById('statusMessage').textContent = 'Sending...';
+                try {
+                    const response = await fetch(GOOGLE_APPS_SCRIPT_WEB_APP_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ data, email: EMAIL_DESTINATION })
                     });
-                });
-                html += `</tbody></table></div></div>`;
-            });
-
-            checklistContainer.innerHTML = html;
-        }
-
-
-        // --- OFFLINE CORE LOGIC ---
-        
-        function getLocalData() {
-            const data = localStorage.getItem('checklistSubmissionsJSON');
-            return data ? JSON.parse(data) : [];
-        }
-
-        function saveLocalData(submissions) {
-            localStorage.setItem('checklistSubmissionsJSON', JSON.stringify(submissions));
-            updatePendingSyncUI();
-        }
-
-        function saveDataLocally(submission) {
-            const submissions = getLocalData();
-            submissions.push(submission);
-            saveLocalData(submissions);
-            Swal.fire('ออฟไลน์', 'บันทึกข้อมูลในเครื่องแล้ว โปรดซิงค์เมื่อมีอินเทอร์เน็ต', 'warning');
-        }
-
-        function updatePendingSyncUI() {
-            const submissions = getLocalData();
-            const pendingDiv = document.getElementById('pendingSync');
-            const pendingList = document.getElementById('pendingList');
-            
-            pendingList.innerHTML = '';
-            
-            if (submissions.length > 0) {
-                pendingDiv.classList.remove('hidden');
-                submissions.forEach((data, index) => {
-                    const listItem = document.createElement('li');
-                    listItem.className = 'flex justify-between items-center py-1';
-                    
-                    const displayInfo = `รายการที่ ${index + 1}: เที่ยวบิน ${data.flightNumberNew || 'ไม่ระบุ'}, ตรวจโดย ${data.inspectorName || 'ไม่ระบุ'} (${new Date(data.Observation_Timestamp).toLocaleTimeString()})`;
-                    
-                    const deleteButton = document.createElement('button');
-                    deleteButton.textContent = 'ลบ';
-                    deleteButton.className = 'ml-4 px-3 py-1 text-xs font-bold text-white bg-red-500 rounded hover:bg-red-700 transition duration-300';
-                    
-                    deleteButton.onclick = () => deleteSpecificData(index);
-                    
-                    listItem.innerHTML = `<span>${displayInfo}</span>`;
-                    listItem.appendChild(deleteButton);
-                    pendingList.appendChild(listItem);
-                });
-            } else {
-                pendingDiv.classList.add('hidden');
-            }
-        }
-        
-        function deleteSpecificData(index) {
-            Swal.fire({
-                title: 'ยืนยันการลบรายการนี้?',
-                text: `คุณต้องการลบรายการที่ ${index + 1} นี้ออกจากรายการที่รอซิงค์หรือไม่?`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#DC2626',
-                cancelButtonColor: '#6B7280',
-                confirmButtonText: 'ใช่, ลบ!',
-                cancelButtonText: 'ยกเลิก'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    let submissions = getLocalData();
-                    submissions.splice(index, 1);
-                    saveLocalData(submissions); 
-                    Swal.fire('ลบแล้ว!', 'รายการที่เลือกถูกลบเรียบร้อย', 'success');
-                }
-            });
-        }
-        
-        // --- CORE FETCH FUNCTION (UNCHANGED) ---
-        async function sendDataToServer(data) {
-            document.getElementById('statusMessage').textContent = 'Sending data to Drive...';
-            
-            try {
-                const payload = { data: data, email: EMAIL_DESTINATION };
-
-                // ตรวจสอบว่า URL ถูกแทนที่แล้วหรือไม่
-                if (GOOGLE_APPS_SCRIPT_WEB_APP_URL === 'https://script.google.com/macros/s/AKfycbzd8MEOIfq-hnGn_j79sH354hJyszK5LsC230K8P699IkdJygtoPie6H0sw33IRHtMX3A/exec') {
-                    document.getElementById('statusMessage').textContent = '❌ Error: Web App URL not configured.';
-                    return false;
-                }
-                
-                const response = await fetch(GOOGLE_APPS_SCRIPT_WEB_APP_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload) 
-                });
-
-                if (response.ok || response.status === 302 || response.status === 200) {
-                    document.getElementById('statusMessage').textContent = `✅ Report Saved to Drive & Email Sent!`;
-                    return true;
-                } else {
-                    document.getElementById('statusMessage').textContent = `❌ Server Error: ${response.status}. Saved locally.`;
-                    return false;
-                }
-
-            } catch (error) {
-                document.getElementById('statusMessage').textContent = '⚠️ Network Error. Saved locally.';
-                return false; 
-            }
-        }
-
-        // --- RESYNC FUNCTION (UNCHANGED) ---
-        async function resyncData() {
-            // ... (resyncData function is unchanged) ...
-            const submissions = getLocalData();
-            let successfullySentCount = 0;
-            const remainingSubmissions = [];
-
-            if (submissions.length === 0) {
-                Swal.fire('สำเร็จ', 'ไม่มีข้อมูลที่รอการซิงค์', 'success');
-                return;
-            }
-
-            Swal.fire({ title: 'กำลังซิงค์...', html: 'กำลังส่งข้อมูลที่ค้างอยู่ไปยังเซิร์ฟเวอร์', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
-
-            for (let i = 0; i < submissions.length; i++) {
-                const data = submissions[i];
-                const success = await sendDataToServer(data);
-                
-                if (success) {
-                    successfullySentCount++;
-                } else {
-                    remainingSubmissions.push(data);
-                    Swal.update({
-                        icon: 'error',
-                        title: 'การซิงค์ล้มเหลว',
-                        html: `การซิงค์หยุดที่รายการที่ ${i + 1} เนื่องจากเกิดข้อผิดพลาดในการเชื่อมต่อ (หรือ CORS Block) ข้อมูลที่เหลือจะรอการซิงค์ครั้งถัดไป`,
-                        showConfirmButton: true,
-                        allowOutsideClick: true,
-                        didClose: () => { /* Prevent closing loading spinner logic */ }
-                    });
-                    break;
-                }
-            }
-
-            saveLocalData(remainingSubmissions);
-            
-            if (successfullySentCount > 0) {
-                Swal.fire('ซิงค์สำเร็จ', `ส่งข้อมูลสำเร็จ ${successfullySentCount} รายการ`, 'success');
-            } else if (remainingSubmissions.length === submissions.length && submissions.length > 0) {
-                 Swal.fire('ล้มเหลว', 'ไม่สามารถซิงค์ข้อมูลได้ กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต', 'error');
-            } 
-            
-            updatePendingSyncUI();
-        }
-
-
-        // --- MAIN SUBMISSION LOGIC ---
-        document.addEventListener('DOMContentLoaded', () => {
-            const formElement = document.getElementById('checklistForm');
-            
-            updatePendingSyncUI(); 
-            generateChecklistHTML(); 
-
-            formElement.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                
-                const formData = new FormData(formElement);
-                const data = {};
-                const temData = {};
-                const allInputs = formElement.querySelectorAll('input, select, textarea');
-
-
-                // 1. รวบรวม Checkbox/Radio และ Simple Inputs
-                allInputs.forEach(input => {
-                    const name = input.name;
-                    const value = input.value;
-                    
-                    if (!name) return;
-
-                    if (input.type === 'checkbox' || input.type === 'radio') {
-                        if (input.checked) {
-                            if (!temData.hasOwnProperty(name)) {
-                                temData[name] = [];
-                            }
-                            temData[name].push(value); 
+                    if (response.ok) {
+                        const result = await response.json();
+                        if (result.status === 'Success') {
+                            document.getElementById('statusMessage').textContent = `✅ Success!`;
+                            return true;
+                        } else {
+                            throw new Error(result.message || 'Server returned an error.');
                         }
                     } else {
-                        // Simple Input (Text/Date/Select/Textarea)
-                        data[name] = formData.get(name) || "";
+                        throw new Error(`HTTP Error: ${response.status}`);
                     }
-                });
-
-                // 2. รวม TEM Checkbox/Radio ที่เป็น Array เข้าสู่ Object หลัก
-                for (const name in temData) {
-                    data[name] = temData[name].join(' | ');
+                } catch (error) {
+                    document.getElementById('statusMessage').textContent = `⚠️ Network/Server Error. Saved locally.`;
+                    console.error("sendDataToServer Error:", error);
+                    return false;
                 }
+            };
 
-                // 3. เพิ่ม Timestamp
-                data['Observation_Timestamp'] = new Date().toISOString(); 
+            const resyncData = async () => {
+                const submissions = getLocalData();
+                if (submissions.length === 0) return Swal.fire('All Good!', 'No pending data.', 'success');
+                Swal.fire({ title: 'Syncing...', html: 'Sending pending data...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
                 
-                // 4. ส่งข้อมูล
-                const success = await sendDataToServer(data);
-                
-                if (success) {
-                    Swal.fire('สำเร็จ', 'บันทึกรายงานลง Drive เรียบร้อย', 'success');
+                let remaining = [...submissions];
+                for (const data of submissions) {
+                    if (await sendDataToServer(data)) {
+                        remaining.shift();
+                    } else {
+                        Swal.update({ icon: 'error', title: 'Sync Failed', html: 'Sync stopped. Please check connection.' });
+                        break;
+                    }
+                }
+                saveLocalData(remaining);
+                if (remaining.length === 0) {
+                    Swal.fire('Sync Complete', 'All pending data has been sent.', 'success');
+                }
+            };
+
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const formData = new FormData(form);
+                const data = {};
+                const checkboxGroups = {};
+
+                for(const [key, value] of formData.entries()) {
+                    if (form.querySelector(`[name="${key}"]`).type === 'checkbox') {
+                        if (!checkboxGroups[key]) checkboxGroups[key] = [];
+                        checkboxGroups[key].push(value);
+                    } else {
+                        data[key] = value;
+                    }
+                }
+                for(const key in checkboxGroups) data[key] = checkboxGroups[key].join(' | ');
+
+                data['Observation_Timestamp'] = new Date().toISOString();
+
+                if (await sendDataToServer(data)) {
+                    Swal.fire('Success!', 'Report submitted to the server!', 'success');
+                    form.reset();
+                    setTodayDate();
                 } else {
-                    saveDataLocally(data); 
+                    const localData = getLocalData();
+                    localData.push(data);
+                    saveLocalData(localData);
+                    Swal.fire('Saved Locally', 'Could not connect. Data saved for later sync.', 'warning');
                 }
-                
-                formElement.reset();
             });
-            
-            // Event listener สำหรับปุ่ม Sync
+
             document.getElementById('manualSyncBtn').addEventListener('click', resyncData);
+            
+            // Initial setup
+            generateChecklistHTML();
+            addSopChangeEventHandlers();
+            setTodayDate();
+            updatePendingSyncUI();
         });
     </script>
 </body>
