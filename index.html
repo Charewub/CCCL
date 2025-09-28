@@ -12,8 +12,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         /* CSS Styles */
-        /* ลบ required-asterisk::after ออกเพื่อไม่ให้แสดงดอกจัน */
-        /* .required-asterisk::after { content: " *"; color: #ef4444; } */
+        .required-asterisk::after { content: " *"; color: #ef4444; }
         .checklist-container { overflow-x: auto; }
         .checklist-table { min-width: 900px; }
         .checklist-table th, .checklist-table td { padding: 4px; border: 1px solid #e5e7eb; vertical-align: middle; }
@@ -265,7 +264,6 @@
         ];
         // --- END CHECKLIST DEFINITIONS ---
 
-
         // --- UI GENERATION HELPERS (Code ที่สร้างตาราง) ---
         
         function createCheckboxGroup(baseName, typeCode, options) {
@@ -286,16 +284,14 @@
             return html;
         }
 
-        // แก้ไข: ลบ 'isSOP' ที่กำหนดให้เป็น required ออกจากฟังก์ชัน
         function createDropdown(name, isSOP = false) { 
             const select = document.createElement('select');
             select.name = name;
             select.className = `w-full border rounded-lg bg-white sop-dropdown`;
-            // select.required = isSOP; // ลบการบังคับกรอกออก
 
             if (isSOP) {
                 select.innerHTML = '';
-                select.innerHTML += `<option value="" selected>-- Select --</option>`; // เปลี่ยน 'disabled selected' เป็น 'selected' เฉยๆ
+                select.innerHTML += `<option value="" selected>-- Select --</option>`;
                 ['Y', 'N', 'NA'].forEach(v => {
                     select.innerHTML += `<option value="${v}">${v}</option>`;
                 });
@@ -319,7 +315,6 @@
                 html += `<div class="mb-8">`;
                 html += `<h3 class="text-md font-bold text-white bg-red-600 p-2 rounded-t-lg">${section.title}</h3>`;
                 html += `<div class="overflow-x-auto"><table class="checklist-table w-full">`;
-                // แก้ไข: ลบ required-asterisk ออกจาก TH
                  html += `<thead><tr>`;
                 html += `<th class="item-col">Check Item / Area of Observation</th>`;
                 html += `<th class="sop-col">SOP Met (Y/N/NA)</th>`;
@@ -392,18 +387,49 @@
             pendingList.innerHTML = '';
             
             if (submissions.length > 0) {
-                submissions.forEach((sub, index) => {
+                pendingDiv.classList.remove('hidden');
+                submissions.forEach((data, index) => {
                     const listItem = document.createElement('li');
-                    listItem.textContent = `[${index + 1}] ${sub.flightNumberNew || 'No Flight ID'} on ${sub.observationDate || 'Unknown Date'}`;
+                    listItem.className = 'flex justify-between items-center py-1';
+                    
+                    const displayInfo = `รายการที่ ${index + 1}: เที่ยวบิน ${data.flightNumberNew || 'ไม่ระบุ'}, ตรวจโดย ${data.inspectorName || 'ไม่ระบุ'} (${new Date(data.Observation_Timestamp).toLocaleTimeString()})`;
+                    
+                    const deleteButton = document.createElement('button');
+                    deleteButton.textContent = 'ลบ';
+                    deleteButton.className = 'ml-4 px-3 py-1 text-xs font-bold text-white bg-red-500 rounded hover:bg-red-700 transition duration-300';
+                    
+                    deleteButton.onclick = () => deleteSpecificData(index);
+                    
+                    listItem.innerHTML = `<span>${displayInfo}</span>`;
+                    listItem.appendChild(deleteButton);
                     pendingList.appendChild(listItem);
                 });
-                pendingDiv.classList.remove('hidden');
             } else {
                 pendingDiv.classList.add('hidden');
             }
         }
         
-        // --- CORE FETCH FUNCTION ---
+        function deleteSpecificData(index) {
+            Swal.fire({
+                title: 'ยืนยันการลบรายการนี้?',
+                text: `คุณต้องการลบรายการที่ ${index + 1} นี้ออกจากรายการที่รอซิงค์หรือไม่?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#DC2626',
+                cancelButtonColor: '#6B7280',
+                confirmButtonText: 'ใช่, ลบ!',
+                cancelButtonText: 'ยกเลิก'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    let submissions = getLocalData();
+                    submissions.splice(index, 1);
+                    saveLocalData(submissions); 
+                    Swal.fire('ลบแล้ว!', 'รายการที่เลือกถูกลบเรียบร้อย', 'success');
+                }
+            });
+        }
+        
+        // --- CORE FETCH FUNCTION (UNCHANGED) ---
         async function sendDataToServer(data) {
             document.getElementById('statusMessage').textContent = 'Sending data to Drive...';
             
@@ -411,7 +437,7 @@
                 const payload = { data: data, email: EMAIL_DESTINATION };
 
                 // ตรวจสอบว่า URL ถูกแทนที่แล้วหรือไม่
-                if (GOOGLE_APPS_SCRIPT_WEB_APP_URL === 'XXX_PASTE_YOUR_WEB_APP_URL_HERE_XXX') {
+                if (GOOGLE_APPS_SCRIPT_WEB_APP_URL === 'https://script.google.com/macros/s/AKfycbzd8MEOIfq-hnGn_j79sH354hJyszK5LsC230K8P699IkdJygtoPie6H0sw33IRHtMX3A/exec') {
                     document.getElementById('statusMessage').textContent = '❌ Error: Web App URL not configured.';
                     return false;
                 }
@@ -435,9 +461,10 @@
                 return false; 
             }
         }
-        
-        // --- RESYNC FUNCTION ---
+
+        // --- RESYNC FUNCTION (UNCHANGED) ---
         async function resyncData() {
+            // ... (resyncData function is unchanged) ...
             const submissions = getLocalData();
             let successfullySentCount = 0;
             const remainingSubmissions = [];
@@ -457,7 +484,6 @@
                     successfullySentCount++;
                 } else {
                     remainingSubmissions.push(data);
-                    // หากซิงค์ล้มเหลว ให้หยุดและแจ้งเตือนว่าเหลือข้อมูลที่ยังไม่ได้ส่ง
                     Swal.update({
                         icon: 'error',
                         title: 'การซิงค์ล้มเหลว',
@@ -472,16 +498,11 @@
 
             saveLocalData(remainingSubmissions);
             
-            // ถ้า SweetAlert ยังแสดงอยู่ (ไม่ได้ถูกอัปเดตจาก Break) ให้ปิดและแสดงผลสำเร็จ
-            if (Swal.isVisible() && remainingSubmissions.length === 0) {
-                 Swal.fire('ซิงค์สำเร็จ', `ส่งข้อมูลสำเร็จ ${successfullySentCount} รายการ`, 'success');
-            } else if (Swal.isVisible() && remainingSubmissions.length > 0) {
-                 // ถ้ามีข้อมูลเหลืออยู่ แต่ไม่ได้เกิดจาก break (เช่น ส่งสำเร็จบางส่วน)
-                 Swal.fire('ซิงค์สำเร็จบางส่วน', `ส่งข้อมูลสำเร็จ ${successfullySentCount} รายการ. ข้อมูล ${remainingSubmissions.length} รายการที่เหลือจะรอซิงค์ครั้งถัดไป`, 'warning');
-            } else if (!Swal.isVisible() && successfullySentCount > 0) {
-                // กรณีที่ SweetAlert ถูกปิดไปแล้วด้วยข้อความ error (จาก break)
-                // ไม่ต้องทำอะไรซ้ำ
-            }
+            if (successfullySentCount > 0) {
+                Swal.fire('ซิงค์สำเร็จ', `ส่งข้อมูลสำเร็จ ${successfullySentCount} รายการ`, 'success');
+            } else if (remainingSubmissions.length === submissions.length && submissions.length > 0) {
+                 Swal.fire('ล้มเหลว', 'ไม่สามารถซิงค์ข้อมูลได้ กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต', 'error');
+            } 
             
             updatePendingSyncUI();
         }
@@ -492,7 +513,7 @@
             const formElement = document.getElementById('checklistForm');
             
             updatePendingSyncUI(); 
-            generateChecklistHTML(); // สร้างตาราง Checklist
+            generateChecklistHTML(); 
 
             formElement.addEventListener('submit', async (e) => {
                 e.preventDefault();
