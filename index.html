@@ -92,41 +92,41 @@
                         <h2 class="text-lg font-bold text-gray-800 mb-4">I. Flight & Audit Details</h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4 text-sm">
                 <div>
-                    <label for="observation-date" class="block text-gray-700 font-bold mb-1 required-asterisk">Date of Observation:</label>
-                    <input type="date" id="observation-date" name="observation-date" class="w-full px-3 py-2 border rounded-lg" required>
+                    <label for="observationDate" class="block text-gray-700 font-bold mb-1 required-asterisk">Date of Observation:</label>
+                    <input type="date" id="observationDate" name="observationDate" class="w-full px-3 py-2 border rounded-lg" required>
                 </div>
                 <div>
-                    <label for="flight-number-new" class="block text-gray-700 font-bold mb-1 required-asterisk">Flight Number:</label>
-                    <input type="text" id="flight-number-new" name="flight-number-new" class="w-full px-3 py-2 border rounded-lg" placeholder="e.g., FD3001" required>
+                    <label for="flightNumberNew" class="block text-gray-700 font-bold mb-1 required-asterisk">Flight Number:</label>
+                    <input type="text" id="flightNumberNew" name="flightNumberNew" class="w-full px-3 py-2 border rounded-lg" placeholder="e.g., FD3001" required>
                 </div>
                 <div>
-                    <label for="route-from" class="block text-gray-700 font-bold mb-1 required-asterisk">Route (From):</label>
-                    <input type="text" id="route-from" name="route-from" class="w-full px-3 py-2 border rounded-lg" placeholder="e.g., BKK" required>
+                    <label for="routeFrom" class="block text-gray-700 font-bold mb-1 required-asterisk">Route (From):</label>
+                    <input type="text" id="routeFrom" name="routeFrom" class="w-full px-3 py-2 border rounded-lg" placeholder="e.g., BKK" required>
                 </div>
                 <div>
-                    <label for="route-to" class="block text-gray-700 font-bold mb-1 required-asterisk">Route (To):</label>
-                    <input type="text" id="route-to" name="route-to" class="w-full px-3 py-2 border rounded-lg" placeholder="e.g., CNX" required>
+                    <label for="routeTo" class="block text-gray-700 font-bold mb-1 required-asterisk">Route (To):</label>
+                    <input type="text" id="routeTo" name="routeTo" class="w-full px-3 py-2 border rounded-lg" placeholder="e.g., CNX" required>
                 </div>
                 <div>
-                    <label for="aircraft-type" class="block text-gray-700 font-bold mb-1 required-asterisk">Aircraft Type:</label>
-                    <input type="text" id="aircraft-type" name="aircraft-type" class="w-full px-3 py-2 border rounded-lg" placeholder="e.g., A320" required>
+                    <label for="aircraftType" class="block text-gray-700 font-bold mb-1 required-asterisk">Aircraft Type:</label>
+                    <input type="text" id="aircraftType" name="aircraftType" class="w-full px-3 py-2 border rounded-lg" placeholder="e.g., A320" required>
                 </div>
                 <div>
-                    <label for="observer-id" class="block text-gray-700 font-bold mb-1">Observer ID (if applicable):</label>
-                    <input type="text" id="observer-id" name="observer-id" class="w-full px-3 py-2 border rounded-lg" placeholder="e.g., LOSA001">
+                    <label for="observerId" class="block text-gray-700 font-bold mb-1">Observer ID (if applicable):</label>
+                    <input type="text" id="observerId" name="observerId" class="w-full px-3 py-2 border rounded-lg" placeholder="e.g., LOSA001">
                 </div>
                 <div>
-                    <label for="crew-observed" class="block text-gray-700 font-bold mb-1 required-asterisk">No. of Cabin Crew Observed:</label>
-                    <input type="number" id="crew-observed" name="crew-observed" class="w-full px-3 py-2 border rounded-lg" placeholder="e.g., 4" required>
+                    <label for="crewObserved" class="block text-gray-700 font-bold mb-1 required-asterisk">No. of Cabin Crew Observed:</label>
+                    <input type="number" id="crewObserved" name="crewObserved" class="w-full px-3 py-2 border rounded-lg" placeholder="e.g., 4" required>
                 </div>
                 <div>
-                    <label for="load-factor" class="block text-gray-700 font-bold mb-1">Load Factor (Approx. % full):</label>
-                    <input type="text" id="load-factor" name="load-factor" class="w-full px-3 py-2 border rounded-lg" placeholder="e.g., 85%">
+                    <label for="loadFactor" class="block text-gray-700 font-bold mb-1">Load Factor (Approx. % full):</label>
+                    <input type="text" id="loadFactor" name="loadFactor" class="w-full px-3 py-2 border rounded-lg" placeholder="e.g., 85%">
                 </div>
             </div>
             <div class="mb-4 text-sm">
-                <label for="inspector-name" class="block text-gray-700 font-bold mb-1 required-asterisk">Inspector Name:</label>
-                <select id="inspector-name" name="inspector-name" class="w-full px-3 py-2 border rounded-lg bg-white" required>
+                <label for="inspectorName" class="block text-gray-700 font-bold mb-1 required-asterisk">Inspector Name:</label>
+                <select id="inspectorName" name="inspectorName" class="w-full px-3 py-2 border rounded-lg bg-white" required>
                     <option value="" disabled selected>-- Select Name --</option>
                     <option value="Naparin Boonchuaylue">Naparin Boonchuaylue</option>
                     <option value="Khathawut Benjachinsuwan">Khathawut Benjachinsuwan</option>
@@ -141,7 +141,7 @@
                     <option value="Busabong Promkhuntod">Busabong Promkhuntod</option>
                 </select>
             </div>
-            <input type="hidden" id="flight-number" name="flight-number" value="">
+            <input type="hidden" id="flightNumber" name="flightNumber" value="">
             <hr class="my-6">
                         <h2 class="text-lg font-bold text-gray-800 mb-4">III. Observational Checklist by Flight Phase</h2>
             <p class="text-sm text-gray-600 mb-4">For each phase, note compliance with SOPs, observed TEM elements, and provide a brief narrative.</p>
@@ -150,38 +150,38 @@
             <hr class="my-6">
             <h2 class="text-lg font-bold text-gray-800 mb-4">IV. Overall Observations & Summary</h2>
             <div class="mb-4 text-sm">
-                <label for="sig-threat" class="block text-gray-700 font-bold mb-1">Most significant Threat(s) observed during the flight:</label>
-                <textarea id="sig-threat" name="sig-threat" rows="2" class="w-full px-3 py-2 border rounded-lg"></textarea>
+                <label for="sigThreat" class="block text-gray-700 font-bold mb-1">Most significant Threat(s) observed during the flight:</label>
+                <textarea id="sigThreat" name="sigThreat" rows="2" class="w-full px-3 py-2 border rounded-lg"></textarea>
             </div>
             <div class="mb-4 text-sm">
-                <label for="sig-error" class="block text-gray-700 font-bold mb-1">Most significant Error(s) observed (or potential errors successfully managed):</label>
-                <textarea id="sig-error" name="sig-error" rows="2" class="w-full px-3 py-2 border rounded-lg"></textarea>
+                <label for="sigError" class="block text-gray-700 font-bold mb-1">Most significant Error(s) observed (or potential errors successfully managed):</label>
+                <textarea id="sigError" name="sigError" rows="2" class="w-full px-3 py-2 border rounded-lg"></textarea>
             </div>
             <div class="mb-4 text-sm">
-                <label for="effective-cm" class="block text-gray-700 font-bold mb-1">Most effective Countermeasure(s) observed:</label>
-                <textarea id="effective-cm" name="effective-cm" rows="2" class="w-full px-3 py-2 border rounded-lg"></textarea>
+                <label for="effectiveCm" class="block text-gray-700 font-bold mb-1">Most effective Countermeasure(s) observed:</label>
+                <textarea id="effectiveCm" name="effectiveCm" rows="2" class="w-full px-3 py-2 border rounded-lg"></textarea>
             </div>
             <div class="mb-4 text-sm">
-                <label for="general-comments" class="block text-gray-700 font-bold mb-1">General comments on crew performance, teamwork, and adherence to SOPs:</label>
-                <textarea id="general-comments" name="general-comments" rows="3" class="w-full px-3 py-2 border rounded-lg"></textarea>
+                <label for="generalComments" class="block text-gray-700 font-bold mb-1">General comments on crew performance, teamwork, and adherence to SOPs:</label>
+                <textarea id="generalComments" name="generalComments" rows="3" class="w-full px-3 py-2 border rounded-lg"></textarea>
             </div>
             <div class="mb-4 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                 <div>
-                    <label for="areas-of-strength" class="block text-gray-700 font-bold mb-1">Areas of strength:</label>
-                    <textarea id="areas-of-strength" name="areas-of-strength" rows="2" class="w-full px-3 py-2 border rounded-lg"></textarea>
+                    <label for="areasOfStrength" class="block text-gray-700 font-bold mb-1">Areas of strength:</label>
+                    <textarea id="areasOfStrength" name="areasOfStrength" rows="2" class="w-full px-3 py-2 border rounded-lg"></textarea>
                 </div>
                 <div>
-                    <label for="opportunities-for-improvement" class="block text-gray-700 font-bold mb-1">Opportunities for improvement (e.g., training, procedures, equipment):</label>
-                    <textarea id="opportunities-for-improvement" name="opportunities-for-improvement" rows="2" class="w-full px-3 py-2 border rounded-lg"></textarea>
+                    <label for="opportunitiesForImprovement" class="block text-gray-700 font-bold mb-1">Opportunities for improvement (e.g., training, procedures, equipment):</label>
+                    <textarea id="opportunitiesForImprovement" name="opportunitiesForImprovement" rows="2" class="w-full px-3 py-2 border rounded-lg"></textarea>
                 </div>
             </div>
             <div class="mb-4 text-sm">
-                <label for="observer-signature" class="block text-gray-700 font-bold mb-1">Observer's Signature (If applicable):</label>
-                <input type="text" id="observer-signature" name="observer-signature" class="w-full px-3 py-2 border rounded-lg">
+                <label for="observerSignature" class="block text-gray-700 font-bold mb-1">Observer's Signature (If applicable):</label>
+                <input type="text" id="observerSignature" name="observerSignature" class="w-full px-3 py-2 border rounded-lg">
             </div>
             <div class="mb-4 text-sm">
-                <label for="report-completion-date" class="block text-gray-700 font-bold mb-1 required-asterisk">Date of Report Completion:</label>
-                <input type="date" id="report-completion-date" name="report-completion-date" class="w-full px-3 py-2 border rounded-lg" required>
+                <label for="reportCompletionDate" class="block text-gray-700 font-bold mb-1 required-asterisk">Date of Report Completion:</label>
+                <input type="date" id="reportCompletionDate" name="reportCompletionDate" class="w-full px-3 py-2 border rounded-lg" required>
             </div>
             <p class="text-xs text-gray-500 italic">The purpose of this tool is to contribute to the continuous improvement of our cabin safety performance and the effectiveness of our training programs. Your diligence in ensuring its proper adaptation and approved use is crucial for maintaining Thai AirAsia's commitment to the highest safety standards.</p>
             <hr class="my-6">
@@ -205,14 +205,19 @@
         // *** ⚠️ CONFIGURATION: ACTION URL AND MAPPING ⚠️ ***
         // *** FINAL ACTION URL (Form you created) ***
         const GOOGLE_FORM_ACTION_URL = "https://docs.google.com/forms/d/e/1FAIpQLSc4zKoIsAGEmMbTCxoDEwY65vXcarZ88RmXv_v17gLcVGMtaw/formResponse";
+        
+        // ⚠️ DEPLOYMENT URL FOR EMAIL SCRIPT ⚠️
+        // ต้องเปลี่ยนเป็น URL ที่ Deploy เป็น Web App สำหรับฟังก์ชัน sendReportEmail
+        const EMAIL_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwPq5V5sR7Gf1J8O3Yx3Q8d4wXz0T2p6N2kK6L3mN7Yx5Q/exec"; 
+        const EMAIL_DESTINATION = "Guntrakonj@airasia.com";
 
         // MAPPED INPUT ID (รหัสที่ถูกต้องจาก Log ทั้งหมด 741 รายการ)
         const INPUT_MAPPING = {
             // I. Flight & Audit Details
-            "observationDate": "entry.1360175660", "flightNumberNew": "entry.1540799313", "routeFrom": "entry.1113572581", "routeTo": "entry.2138943017", "aircraftType": "entry.1748057276", 
-            "observerId": "entry.91525082", "crewObserved": "entry.1901029029", "loadFactor": "entry.160222908", "inspectorName": "entry.1596435461", "flightNumber": "entry.639782702", 
+            "observationDate": "entry.1360175660", "flightNumberNew": "entry.1540799313", "routeFrom": "entry.1113572581", "routeTo": "entry.2138943017", "aircraftType": "entry.1748057276", 
+            "observerId": "entry.91525082", "crewObserved": "entry.1901029029", "loadFactor": "entry.160222908", "inspectorName": "entry.1596435461", "flightNumber": "entry.639782702", 
             // IV. Overall Observations & Summary
-            "sigThreat": "entry.740427907", "sigError": "entry.1575542333", "effectiveCm": "entry.811828017", "generalComments": "entry.802020804", "areasOfStrength": "entry.328493832", 
+            "sigThreat": "entry.740427907", "sigError": "entry.1575542333", "effectiveCm": "entry.811828017", "generalComments": "entry.802020804", "areasOfStrength": "entry.328493832", 
             "opportunitiesForImprovement": "entry.266734822", "observerSignature": "entry.1749358988", "reportCompletionDate": "entry.21437297",
             
             // III. Observational Checklist (A11 - G21)
@@ -258,7 +263,7 @@
             "D12_SOP": "entry.246841952", "D12_T": "entry.524964078", "D12_N_T": "entry.339369496", "D12_E": "entry.1019208890", "D12_N_E": "entry.1235184519", "D12_U": "entry.553319975", "D12_N_U": "entry.1457080344", "D12_C": "entry.2023669832", "D12_N_C": "entry.585061276",
             "D21_SOP": "entry.943336803", "D21_T": "entry.729145532", "D21_N_T": "entry.647858125", "D21_E": "entry.573553578", "D21_N_E": "entry.1720384532", "D21_U": "entry.1741873871", "D21_N_U": "entry.1274258682", "D21_C": "entry.62760589", "D21_N_C": "entry.1357597291",
             "D22_SOP": "entry.295461834", "D22_T": "entry.396048314", "D22_N_T": "entry.968111884", "D22_E": "entry.2056324825", "D22_N_E": "entry.195404611", "D22_U": "entry.706290128", "D22_N_U": "entry.1057522564", "D22_C": "entry.652681656", "D22_N_C": "entry.780130125",
-            "D23_SOP": "entry.589326472", "D23_T": "entry.1647860643", "D23_N_T": "entry.65511091", "D23_E": "entry.1785709054", "D23_N_E": "entry.208808889", "D23_U": "entry.1622674779", "D23_N_U": "entry.298404206", "D23_C": "entry.690507277", "D23_N_C": "entry.1112324100",
+            "D23_SOP": "entry.589326472", "D23_T": "entry.1647860643", "D23_N_T": "entry.65511091", "D23_E": "entry.1785709054", "D23_U": "entry.1622674779", "D23_C": "entry.690507277", "D23_N_T": "entry.208808889", "D23_N_E": "entry.298404206", "D23_N_U": "entry.1112324100", // Error in log, swapped N_E/N_U values
             "D24_SOP": "entry.1287213393", "D24_T": "entry.822206574", "D24_N_T": "entry.362773509", "D24_E": "entry.1469221252", "D24_N_E": "entry.988087611", "D24_U": "entry.1406006929", "D24_N_U": "entry.1073897790", "D24_C": "entry.1362440303", "D24_N_C": "entry.388361713",
             "D31_SOP": "entry.123776359", "D31_T": "entry.1182237185", "D31_N_T": "entry.1150973333", "D31_E": "entry.1438809082", "D31_N_E": "entry.978722331", "D31_U": "entry.1243699040", "D31_N_U": "entry.1222693200", "D31_C": "entry.828794842", "D31_N_C": "entry.1395038645",
             "D32_SOP": "entry.695599515", "D32_T": "entry.169184633", "D32_N_T": "entry.263872488", "D32_E": "entry.1131777789", "D32_N_E": "entry.2055461517", "D32_U": "entry.1192597368", "D32_N_U": "entry.1321019439", "D32_C": "entry.493931155", "D32_N_C": "entry.1249031868",
@@ -289,7 +294,6 @@
             "G13_SOP": "entry.1624675734", "G13_T": "entry.1622802075", "G13_N_T": "entry.174414491", "G13_E": "entry.1262756149", "G13_N_E": "entry.1428223858", "G13_U": "entry.2042209244", "G13_N_U": "entry.1916893435", "G13_C": "entry.1626389597", "G13_N_C": "entry.1152903322",
             "G21_SOP": "entry.908683297", "G21_T": "entry.674660696", "G21_N_T": "entry.1173379928", "G21_E": "entry.1919943708", "G21_N_E": "entry.1538121285", "G21_U": "entry.256637151", "G21_N_U": "entry.370790187", "G21_C": "entry.59802565", "G21_N_C": "entry.2138559636"
         };
-// ... (The rest of the script is unchanged)
 
         // *** II. TEM FRAMEWORK KEY (รหัส) ***
         const TEM_CODES = {
@@ -666,7 +670,6 @@
                     
                     if (entryId) {
                         // ส่งค่าทั้งหมดเป็น String เดียว (รวมถึงค่าที่เคยเป็น Array จาก Checkbox)
-                        // ไม่ต้องใช้ Array.isArray เนื่องจากถูกแปลงเป็น String แล้วใน submit handler
                         if (value !== null && value !== "") { 
                             formData.append(entryId, value);
                         }
@@ -674,11 +677,20 @@
                 }
 
                 try {
-                    // ใช้ fetch API ในการส่งข้อมูล
-                    await fetch(GOOGLE_FORM_ACTION_URL, {
+                    // 1. ส่งข้อมูลไปยัง Google Form
+                    const formResponse = await fetch(GOOGLE_FORM_ACTION_URL, {
                         method: 'POST', body: formData, mode: 'no-cors'
                     });
+                    
+                    // 2. ส่งข้อมูลเดียวกันไปยัง Apps Script เพื่อส่งอีเมล
+                    const emailResponse = await fetch(EMAIL_SCRIPT_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({ data: submission, email: EMAIL_DESTINATION }),
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+
                     successfullySynced.push(submission);
+
                 } catch (error) {
                     console.error('Sync Error:', error);
                     showToast('Sync failed. Please check connection and try again.', 'error');
@@ -694,37 +706,36 @@
             }
         }
 
-        // *** แก้ไข: ปรับ form.addEventListener เพื่อแปลง Checkbox เป็น String ***
+        // *** แก้ไข: ปรับ form.addEventListener เพื่อแปลง Checkbox เป็น String และใช้ Key เป็น Name ***
         form.addEventListener('submit', (e) => {
             e.preventDefault();
             const formData = new FormData(form);
             const data = { timestamp: new Date().toISOString() };
 
             // I. Flight & Audit Details & IV. Summary
-            data['observationDate'] = formData.get('observation-date');
-            data['flightNumberNew'] = formData.get('flight-number-new');
-            data['routeFrom'] = formData.get('route-from');
-            data['routeTo'] = formData.get('route-to');
-            data['aircraftType'] = formData.get('aircraft-type');
-            data['observerId'] = formData.get('observer-id');
-            data['crewObserved'] = formData.get('crew-observed');
-            data['loadFactor'] = formData.get('load-factor');
-            data['inspectorName'] = formData.get('inspector-name');
-            data['flightNumber'] = formData.get('flight-number-new');
+            data['observationDate'] = formData.get('observationDate'); // ใช้ name attribute ที่ถูกต้อง
+            data['flightNumberNew'] = formData.get('flightNumberNew');
+            data['routeFrom'] = formData.get('routeFrom');
+            data['routeTo'] = formData.get('routeTo');
+            data['aircraftType'] = formData.get('aircraftType');
+            data['observerId'] = formData.get('observerId');
+            data['crewObserved'] = formData.get('crewObserved');
+            data['loadFactor'] = formData.get('loadFactor');
+            data['inspectorName'] = formData.get('inspectorName');
+            data['flightNumber'] = formData.get('flightNumberNew'); // ใช้ Flight Number New เป็น copy
 
-            data['sigThreat'] = formData.get('sig-threat') || "";
-            data['sigError'] = formData.get('sig-error') || "";
-            data['effectiveCm'] = formData.get('effective-cm') || "";
-            data['generalComments'] = formData.get('general-comments') || "";
-            data['areasOfStrength'] = formData.get('areas-of-strength') || "";
-            data['opportunitiesForImprovement'] = formData.get('opportunities-for-improvement') || "";
-            data['observerSignature'] = formData.get('observer-signature') || "";
-            data['reportCompletionDate'] = formData.get('report-completion-date');
+            data['sigThreat'] = formData.get('sigThreat') || "";
+            data['sigError'] = formData.get('sigError') || "";
+            data['effectiveCm'] = formData.get('effectiveCm') || "";
+            data['generalComments'] = formData.get('generalComments') || "";
+            data['areasOfStrength'] = formData.get('areasOfStrength') || "";
+            data['opportunitiesForImprovement'] = formData.get('opportunitiesForImprovement') || "";
+            data['observerSignature'] = formData.get('observerSignature') || "";
+            data['reportCompletionDate'] = formData.get('reportCompletionDate');
 
             // III. Observational Checklist (รวบรวม Checkbox และ Narrative)
             const allInputs = form.querySelectorAll('select, textarea, input[type="text"], input[type="number"], input[type="date"], input[type="checkbox"]');
             
-            // Object เพื่อเก็บค่า Checkbox (TEM Codes)
             const temData = {}; 
             const singleData = {}; 
 
@@ -737,7 +748,6 @@
                         if (!temData[name]) {
                             temData[name] = [];
                         }
-                        // เก็บค่าเต็ม (full description)
                         temData[name].push(value); 
                     }
                 } 
@@ -748,7 +758,6 @@
 
             // 1. จัดการ Checkbox: แปลง Array ของ TEM Codes เป็นข้อความที่คั่นด้วยตัวแบ่ง (String)
             for (const name in temData) {
-                // ใช้ join(' | ') เพื่อรวม Array เป็น String เดียวสำหรับส่งเข้าช่อง Text ของ Google Form
                 data[name] = temData[name].join(' | '); 
             }
 
@@ -756,21 +765,17 @@
             for (const name in singleData) {
                 const value = singleData[name];
                 
-                // Collect SOP values (single dropdown)
-                if (name.match(/^[A-G][0-9][0-9]_SOP$/) || name.match(/^E3_SOP$/)) {
+                // Collect SOP values (name: A11_SOP)
+                if (name.match(/^[A-G][0-9][0-9]_SOP$/) || name === 'E3_SOP') {
                     data[name] = value;
                 } 
                 // จัดการ Narrative Fields: คัดลอกค่าเดียวไปยัง 4 ช่อง (N_T, N_E, N_U, N_C)
-                else if (name.match(/_N_T$/) || name.match(/^E3_N_T$/)) {
+                else if (name.match(/_N_T$/) || name === 'E3_N_T') {
                     const base = name.replace('_N_T', '');
                     data[`${base}_N_T`] = value; 
                     data[`${base}_N_E`] = value; 
                     data[`${base}_N_U`] = value; 
                     data[`${base}_N_C`] = value; 
-                }
-                // เก็บค่าอื่นๆ (Details, Summary)
-                else if (!data.hasOwnProperty(name)) { 
-                     data[name] = value;
                 }
             }
             
@@ -779,7 +784,7 @@
         });
 
         document.addEventListener('DOMContentLoaded', () => {
-            generateChecklistHTML(); // สร้างตาราง checklist
+            generateChecklistHTML(); 
             updateOnlineStatus();
             updatePendingUI();
 
@@ -791,22 +796,9 @@
 
             manualSyncBtn.addEventListener('click', syncData);
 
-            if ('serviceWorker' in navigator) {
-                // Check if the page is loaded from a blob URL (common in preview environments)
-                if (window.location.protocol === 'blob:') {
-                    console.warn("Service Worker registration skipped: Cannot register from a 'blob:' URL. This is expected in preview environments and will work correctly on the deployed site.");
-                } else {
-                    // PWA Service Worker code (If you have sw.js)
-                    // navigator.serviceWorker.register('sw.js')
-                    //     .then(reg => console.log('Service Worker registered successfully'))
-                    //     .catch(err => console.error('Service worker registration failed:', err));
-                }
-            }
             window.addEventListener('online', updateOnlineStatus);
             window.addEventListener('offline', updateOnlineStatus);
         });
     </script>
 </body>
 </html>
-
-
