@@ -1,226 +1,182 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cabin Crew LOSA Checklist</title>
+    <title>Cabin Crew LOSA Checklist (Offline Ready)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#DC2626"/>
     <link rel="apple-touch-icon" href="icon-192.png">
     <style>
-        body { font-family: 'Inter', 'Kanit', sans-serif; }
-        .status-dot { height: 12px; width: 12px; border-radius: 50%; display: inline-block; }
-        .online { background-color: #2ecc71; }
-        .offline { background-color: #e74c3c; }
-        /* สไตล์สำหรับตาราง Checklist */
+        /* CSS Styles */
+        .required-asterisk::after { content: " *"; color: #ef4444; }
         .checklist-container { overflow-x: auto; }
         .checklist-table { min-width: 900px; }
         .checklist-table th, .checklist-table td { padding: 4px; border: 1px solid #e5e7eb; vertical-align: middle; }
         .checklist-table th { background-color: #f3f4f6; text-align: left; font-size: 0.7rem; color: #374151; font-weight: 600; }
-        .checklist-item { background-color: #ffffff; }
         .checklist-item-group td { background-color: #f0f0f0; font-weight: bold; font-size: 0.8rem; padding: 6px 4px; }
-
-        /* ปรับขนาด Dropdown SOP */
-        .sop-dropdown {
-             font-size: 0.75rem;
-             padding: 4px 6px;
-             height: 38px;
-             border-radius: 6px;
-             border: 1px solid #d1d5db;
-             min-width: 65px;
-             max-width: 100%;
-        }
-        .narrative-textarea {
-             font-size: 0.7rem;
-             padding: 3px;
-             min-height: 38px;
-             resize: vertical;
-             line-height: 1.2;
-        }
-        
-        /* สไตล์สำหรับ Checkbox Container (TEM Codes) */
-        .checkbox-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 4px 6px; 
-            font-size: 0.75rem;
-            line-height: 1;
-            padding: 4px 2px;
-        }
-        .checkbox-container label {
-            white-space: nowrap;
-            display: inline-flex;
-            align-items: center;
-        }
-        .checkbox-container input[type="checkbox"] {
-            transform: scale(1.3); 
-            margin-right: 4px;
-        }
-
-        /* กำหนดความกว้างคอลัมน์ใหม่ให้กระชับ */
-        .item-col { width: 25%; font-size: 0.75rem; }
-        .sop-col { width: 9%; }
-        .code-col { width: 10%; }
-        .narrative-col { width: 26%; }
-
-        .bg-t { background-color: #e6ffec; }
-        .bg-e { background-color: #fff9e6; }
-        .bg-u { background-color: #ffe6e6; }
-        .bg-c { background-color: #e6f0ff; }
-
-        /* ลบดาวแดง */
-        .required-asterisk::after {
-            content: none !important;
-        }
+        .checkbox-container { display: flex; flex-wrap: wrap; gap: 4px 6px; font-size: 0.75rem; }
+        .sop-dropdown, .narrative-textarea { height: 38px; font-size: 0.75rem; border-radius: 6px; }
+        .bg-t { background-color: #e6ffec; } .bg-e { background-color: #fff9e6; } .bg-u { background-color: #ffe6e6; } .bg-c { background-color: #e6f0ff; }
+        .checklist-table td { font-size: 0.75rem; }
     </style>
 </head>
-<body class="bg-gray-100">
-    <div class="container mx-auto max-w-4xl p-2 sm:p-4">
-        <header class="bg-red-600 text-white p-4 rounded-lg shadow-md mb-4 flex justify-between items-center">
-            <div>
-                <h1 class="text-xl sm:text-2xl font-bold">Cabin Crew LOSA Checklist</h1>
-                <p class="text-xs sm:text-sm opacity-90">Line Operations Safety Audit (LOSA)</p>
-            </div>
-            <div class="flex items-center space-x-2 text-right">
-                <span id="status-text" class="font-semibold text-sm">Offline</span>
-                <span id="status-dot" class="status-dot offline"></span>
-            </div>
-        </header>
-        <form id="checklist-form" class="bg-white p-4 sm:p-6 rounded-lg shadow-md">
-                        <h2 class="text-lg font-bold text-gray-800 mb-4">I. Flight & Audit Details</h2>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4 text-sm">
-                <div>
-                    <label for="observationDate" class="block text-gray-700 font-bold mb-1 required-asterisk">Date of Observation:</label>
-                    <input type="date" id="observationDate" name="observationDate" class="w-full px-3 py-2 border rounded-lg" required>
+<body class="bg-gray-100 p-4 sm:p-8">
+
+    <div class="max-w-4xl mx-auto bg-white p-6 sm:p-10 rounded-xl shadow-2xl">
+        <h1 class="text-3xl font-extrabold text-red-600 mb-6 text-center">Cabin Crew LOSA Checklist</h1>
+        <form id="checklistForm">
+
+            <section class="mb-8 p-6 bg-red-50 border-l-4 border-red-500 rounded-lg shadow-inner">
+                <h2 class="text-xl font-bold text-red-800 mb-4">I. Flight & Audit Details</h2>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4 text-sm">
+                    
+                    <div>
+                        <label for="observationDate" class="block text-gray-700 font-bold mb-1 required-asterisk">Date of Observation:</label>
+                        <input type="date" id="observationDate" name="observationDate" class="w-full px-3 py-2 border rounded-lg" required>
+                    </div>
+                    
+                    <div>
+                        <label for="flightNumberNew" class="block text-gray-700 font-bold mb-1 required-asterisk">Flight Number:</label>
+                        <input type="text" id="flightNumberNew" name="flightNumberNew" class="w-full px-3 py-2 border rounded-lg" placeholder="e.g., FD3001" required>
+                    </div>
+
+                    <div>
+                        <label for="routeFrom" class="block text-gray-700 font-bold mb-1 required-asterisk">Route (From):</label>
+                        <input type="text" id="routeFrom" name="routeFrom" class="w-full px-3 py-2 border rounded-lg" placeholder="e.g., BKK" required>
+                    </div>
+
+                    <div>
+                        <label for="routeTo" class="block text-gray-700 font-bold mb-1 required-asterisk">Route (To):</label>
+                        <input type="text" id="routeTo" name="routeTo" class="w-full px-3 py-2 border rounded-lg" placeholder="e.g., CNX" required>
+                    </div>
+                    
+                    <div>
+                        <label for="aircraftType" class="block text-gray-700 font-bold mb-1 required-asterisk">Aircraft Type:</label>
+                        <input type="text" id="aircraftType" name="aircraftType" class="w-full px-3 py-2 border rounded-lg" placeholder="e.g., A320" required>
+                    </div>
+                    
+                    <div>
+                        <label for="observerId" class="block text-gray-700 font-bold mb-1">Observer ID (if applicable):</label>
+                        <input type="text" id="observerId" name="observerId" class="w-full px-3 py-2 border rounded-lg" placeholder="e.g., LOSA001">
+                    </div>
+                    
+                    <div>
+                        <label for="crewObserved" class="block text-gray-700 font-bold mb-1 required-asterisk">No. of Cabin Crew Observed:</label>
+                        <input type="number" id="crewObserved" name="crewObserved" class="w-full px-3 py-2 border rounded-lg" placeholder="e.g., 4" required>
+                    </div>
+                    
+                    <div>
+                        <label for="loadFactor" class="block text-gray-700 font-bold mb-1">Load Factor (Approx. % full):</label>
+                        <input type="text" id="loadFactor" name="loadFactor" class="w-full px-3 py-2 border rounded-lg" placeholder="e.g., 85%">
+                    </div>
+                    
                 </div>
-                <div>
-                    <label for="flightNumberNew" class="block text-gray-700 font-bold mb-1 required-asterisk">Flight Number:</label>
-                    <input type="text" id="flightNumberNew" name="flightNumberNew" class="w-full px-3 py-2 border rounded-lg" placeholder="e.g., FD3001" required>
+                
+                <div class="mb-4 text-sm">
+                    <label for="inspectorName" class="block text-gray-700 font-bold mb-1 required-asterisk">Inspector Name:</label>
+                    <select id="inspectorName" name="inspectorName" class="w-full px-3 py-2 border rounded-lg bg-white" required>
+                        <option value="">-- Select Inspector --</option>
+                        <option value="Naparin Boonchuaylue">Naparin Boonchuaylue</option>
+                        <option value="Khathawut Benjachinsuwan">Khathawut Benjachinsuwan</option>
+                        <option value="Parichat Srithongkul">Parichat Srithongkul</option>
+                        <option value="Twankorn Chen">Twankorn Chen</option>
+                        <option value="Phinlaphat Aphinyaupatham">Phinlaphat Aphinyaupatham</option>
+                        <option value="Alisara Usavagovitwong">Alisara Usavagovitwong</option>
+                        <option value="Janpen Vorawanitcha">Janpen Vorawanitcha</option>
+                        <option value="Adisorn Usmanbaha">Adisorn Usmanbaha</option>
+                        <option value="Chotika Totrakool">Chotika Totrakool</option>
+                        <option value="Kittitat Chanta-amornlertkul">Kittitat Chanta-amornlertkul</option>
+                        <option value="Busabong Promkhuntod">Busabong Promkhuntod</option>
+                    </select>
                 </div>
-                <div>
-                    <label for="routeFrom" class="block text-gray-700 font-bold mb-1 required-asterisk">Route (From):</label>
-                    <input type="text" id="routeFrom" name="routeFrom" class="w-full px-3 py-2 border rounded-lg" placeholder="e.g., BKK" required>
-                </div>
-                <div>
-                    <label for="routeTo" class="block text-gray-700 font-bold mb-1 required-asterisk">Route (To):</label>
-                    <input type="text" id="routeTo" name="routeTo" class="w-full px-3 py-2 border rounded-lg" placeholder="e.g., CNX" required>
-                </div>
-                <div>
-                    <label for="aircraftType" class="block text-gray-700 font-bold mb-1 required-asterisk">Aircraft Type:</label>
-                    <input type="text" id="aircraftType" name="aircraftType" class="w-full px-3 py-2 border rounded-lg" placeholder="e.g., A320" required>
-                </div>
-                <div>
-                    <label for="observerId" class="block text-gray-700 font-bold mb-1">Observer ID (if applicable):</label>
-                    <input type="text" id="observerId" name="observerId" class="w-full px-3 py-2 border rounded-lg" placeholder="e.g., LOSA001">
-                </div>
-                <div>
-                    <label for="crewObserved" class="block text-gray-700 font-bold mb-1 required-asterisk">No. of Cabin Crew Observed:</label>
-                    <input type="number" id="crewObserved" name="crewObserved" class="w-full px-3 py-2 border rounded-lg" placeholder="e.g., 4" required>
-                </div>
-                <div>
-                    <label for="loadFactor" class="block text-gray-700 font-bold mb-1">Load Factor (Approx. % full):</label>
-                    <input type="text" id="loadFactor" name="loadFactor" class="w-full px-3 py-2 border rounded-lg" placeholder="e.g., 85%">
-                </div>
-            </div>
-            <div class="mb-4 text-sm">
-                <label for="inspectorName" class="block text-gray-700 font-bold mb-1 required-asterisk">Inspector Name:</label>
-                <select id="inspectorName" name="inspectorName" class="w-full px-3 py-2 border rounded-lg bg-white" required>
-                    <option value="" disabled selected>-- Select Name --</option>
-                    <option value="Naparin Boonchuaylue">Naparin Boonchuaylue</option>
-                    <option value="Khathawut Benjachinsuwan">Khathawut Benjachinsuwan</option>
-                    <option value="Parichat Srithongkul">Parichat Srithongkul</option>
-                    <option value="Twankorn Chen">Twankorn Chen</option>
-                    <option value="Phinlaphat Aphinyaupatham">Phinlaphat Aphinyaupatham</option>
-                    <option value="Alisara Usavagovitwong">Alisara Usavagovitwong</option>
-                    <option value="Janpen Vorawanitcha">Janpen Vorawanitcha</option>
-                    <option value="Adisorn Usmanbaha">Adisorn Usmanbaha</option>
-                    <option value="Chotika Totrakool">Chotika Totrakool</option>
-                    <option value="Kittitat Chanta-amornlertkul">Kittitat Chanta-amornlertkul</option>
-                    <option value="Busabong Promkhuntod">Busabong Promkhuntod</option>
-                </select>
-            </div>
-            <input type="hidden" id="flightNumber" name="flightNumber" value="">
-            <hr class="my-6">
-                        <h2 class="text-lg font-bold text-gray-800 mb-4">III. Observational Checklist by Flight Phase</h2>
-            <p class="text-sm text-gray-600 mb-4">For each phase, note compliance with SOPs, observed TEM elements, and provide a brief narrative.</p>
+
+            </section>
+            
+            <h2 class="text-lg font-bold text-gray-800 mb-4">III. Observational Checklist by Flight Phase</h2>
             <div id="checklist-container" class="checklist-container">
                 </div>
-            <hr class="my-6">
-            <h2 class="text-lg font-bold text-gray-800 mb-4">IV. Overall Observations & Summary</h2>
-            <div class="mb-4 text-sm">
-                <label for="sigThreat" class="block text-gray-700 font-bold mb-1">Most significant Threat(s) observed during the flight:</label>
-                <textarea id="sigThreat" name="sigThreat" rows="2" class="w-full px-3 py-2 border rounded-lg"></textarea>
-            </div>
-            <div class="mb-4 text-sm">
-                <label for="sigError" class="block text-gray-700 font-bold mb-1">Most significant Error(s) observed (or potential errors successfully managed):</label>
-                <textarea id="sigError" name="sigError" rows="2" class="w-full px-3 py-2 border rounded-lg"></textarea>
-            </div>
-            <div class="mb-4 text-sm">
-                <label for="effectiveCm" class="block text-gray-700 font-bold mb-1">Most effective Countermeasure(s) observed:</label>
-                <textarea id="effectiveCm" name="effectiveCm" rows="2" class="w-full px-3 py-2 border rounded-lg"></textarea>
-            </div>
-            <div class="mb-4 text-sm">
-                <label for="generalComments" class="block text-gray-700 font-bold mb-1">General comments on crew performance, teamwork, and adherence to SOPs:</label>
-                <textarea id="generalComments" name="generalComments" rows="3" class="w-full px-3 py-2 border rounded-lg"></textarea>
-            </div>
-            <div class="mb-4 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-                <div>
-                    <label for="areasOfStrength" class="block text-gray-700 font-bold mb-1">Areas of strength:</label>
-                    <textarea id="areasOfStrength" name="areasOfStrength" rows="2" class="w-full px-3 py-2 border rounded-lg"></textarea>
-                </div>
-                <div>
-                    <label for="opportunitiesForImprovement" class="block text-gray-700 font-bold mb-1">Opportunities for improvement (e.g., training, procedures, equipment):</label>
-                    <textarea id="opportunitiesForImprovement" name="opportunitiesForImprovement" rows="2" class="w-full px-3 py-2 border rounded-lg"></textarea>
-                </div>
-            </div>
-            <div class="mb-4 text-sm">
-                <label for="observerSignature" class="block text-gray-700 font-bold mb-1">Observer's Signature (If applicable):</label>
-                <input type="text" id="observerSignature" name="observerSignature" class="w-full px-3 py-2 border rounded-lg">
-            </div>
-            <div class="mb-4 text-sm">
-                <label for="reportCompletionDate" class="block text-gray-700 font-bold mb-1 required-asterisk">Date of Report Completion:</label>
-                <input type="date" id="reportCompletionDate" name="reportCompletionDate" class="w-full px-3 py-2 border rounded-lg" required>
-            </div>
-            <p class="text-xs text-gray-500 italic">The purpose of this tool is to contribute to the continuous improvement of our cabin safety performance and the effectiveness of our training programs. Your diligence in ensuring its proper adaptation and approved use is crucial for maintaining Thai AirAsia's commitment to the highest safety standards.</p>
-            <hr class="my-6">
-            <button type="submit" class="w-full bg-red-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-red-700 mt-6">
-                Save Checklist
-            </button>
-        </form>
-                <div class="mt-6">
-            <div class="flex justify-between items-center mb-2">
-                 <h2 class="text-lg sm:text-xl font-bold text-gray-800">Pending Sync (<span id="pending-count">0</span>)</h2>
-                 <button id="manual-sync-btn" class="bg-green-500 hover:bg-green-600 text-white font-bold py-1 px-3 rounded text-sm hidden">
-                     Sync Now
-                 </button>
-            </div>
-            <div id="pending-list" class="bg-white p-4 rounded-lg shadow-md max-h-48 overflow-y-auto">
-                <p class="text-gray-500 text-center">No pending items.</p>
-            </div>
-        </div>
-    </div>
-    <script>
-        // *** ⚠️ CONFIGURATION: ACTION URL AND MAPPING ⚠️ ***
-        // *** FINAL ACTION URL (Form you created) ***
-        const GOOGLE_FORM_ACTION_URL = "https://docs.google.com/forms/d/e/1FAIpQLSc4zKoIsAGEmMbTCxoDEwY65vXcarZ88RmXv_v17gLcVGMtaw/formResponse";
-        
-        // ⚠️ DEPLOYMENT URL FOR EMAIL SCRIPT ⚠️
-        // ต้องเปลี่ยนเป็น URL ที่ Deploy เป็น Web App สำหรับฟังก์ชัน sendReportEmail
-        const EMAIL_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwPq5V5sR7Gf1J8O3Yx3Q8d4wXz0T2p6N2kK6L3mN7Yx5Q/exec"; 
-        const EMAIL_DESTINATION = "Guntrakonj@airasia.com";
-
-        // MAPPED INPUT ID (รหัสที่ถูกต้องจาก Log ทั้งหมด 741 รายการ)
-        const INPUT_MAPPING = {
-            // I. Flight & Audit Details
-            "observationDate": "entry.1360175660", "flightNumberNew": "entry.1540799313", "routeFrom": "entry.1113572581", "routeTo": "entry.2138943017", "aircraftType": "entry.1748057276", 
-            "observerId": "entry.91525082", "crewObserved": "entry.1901029029", "loadFactor": "entry.160222908", "inspectorName": "entry.1596435461", "flightNumber": "entry.639782702", 
-            // IV. Overall Observations & Summary
-            "sigThreat": "entry.740427907", "sigError": "entry.1575542333", "effectiveCm": "entry.811828017", "generalComments": "entry.802020804", "areasOfStrength": "entry.328493832", 
-            "opportunitiesForImprovement": "entry.266734822", "observerSignature": "entry.1749358988", "reportCompletionDate": "entry.21437297",
             
-            // III. Observational Checklist (A11 - G21)
+            <hr class="my-6">
+            
+            <section class="mb-8 p-6 bg-yellow-50 border-l-4 border-yellow-500 rounded-lg shadow-inner">
+                <h2 class="text-lg font-bold text-yellow-800 mb-4">IV. Overall Observations & Summary</h2>
+                
+                <div class="mb-4 text-sm">
+                    <label for="sigThreat" class="block text-gray-700 font-bold mb-1">Most significant Threat(s) observed during the flight:</label>
+                    <textarea id="sigThreat" name="sigThreat" rows="2" class="w-full px-3 py-2 border rounded-lg"></textarea>
+                </div>
+                
+                <div class="mb-4 text-sm">
+                    <label for="sigError" class="block text-gray-700 font-bold mb-1">Most significant Error(s) observed:</label>
+                    <textarea id="sigError" name="sigError" rows="2" class="w-full px-3 py-2 border rounded-lg"></textarea>
+                </div>
+                
+                <div class="mb-4 text-sm">
+                    <label for="effectiveCm" class="block text-gray-700 font-bold mb-1">Most effective Countermeasure(s) observed:</label>
+                    <textarea id="effectiveCm" name="effectiveCm" rows="2" class="w-full px-3 py-2 border rounded-lg"></textarea>
+                </div>
+                
+                <div class="mb-4 text-sm">
+                    <label for="generalComments" class="block text-gray-700 font-bold mb-1">General comments:</label>
+                    <textarea id="generalComments" name="generalComments" rows="3" class="w-full px-3 py-2 border rounded-lg"></textarea>
+                </div>
+                
+                <div class="mb-4 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                    <div>
+                        <label for="areasOfStrength" class="block text-gray-700 font-bold mb-1">Areas of strength:</label>
+                        <textarea id="areasOfStrength" name="areasOfStrength" rows="2" class="w-full px-3 py-2 border rounded-lg"></textarea>
+                    </div>
+                    
+                    <div>
+                        <label for="opportunitiesForImprovement" class="block text-gray-700 font-bold mb-1">Opportunities for improvement:</label>
+                        <textarea id="opportunitiesForImprovement" name="opportunitiesForImprovement" rows="2" class="w-full px-3 py-2 border rounded-lg"></textarea>
+                    </div>
+                </div>
+                
+                <div class="mb-4 text-sm">
+                    <label for="observerSignature" class="block text-gray-700 font-bold mb-1">Observer's Signature:</label>
+                    <input type="text" id="observerSignature" name="observerSignature" class="w-full px-3 py-2 border rounded-lg">
+                </div>
+                
+                <div class="mb-4 text-sm">
+                    <label for="reportCompletionDate" class="block text-gray-700 font-bold mb-1 required-asterisk">Date of Report Completion:</label>
+                    <input type="date" id="reportCompletionDate" name="reportCompletionDate" class="w-full px-3 py-2 border rounded-lg" required>
+                </div>
+            </section>
+            
+            <button type="submit" class="w-full bg-red-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-red-700 mt-6 shadow-xl">
+                💾 Submit Report (Save to Drive & Email)
+            </button>
+            <div id="statusMessage" class="text-center mt-3 text-sm font-semibold"></div>
+
+            <div id="pendingSync" class="mt-8 p-4 bg-red-100 border border-red-400 rounded-lg hidden">
+                <p class="font-bold text-red-700">⚠️ ข้อมูลออฟไลน์ที่รอการซิงค์:</p>
+                <ul id="pendingList" class="list-disc pl-5 mt-2 text-sm text-red-600"></ul>
+                <button type="button" onclick="resyncData()" class="mt-3 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300">
+                    🔄 ซิงค์ข้อมูลที่ค้างอยู่ตอนนี้
+                </button>
+            </div>
+
+        </form>
+    </div>
+
+    <script>
+        // --- CONFIGURATION ---
+        // ⚠️ ต้องแทนที่ URL นี้ด้วย Web App URL ที่คุณ Deploy แล้ว (/exec) ⚠️
+        const GOOGLE_APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzd8MEOIfq-hnGn_j79sH354hJyszK5LsC230K8P699IkdJygtoPie6H0sw33IRHtMX3A/exec'; 
+        const EMAIL_DESTINATION = "Guntrakonj@airasia.com";
+        const FORM_KEY = 'checklistSubmissionsJSON'; // Key สำหรับ Local Storage
+        
+        // --- DATA DEFINITIONS ---
+        
+        // Entry ID Mapping (ใช้สำหรับบันทึกเท่านั้น, Key เป็นชื่อหลักที่ใช้ใน JSON)
+        // (NOTE: โค้ดนี้ถูกเก็บไว้ แต่ไม่มีผลต่อการส่ง JSON/Drive)
+        const INPUT_MAPPING = {
+            "observationDate": "entry.1360175660", "flightNumberNew": "entry.1540799313", "routeFrom": "entry.1113572581", "routeTo": "entry.2138943017", "aircraftType": "entry.1748057276", "observerId": "entry.91525082", "crewObserved": "entry.1901029029", "loadFactor": "entry.160222908", "inspectorName": "entry.1596435461", "flightNumber": "entry.639782702", "sigThreat": "entry.740427907", "sigError": "entry.1575542333", "effectiveCm": "entry.811828017", "generalComments": "entry.802020804", "areasOfStrength": "entry.328493832", "opportunitiesForImprovement": "entry.266734822", "observerSignature": "entry.1749358988", "reportCompletionDate": "entry.21437297",
             "A11_SOP": "entry.1785429892", "A11_T": "entry.735316771", "A11_N_T": "entry.1473069569", "A11_E": "entry.2069630137", "A11_N_E": "entry.1332625332", "A11_U": "entry.187659374", "A11_N_U": "entry.1969755521", "A11_C": "entry.1653696502", "A11_N_C": "entry.1304266301",
             "A12_SOP": "entry.1984838785", "A12_T": "entry.1087827812", "A12_N_T": "entry.1940933296", "A12_E": "entry.943579404", "A12_N_E": "entry.389469558", "A12_U": "entry.1274172653", "A12_N_U": "entry.1303895367", "A12_C": "entry.842429887", "A12_N_C": "entry.271399426",
             "A13_SOP": "entry.637209943", "A13_T": "entry.1304806958", "A13_N_T": "entry.1030715683", "A13_E": "entry.131228570", "A13_N_E": "entry.817859316", "A13_U": "entry.749528620", "A13_N_U": "entry.860293135", "A13_C": "entry.192450603", "A13_N_C": "entry.2102132004",
@@ -263,7 +219,7 @@
             "D12_SOP": "entry.246841952", "D12_T": "entry.524964078", "D12_N_T": "entry.339369496", "D12_E": "entry.1019208890", "D12_N_E": "entry.1235184519", "D12_U": "entry.553319975", "D12_N_U": "entry.1457080344", "D12_C": "entry.2023669832", "D12_N_C": "entry.585061276",
             "D21_SOP": "entry.943336803", "D21_T": "entry.729145532", "D21_N_T": "entry.647858125", "D21_E": "entry.573553578", "D21_N_E": "entry.1720384532", "D21_U": "entry.1741873871", "D21_N_U": "entry.1274258682", "D21_C": "entry.62760589", "D21_N_C": "entry.1357597291",
             "D22_SOP": "entry.295461834", "D22_T": "entry.396048314", "D22_N_T": "entry.968111884", "D22_E": "entry.2056324825", "D22_N_E": "entry.195404611", "D22_U": "entry.706290128", "D22_N_U": "entry.1057522564", "D22_C": "entry.652681656", "D22_N_C": "entry.780130125",
-            "D23_SOP": "entry.589326472", "D23_T": "entry.1647860643", "D23_N_T": "entry.65511091", "D23_E": "entry.1785709054", "D23_U": "entry.1622674779", "D23_C": "entry.690507277", "D23_N_T": "entry.208808889", "D23_N_E": "entry.298404206", "D23_N_U": "entry.1112324100", // Error in log, swapped N_E/N_U values
+            "D23_SOP": "entry.589326472", "D23_T": "entry.1647860643", "D23_N_T": "entry.65511091", "D23_E": "entry.1785709054", "D23_U": "entry.1622674779", "D23_C": "entry.690507277", "D23_N_E": "entry.208808889", "D23_N_U": "entry.298404206", "D23_N_C": "entry.1112324100", 
             "D24_SOP": "entry.1287213393", "D24_T": "entry.822206574", "D24_N_T": "entry.362773509", "D24_E": "entry.1469221252", "D24_N_E": "entry.988087611", "D24_U": "entry.1406006929", "D24_N_U": "entry.1073897790", "D24_C": "entry.1362440303", "D24_N_C": "entry.388361713",
             "D31_SOP": "entry.123776359", "D31_T": "entry.1182237185", "D31_N_T": "entry.1150973333", "D31_E": "entry.1438809082", "D31_N_E": "entry.978722331", "D31_U": "entry.1243699040", "D31_N_U": "entry.1222693200", "D31_C": "entry.828794842", "D31_N_C": "entry.1395038645",
             "D32_SOP": "entry.695599515", "D32_T": "entry.169184633", "D32_N_T": "entry.263872488", "D32_E": "entry.1131777789", "D32_N_E": "entry.2055461517", "D32_U": "entry.1192597368", "D32_N_U": "entry.1321019439", "D32_C": "entry.493931155", "D32_N_C": "entry.1249031868",
@@ -294,129 +250,62 @@
             "G13_SOP": "entry.1624675734", "G13_T": "entry.1622802075", "G13_N_T": "entry.174414491", "G13_E": "entry.1262756149", "G13_N_E": "entry.1428223858", "G13_U": "entry.2042209244", "G13_N_U": "entry.1916893435", "G13_C": "entry.1626389597", "G13_N_C": "entry.1152903322",
             "G21_SOP": "entry.908683297", "G21_T": "entry.674660696", "G21_N_T": "entry.1173379928", "G21_E": "entry.1919943708", "G21_N_E": "entry.1538121285", "G21_U": "entry.256637151", "G21_N_U": "entry.370790187", "G21_C": "entry.59802565", "G21_N_C": "entry.2138559636"
         };
-
-        // *** II. TEM FRAMEWORK KEY (รหัส) ***
+        
+        // --- TEM FRAMEWORK KEY (Used for Checkbox values) ---
         const TEM_CODES = {
-            THREATS: {
-                T_TE: "TE: Environmental (Weather, Turbulence, Airport Conditions, Time of Day)",
-                T_TO: "TO: Operational (Delays, Aircraft Changes/MEL, ATC, Ground Handling, Catering)",
-                T_TC: "TC: Cabin/Passenger (Unruly Pax, Medical, Equipment Malfunction)",
-                T_TT: "TT: Team/Crew (Fatigue, Conflict, Inexperience, Communication Breakdown)",
-                T_TL: "TL: Latent (Flawed Procedures, Inadequate Training, Poor Equipment Design)"
-            },
-            ERRORS: {
-                E_EP: "EP: Procedural (Non-compliance with SOPs, Checklist errors, Incorrect use of equipment)",
-                E_EC: "EC: Communication (Misunderstood instructions, Poor handover, Lack of assertiveness)",
-                E_ED: "ED: Decision (Flawed risk assessment, Poor judgment, Incorrect problem-solving)",
-                E_ES: "ES: Skill-based/Proficiency (Slip, Lapse, Incorrect execution of a learned skill)",
-                E_EV: "EV: Violation (Intentional Non-Compliance)"
-            },
-            UCS: {
-                U_SOP: "UCS-SOP: Deviation from SOP", U_EQP: "UCS-EQP: Incorrect Equipment use", U_PAX: "UCS-PAX: Compromised PAX safety", U_COM: "UCS-COM: Degraded Communication"
-            },
-            CM: {
-                C_PLN: "CM-PLN: Planning (Briefings, 'what-if' scenarios)",
-                C_SOP: "CM-SOP: Procedural (Following checklists, SOPs)",
-                C_COM: "CM-COM: Communication (Clear communication, Cross-checking, Assertiveness)",
-                C_MON: "CM-MON: Monitoring (Vigilance, Scanning, Cross-checking)",
-                C_WSM: "CM-WSM: Workload/Systems Management (Prioritization, Delegation)",
-                C_SPT: "CM-SPT: Support/Teamwork (Seeking assistance, Providing support, Crew coordination)"
-            }
+            THREATS: { T_TE: "TE: Environmental", T_TO: "TO: Operational", T_TC: "TC: Cabin/Passenger", T_TT: "TT: Team/Crew", T_TL: "TL: Latent" },
+            ERRORS: { E_EP: "EP: Procedural", E_EC: "EC: Communication", E_ED: "ED: Decision", E_ES: "ES: Skill-based", E_EV: "EV: Violation" },
+            UCS: { U_SOP: "UCS-SOP: Deviation from SOP", U_EQP: "UCS-EQP: Incorrect Equipment use", U_PAX: "UCS-PAX: Compromised PAX safety", U_COM: "UCS-COM: Degraded Communication" },
+            CM: { C_PLN: "CM-PLN: Planning", C_SOP: "CM-SOP: Procedural", C_COM: "CM-COM: Communication", C_MON: "CM-MON: Monitoring", C_WSM: "CM-WSM: Workload/Systems Management", C_SPT: "CM-SPT: Support/Teamwork" }
         };
 
-        const TEM_OPTIONS_MAP = {
-            'Threats': TEM_CODES.THREATS,
-            'Errors': TEM_CODES.ERRORS,
-            'UCS': TEM_CODES.UCS,
-            'Countermeasures': TEM_CODES.CM
-        };
+        const TEM_OPTIONS_MAP = { 'Threats': TEM_CODES.THREATS, 'Errors': TEM_CODES.ERRORS, 'UCS': TEM_CODES.UCS, 'Countermeasures': TEM_CODES.CM };
 
-        // *** III. OBSERVATIONAL CHECKLIST DEFINITION (โครงสร้าง) ***
+        // *** III. CHECKLIST DEFINITIONS (COMPLETE STRUCTURE RESTORED) ***
         const CHECKLIST_DEFINITIONS = [
             { id: 'A', title: 'A. Pre-Flight & Crew Briefing', items: [
                 { id: 'A1', label: '1. Crew Briefing (All Crew - Flight & Cabin)', isGroup: true, subItems: [
-                    { id: 'A11', label: '- Attendance/ Punctuality/ Grooming' },
-                    { id: 'A12', label: '- Documentation (Flight document)' },
-                    { id: 'A13', label: '- Review updated safety information' },
-                    { id: 'A14', label: '- Safety/First aid/Security/DG Review' },
-                    { id: 'A15', label: '- Service Review (if applicable)' },
-                    { id: 'A16', label: '- TEM discussion (anticipated threats)' },
-                    { id: 'A17', label: '- Crew Co-ordination & Communication established' }
+                    { id: 'A11', label: '- Attendance/ Punctuality/ Grooming' }, { id: 'A12', label: '- Documentation (Flight document)' }, { id: 'A13', label: '- Review updated safety information' }, { id: 'A14', label: '- Safety/First aid/Security/DG Review' }, { id: 'A15', label: '- Service Review (if applicable)' }, { id: 'A16', label: '- TEM discussion (anticipated threats)' }, { id: 'A17', label: '- Crew Co-ordination & Communication established' }
                 ]},
                 { id: 'A2', label: '2. Cabin Crew Briefing (Cabin Specific)', isGroup: true, subItems: [
-                    { id: 'A21', label: '- Allocation of CC station' },
-                    { id: 'A22', label: '- A/C type and equipment fitted' },
-                    { id: 'A23', label: '- Emergency Procedures Review' },
-                    { id: 'A24', label: '- Security Procedures Review (e.g., checked, search, risk level)' },
-                    { id: 'A25', label: '- Special Categoried Passenger Info (e.g., PRMs, YPTA)' }
+                    { id: 'A21', label: '- Allocation of CC station' }, { id: 'A22', label: '- A/C type and equipment fitted' }, { id: 'A23', label: '- Emergency Procedures Review' }, { id: 'A24', label: '- Security Procedures Review (e.g., checked, search, risk level)' }, { id: 'A25', label: '- Special Categoried Passenger Info (e.g., PRMs, YPTA)' }
                 ]},
                 { id: 'A3', label: '3. Pre-Flight Cabin Checks', isGroup: true, subItems: [
-                    { id: 'A31', label: '- Doors (pre-flight check, serviceablility)' },
-                    { id: 'A32', label: '- Emergency Equipment (location, serviceability)' },
-                    { id: 'A33', label: '- Security Checks (cabin, lavatories, galleys, attendant station)' },
-                    { id: 'A34', label: '- Cabin Cleanliness & Appearance' },
-                    { id: 'A35', label: '- Catering/Supplies (if applicable)' },
-                    { id: 'A36', label: '- Interphone/PA System Check' }
+                    { id: 'A31', label: '- Doors (pre-flight check, serviceablility)' }, { id: 'A32', label: '- Emergency Equipment (location, serviceability)' }, { id: 'A33', label: '- Security Checks (cabin, lavatories, galleys, attendant station)' }, { id: 'A34', label: '- Cabin Cleanliness & Appearance' }, { id: 'A35', label: '- Catering/Supplies (if applicable)' }, { id: 'A36', label: '- Interphone/PA System Check' }
                 ]}
             ]},
             { id: 'B', title: 'B. Boarding', items: [
                 { id: 'B1', label: '1. Passenger Greeting & Assistance', isGroup: true, subItems: [
-                    { id: 'B11', label: '- Monitoring carry-on baggage (size, quantity)' },
-                    { id: 'B12', label: '- Refuelling procedure' },
-                    { id: 'B13', label: '- Exit row briefing & compliance' },
-                    { id: 'B14', label: '- Assistance and briefing to special categoried passengers (e.g., PRMs)' },
-                    { id: 'B15', label: '- Managing passenger flow' }
+                    { id: 'B11', label: '- Monitoring carry-on baggage (size, quantity)' }, { id: 'B12', label: '- Refuelling procedure' }, { id: 'B13', label: '- Exit row briefing & compliance' }, { id: 'B14', label: '- Assistance and briefing to special categoried passengers (e.g., PRMs)' }, { id: 'B15', label: '- Managing passenger flow' }
                 ]},
                 { id: 'B2', label: '2. Pre-Departure Cabin Secure', isGroup: true, subItems: [
-                    { id: 'B21', label: '- Overhead bins closed' },
-                    { id: 'B22', label: '- Galley equipment secured' },
-                    { id: 'B23', label: '- Doors/Aisles/Exits clear' },
-                    { id: 'B24', label: '- Passenger count reconciliation' },
-                    { id: 'B25', label: '- Doors armed / Cross-check procedure' },
-                    { id: 'B26', label: '- Welcome Announcement' }
+                    { id: 'B21', label: '- Overhead bins closed' }, { id: 'B22', label: '- Galley equipment secured' }, { id: 'B23', label: '- Doors/Aisles/Exits clear' }, { id: 'B24', label: '- Passenger count reconciliation' }, { id: 'B25', label: '- Doors armed / Cross-check procedure' }, { id: 'B26', label: '- Welcome Announcement' }
                 ]},
                 { id: 'B3', label: '3. Safety Demonstration', isGroup: true, subItems: [
-                    { id: 'B31', label: '- Clarity, accuracy, visibility' },
-                    { id: 'B32', label: '- Passenger attentiveness (managed if needed)' }
+                    { id: 'B31', label: '- Clarity, accuracy, visibility' }, { id: 'B32', label: '- Passenger attentiveness (managed if needed)' }
                 ]}
             ]},
             { id: 'C', title: 'C. Taxi-Out, Take-off & Climb', items: [
                 { id: 'C1', label: '1. Final Cabin Checks', isGroup: true, subItems: [
-                    { id: 'C11', label: '- Take off preparation' },
-                    { id: 'C12', label: '- Report cabin readiness' },
-                    { id: 'C13', label: '- Cabin lighting' },
-                    { id: 'C14', label: '- Performing Brace position' }
+                    { id: 'C11', label: '- Take off preparation' }, { id: 'C12', label: '- Report cabin readiness' }, { id: 'C13', label: '- Cabin lighting' }, { id: 'C14', label: '- Performing Brace position' }
                 ]},
                 { id: 'C2', label: '2. Response to Take-off/Climb', isGroup: true, subItems: [
-                    { id: 'C21', label: '- Sterile Flight Deck Adherence' },
-                    { id: 'C22', label: '- Monitoring cabin condition' },
-                    { id: 'C23', label: '- Awareness of adhoc situation' }
+                    { id: 'C21', label: '- Sterile Flight Deck Adherence' }, { id: 'C22', label: '- Monitoring cabin condition' }, { id: 'C23', label: '- Awareness of adhoc situation' }
                 ]}
             ]},
             { id: 'D', title: 'D. Cruise', items: [
                 { id: 'D1', label: '1. Service Delivery (if applicable)', isGroup: true, subItems: [
-                    { id: 'D11', label: '- Efficiency, safety during service' },
-                    { id: 'D12', label: '- Galley management' }
+                    { id: 'D11', label: '- Efficiency, safety during service' }, { id: 'D12', label: '- Galley management' }
                 ]},
                 { id: 'D2', label: '2. Cabin Surveillance', isGroup: true, subItems: [
-                    { id: 'D21', label: '- Periodically check cabin' },
-                    { id: 'D22', label: '- Periodically check on flght crew' },
-                    { id: 'D23', label: '- Periodically check Lavatory' },
-                    { id: 'D24', label: '- Response to call light and Reset' }
+                    { id: 'D21', label: '- Periodically check cabin' }, { id: 'D22', label: '- Periodically check on flght crew' }, { id: 'D23', label: '- Periodically check Lavatory' }, { id: 'D24', label: '- Response to call light and Reset' }
                 ]},
                 { id: 'D3', label: '3. Passenger Handling (if any)', isGroup: true, subItems: [
-                    { id: 'D31', label: '- Medical situations' },
-                    { id: 'D32', label: '- Unruly/disruptive passengers' },
-                    { id: 'D33', label: '- Others' }
-                ]}
-                ,
-                { id: 'D4', label: '4. Communication with Flight Crew (if any)', isGroup: true, subItems: [
+                    { id: 'D31', label: '- Medical situations' }, { id: 'D32', label: '- Unruly/disruptive passengers' }, { id: 'D33', label: '- Others' }
+                ]}, { id: 'D4', label: '4. Communication with Flight Crew (if any)', isGroup: true, subItems: [
                     { id: 'D41', label: '- Reporting irregularities (If any)' }
-                ]}
-                ,
-                { id: 'D5', label: '5. Turbulence Management', isGroup: true, subItems: [
-                    { id: 'D51', label: '- Follow turbulance management procedure' },
-                    { id: 'D52', label: '- Secure self' }
+                ]}, { id: 'D5', label: '5. Turbulence Management', isGroup: true, subItems: [
+                    { id: 'D51', label: '- Follow turbulance management procedure' }, { id: 'D52', label: '- Secure self' }
                 ]}
             ]},
             { id: 'E', title: 'E. Descent, Approach & Landing', items: [
@@ -424,40 +313,26 @@
                     { id: 'E11', label: '- Pre-landing preparation' }
                 ]},
                 { id: 'E2', label: '2. Final Cabin Checks (Landing)', isGroup: true, subItems: [
-                    { id: 'E21', label: '- Seatbelts, tray tables, seatbacks, PEDs, etc.' },
-                    { id: 'E22', label: '- Report cabin readiness' },
-                    { id: 'E23', label: '- Cabin lighting' },
-                    { id: 'E24', label: '- Performing Brace position' }
-                ]},
-                { id: 'E3', label: '3. Sterile Flight Deck Adherence' },
+                    { id: 'E21', label: '- Seatbelts, tray tables, seatbacks, PEDs, etc.' }, { id: 'E22', label: '- Report cabin readiness' }, { id: 'E23', label: '- Cabin lighting' }, { id: 'E24', label: '- Performing Brace position' }
+                ]}, { id: 'E3', label: '3. Sterile Flight Deck Adherence' },
                 { id: 'E4', label: '4. Response to Landing', isGroup: true, subItems: [
                     { id: 'E41', label: '- Monitoring cabin condition' }
                 ]}
             ]},
             { id: 'F', title: 'F. Taxi-In & Disembarkation', items: [
                 { id: 'F1', label: '1. Arrival Duties', isGroup: true, subItems: [
-                    { id: 'F11', label: '- Arrival Announcement' },
-                    { id: 'F12', label: '- Cabin monitoring' },
-                    { id: 'F13', label: '- Doors Disarmed / Cross-check procedure' },
-                    { id: 'F14', label: '- Doors Opening Procedure' }
+                    { id: 'F11', label: '- Arrival Announcement' }, { id: 'F12', label: '- Cabin monitoring' }, { id: 'F13', label: '- Doors Disarmed / Cross-check procedure' }, { id: 'F14', label: '- Doors Opening Procedure' }
                 ]},
                 { id: 'F2', label: '2. Disembarkation Process', isGroup: true, subItems: [
-                    { id: 'F21', label: '- Cabin monitoring' },
-                    { id: 'F22', label: '- Assistance to special categoried passenger' },
-                    { id: 'F23', label: '- Refueling procedure (If any)' },
-                    { id: 'F24', label: '- Cabin check after passenger disembarkation and Report' }
+                    { id: 'F21', label: '- Cabin monitoring' }, { id: 'F22', label: '- Assistance to special categoried passenger' }, { id: 'F23', label: '- Refueling procedure (If any)' }, { id: 'F24', label: '- Cabin check after passenger disembarkation and Report' }
                 ]},
                 { id: 'F3', label: '3. Post-Flight Cabin Checks', isGroup: true, subItems: [
-                    { id: 'F31', label: '- Perform Security Checks' },
-                    { id: 'F32', label: '- Perform transit duties' },
-                    { id: 'F33', label: '- Reporting cabin defects (If any)' }
+                    { id: 'F31', label: '- Perform Security Checks' }, { id: 'F32', label: '- Perform transit duties' }, { id: 'F33', label: '- Reporting cabin defects (If any)' }
                 ]}
             ]},
             { id: 'G', title: 'G. Post-Flight / Debrief (Observed if possible)', items: [
                 { id: 'G1', label: '1. Crew Debrief', isGroup: true, subItems: [
-                    { id: 'G11', label: '- Discussion of flight events' },
-                    { id: 'G12', label: '- Sharing idea' },
-                    { id: 'G13', label: '- Feedback on TEM' }
+                    { id: 'G11', label: '- Discussion of flight events' }, { id: 'G12', label: '- Sharing idea' }, { id: 'G13', label: '- Feedback on TEM' }
                 ]},
                 { id: 'G2', label: '2. Reporting System', isGroup: true, subItems: [
                     { id: 'G21', label: '- Redeye' }
@@ -465,46 +340,134 @@
             ]}
         ];
 
-        const form = document.getElementById('checklist-form');
+        const form = document.getElementById('checklistForm');
         const checklistContainer = document.getElementById('checklist-container');
         const statusText = document.getElementById('status-text');
-        const statusDot = document.getElementById('status-dot');
         const pendingCount = document.getElementById('pending-count');
-        const pendingList = document.getElementById('pending-list');
-        const manualSyncBtn = document.getElementById('manual-sync-btn');
-        let hasShownSyncPrompt = false;
-
-        // *** HELPER FUNCTIONS ***
-        function showToast(message, icon = 'success') {
-            const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, timerProgressBar: true, });
-            Toast.fire({ icon: icon, title: message });
+        const pendingList = document.getElementById('pendingList');
+        
+        // --- OFFLINE CORE LOGIC ---
+        
+        function getLocalData() {
+            const data = localStorage.getItem('checklistSubmissionsJSON');
+            return data ? JSON.parse(data) : [];
         }
 
-        // --- NEW FUNCTION: createCheckboxGroup (สร้าง Checkbox สำหรับ TEM Codes) ---
+        function saveLocalData(submissions) {
+            localStorage.setItem('checklistSubmissionsJSON', JSON.stringify(submissions));
+            updatePendingSyncUI();
+        }
+
+        function saveDataLocally(submission) {
+            const submissions = getLocalData();
+            submissions.push(submission);
+            saveLocalData(submissions);
+            Swal.fire('ออฟไลน์', 'บันทึกข้อมูลในเครื่องแล้ว โปรดซิงค์เมื่อมีอินเทอร์เน็ต', 'warning');
+        }
+
+        function updatePendingSyncUI() {
+            const submissions = getLocalData();
+            const pendingDiv = document.getElementById('pendingSync');
+            const pendingList = document.getElementById('pendingList');
+            
+            pendingList.innerHTML = '';
+            
+            if (submissions.length > 0) {
+                submissions.forEach((sub, index) => {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = `[${index + 1}] ${sub.flightNumberNew || 'No Flight ID'} on ${sub.observationDate || 'Unknown Date'}`;
+                    pendingList.appendChild(listItem);
+                });
+                pendingDiv.classList.remove('hidden');
+            } else {
+                pendingDiv.classList.add('hidden');
+            }
+        }
+        
+        // --- CORE FETCH FUNCTION ---
+        async function sendDataToServer(data) {
+            document.getElementById('statusMessage').textContent = 'Sending data to Drive...';
+            
+            try {
+                const payload = { data: data, email: EMAIL_DESTINATION };
+
+                const response = await fetch(GOOGLE_APPS_SCRIPT_WEB_APP_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload) 
+                });
+
+                if (response.ok || response.status === 302 || response.status === 200) {
+                    document.getElementById('statusMessage').textContent = `✅ Report Saved to Drive & Email Sent!`;
+                    return true;
+                } else {
+                    document.getElementById('statusMessage').textContent = `❌ Server Error: ${response.status}. Saved locally.`;
+                    return false;
+                }
+
+            } catch (error) {
+                document.getElementById('statusMessage').textContent = '⚠️ Network Error. Saved locally.';
+                return false; 
+            }
+        }
+        
+        // --- RESYNC FUNCTION ---
+        async function resyncData() {
+            const submissions = getLocalData();
+            let successfullySentCount = 0;
+            const remainingSubmissions = [];
+
+            if (submissions.length === 0) {
+                Swal.fire('สำเร็จ', 'ไม่มีข้อมูลที่รอการซิงค์', 'success');
+                return;
+            }
+
+            Swal.fire({ title: 'กำลังซิงค์...', html: 'กำลังส่งข้อมูลที่ค้างอยู่ไปยังเซิร์ฟเวอร์', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
+
+            for (let i = 0; i < submissions.length; i++) {
+                const data = submissions[i];
+                const success = await sendDataToServer(data);
+                
+                if (success) {
+                    successfullySentCount++;
+                } else {
+                    remainingSubmissions.push(data);
+                    Swal.fire('ข้อผิดพลาด', `การซิงค์หยุดที่รายการที่ ${i + 1} เนื่องจากเกิดข้อผิดพลาดในการเชื่อมต่อ`, 'error');
+                    break;
+                }
+            }
+
+            saveLocalData(remainingSubmissions);
+            
+            if (successfullySentCount > 0) {
+                Swal.fire('ซิงค์สำเร็จ', `ส่งข้อมูลสำเร็จ ${successfullySentCount} รายการ`, 'success');
+            } else if (remainingSubmissions.length === submissions.length && submissions.length > 0) {
+                 Swal.fire('ล้มเหลว', 'ไม่สามารถซิงค์ข้อมูลได้ กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต', 'error');
+            }
+            
+            updatePendingSyncUI();
+        }
+
+
+        // --- UI GENERATION HELPERS (ต้องมีเพื่อสร้างตาราง) ---
         function createCheckboxGroup(baseName, typeCode, options) {
             let html = `<div class="checkbox-container">`;
-            
             for (const code in options) {
                 if (options.hasOwnProperty(code)) {
                     const fieldName = `${baseName}_${typeCode}`;
-                    const inputValue = options[code]; // ค่าเต็มที่ส่งไป Google Form
-                    
-                    // ดึงเฉพาะโค้ดสั้น (เช่น TE, EP, PLN)
+                    const inputValue = options[code]; 
                     const shortCode = code.split('_')[1] || code;
 
-                    html += `
-                        <label title="${options[code]}" class="inline-flex items-center space-x-1 cursor-pointer">
-                            <input type="checkbox" name="${fieldName}" value="${inputValue}" class="form-checkbox text-red-600 rounded">
-                            <span>${shortCode}</span>
-                        </label>
-                    `;
+                    html += `<label title="${options[code]}" class="inline-flex items-center space-x-1 cursor-pointer">
+                                <input type="checkbox" name="${fieldName}" value="${inputValue}" class="form-checkbox text-red-600 rounded">
+                                <span>${shortCode}</span>
+                            </label>`;
                 }
             }
             html += `</div>`;
             return html;
         }
 
-        // --- REVISED: createDropdown (ใช้สำหรับ SOP Y/N/NA เท่านั้น) ---
         function createDropdown(name, isSOP = false) {
             const select = document.createElement('select');
             select.name = name;
@@ -518,7 +481,6 @@
                     select.innerHTML += `<option value="${v}">${v}</option>`;
                 });
             }
-
             return select.outerHTML;
         }
 
@@ -526,6 +488,7 @@
             return `<textarea name="${name}" rows="1" class="w-full border rounded-lg narrative-textarea" placeholder="${placeholder}"></textarea>`;
         }
 
+        // *** RESTORED: generateChecklistHTML ***
         function generateChecklistHTML() {
             let html = '';
             CHECKLIST_DEFINITIONS.forEach(section => {
@@ -539,7 +502,7 @@
                 html += `<th class="code-col bg-e">Errors (Code)</th>`;
                 html += `<th class="code-col bg-u">UCS (Code)</th>`;
                 html += `<th class="code-col bg-c">CM (Code)</th>`;
-                html += `<th class="narrative-col">Narrative/Comments</th>`; // Single Narrative column
+                html += `<th class="narrative-col">Narrative/Comments</th>`;
                 html += `</tr></thead><tbody>`;
 
                 section.items.forEach(item => {
@@ -552,28 +515,21 @@
                     itemsToRender.forEach(subItem => {
                         const baseName = `${subItem.id}`;
 
-                        // SOP Dropdown (ยังคงใช้ Dropdown)
                         const sopDropdown = createDropdown(`${baseName}_SOP`, true);
-
-                        // TEM Checkbox Groups (ใช้ CheckboxGroup แทน Dropdown)
                         const tCheckbox = createCheckboxGroup(baseName, 'T', TEM_OPTIONS_MAP.Threats);
                         const eCheckbox = createCheckboxGroup(baseName, 'E', TEM_OPTIONS_MAP.Errors);
                         const ucsCheckbox = createCheckboxGroup(baseName, 'U', TEM_OPTIONS_MAP.UCS);
                         const cmCheckbox = createCheckboxGroup(baseName, 'C', TEM_OPTIONS_MAP.Countermeasures);
-
-                        // Single Narrative/Comment (MAPPED to the first narrative field: N_T)
                         const mainNarrative = createTextArea(`${baseName}_N_T`, 'Narrative/Describe here...');
 
                         html += `<tr class="checklist-item text-xs">`;
                         html += `<td class="font-normal">${subItem.label}</td>`;
                         html += `<td>${sopDropdown}</td>`;
-                        // ใช้ Checkbox ที่สร้างใหม่
                         html += `<td class="bg-t">${tCheckbox}</td>`;
                         html += `<td class="bg-e">${eCheckbox}</td>`;
                         html += `<td class="bg-u">${ucsCheckbox}</td>`;
                         html += `<td class="bg-c">${cmCheckbox}</td>`;
-                        
-                        html += `<td class="bg-t">${mainNarrative}</td>`; // Use the main narrative field
+                        html += `<td class="bg-t">${mainNarrative}</td>`; 
                         html += `</tr>`;
                     });
                 });
@@ -583,221 +539,68 @@
             checklistContainer.innerHTML = html;
         }
 
-        // PWA/Offline Functions (Unchanged)
-        function showSyncConfirmation() {
-            const submissions = JSON.parse(localStorage.getItem('pendingSubmissions') || '[]');
-            if (submissions.length === 0 || !navigator.onLine || hasShownSyncPrompt) {
-                return;
-            }
-            hasShownSyncPrompt = true;
-
-            Swal.fire({
-                title: 'Connection Detected', text: `You have ${submissions.length} item(s) waiting. Sync now?`, icon: 'info',
-                showCancelButton: true, confirmButtonColor: '#28a745', cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, sync now!', cancelButtonText: 'Later'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    syncData();
-                }
-            });
-        }
-        function updateOnlineStatus() {
-            const isOnline = navigator.onLine;
-            statusText.textContent = isOnline ? 'Online' : 'Offline';
-            statusDot.className = `status-dot ${isOnline ? 'online' : 'offline'}`;
-            if (isOnline) {
-                showSyncConfirmation();
-            } else {
-                hasShownSyncPrompt = false;
-            }
-            updatePendingUI();
-        }
-        function saveDataLocally(data) {
-            const submissions = JSON.parse(localStorage.getItem('pendingSubmissions') || '[]');
-            submissions.push(data);
-            localStorage.setItem('pendingSubmissions', JSON.stringify(submissions));
-            updatePendingUI();
-            Swal.fire({ title: 'Checklist Saved!', text: 'Data saved locally. Will sync when online.', icon: 'success', confirmButtonColor: '#DC2626', confirmButtonText: 'OK' });
-        }
-        function updatePendingUI() {
-            const submissions = JSON.parse(localStorage.getItem('pendingSubmissions') || '[]');
-            pendingCount.textContent = submissions.length;
-            pendingList.innerHTML = submissions.length === 0 ? '<p class="text-gray-500 text-center">No pending items.</p>' : submissions.map((sub) =>
-                `<div class="flex justify-between items-center p-2 border-b">
-                    <div>
-                        <strong class="text-sm">${sub.inspectorName} - FD${sub.flightNumberNew || sub.flightNumber || 'N/A'}</strong>
-                        <span class="text-xs text-gray-500 block">${new Date(sub.timestamp).toLocaleString()}</span>
-                    </div>
-                    <button data-timestamp="${sub.timestamp}" class="delete-btn bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-2 rounded text-xs">
-                        ลบ
-                    </button>
-                </div>`
-            ).join('');
-            const isOnline = navigator.onLine;
-            manualSyncBtn.classList.toggle('hidden', !isOnline || submissions.length === 0);
-        }
-        function deletePendingItem(timestamp) {
-             Swal.fire({
-                title: 'Confirm Deletion', text: "Are you sure you want to delete this record?", icon: 'warning',
-                showCancelButton: true, confirmButtonColor: '#d33', cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Yes, delete it!', cancelButtonText: 'Cancel'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    let submissions = JSON.parse(localStorage.getItem('pendingSubmissions') || '[]');
-                    submissions = submissions.filter(sub => sub.timestamp !== timestamp);
-                    localStorage.setItem('pendingSubmissions', JSON.stringify(submissions));
-                    updatePendingUI();
-                    showToast('Record deleted', 'success');
-                }
-            })
-        }
-        
-        // *** แก้ไข: ปรับ syncData ให้ส่งค่า Checkbox เป็น String เดียว ***
-        async function syncData() {
-            if (!navigator.onLine) return;
-            let submissions = JSON.parse(localStorage.getItem('pendingSubmissions') || '[]');
-            if (submissions.length === 0) return;
-
-            showToast(`Syncing ${submissions.length} item(s)...`, 'info');
-            const successfullySynced = [];
-
-            for (const submission of submissions) {
-                const formData = new FormData();
-
-                for (const key in submission) {
-                    const entryId = INPUT_MAPPING[key];
-                    const value = submission[key];
-                    
-                    if (entryId) {
-                        // ส่งค่าทั้งหมดเป็น String เดียว (รวมถึงค่าที่เคยเป็น Array จาก Checkbox)
-                        if (value !== null && value !== "") { 
-                            formData.append(entryId, value);
-                        }
-                    }
-                }
-
-                try {
-                    // 1. ส่งข้อมูลไปยัง Google Form
-                    const formResponse = await fetch(GOOGLE_FORM_ACTION_URL, {
-                        method: 'POST', body: formData, mode: 'no-cors'
-                    });
-                    
-                    // 2. ส่งข้อมูลเดียวกันไปยัง Apps Script เพื่อส่งอีเมล
-                    const emailResponse = await fetch(EMAIL_SCRIPT_URL, {
-                        method: 'POST',
-                        body: JSON.stringify({ data: submission, email: EMAIL_DESTINATION }),
-                        headers: { 'Content-Type': 'application/json' }
-                    });
-
-                    successfullySynced.push(submission);
-
-                } catch (error) {
-                    console.error('Sync Error:', error);
-                    showToast('Sync failed. Please check connection and try again.', 'error');
-                    break;
-                }
-            }
-
-            if (successfullySynced.length > 0) {
-                const newSubmissions = submissions.filter(sub => !successfullySynced.find(s => s.timestamp === sub.timestamp));
-                localStorage.setItem('pendingSubmissions', JSON.stringify(newSubmissions));
-                updatePendingUI();
-                showToast(`Successfully synced ${successfullySynced.length} item(s)!`, 'success');
-            }
-        }
-
-        // *** แก้ไข: ปรับ form.addEventListener เพื่อแปลง Checkbox เป็น String และใช้ Key เป็น Name ***
-        form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const formData = new FormData(form);
-            const data = { timestamp: new Date().toISOString() };
-
-            // I. Flight & Audit Details & IV. Summary
-            data['observationDate'] = formData.get('observationDate'); // ใช้ name attribute ที่ถูกต้อง
-            data['flightNumberNew'] = formData.get('flightNumberNew');
-            data['routeFrom'] = formData.get('routeFrom');
-            data['routeTo'] = formData.get('routeTo');
-            data['aircraftType'] = formData.get('aircraftType');
-            data['observerId'] = formData.get('observerId');
-            data['crewObserved'] = formData.get('crewObserved');
-            data['loadFactor'] = formData.get('loadFactor');
-            data['inspectorName'] = formData.get('inspectorName');
-            data['flightNumber'] = formData.get('flightNumberNew'); // ใช้ Flight Number New เป็น copy
-
-            data['sigThreat'] = formData.get('sigThreat') || "";
-            data['sigError'] = formData.get('sigError') || "";
-            data['effectiveCm'] = formData.get('effectiveCm') || "";
-            data['generalComments'] = formData.get('generalComments') || "";
-            data['areasOfStrength'] = formData.get('areasOfStrength') || "";
-            data['opportunitiesForImprovement'] = formData.get('opportunitiesForImprovement') || "";
-            data['observerSignature'] = formData.get('observerSignature') || "";
-            data['reportCompletionDate'] = formData.get('reportCompletionDate');
-
-            // III. Observational Checklist (รวบรวม Checkbox และ Narrative)
-            const allInputs = form.querySelectorAll('select, textarea, input[type="text"], input[type="number"], input[type="date"], input[type="checkbox"]');
-            
-            const temData = {}; 
-            const singleData = {}; 
-
-            allInputs.forEach(input => {
-                const name = input.name;
-                const value = input.value || "";
-
-                if (input.type === 'checkbox') {
-                    if (input.checked) {
-                        if (!temData[name]) {
-                            temData[name] = [];
-                        }
-                        temData[name].push(value); 
-                    }
-                } 
-                else {
-                    singleData[name] = value;
-                }
-            });
-
-            // 1. จัดการ Checkbox: แปลง Array ของ TEM Codes เป็นข้อความที่คั่นด้วยตัวแบ่ง (String)
-            for (const name in temData) {
-                data[name] = temData[name].join(' | '); 
-            }
-
-            // 2. จัดการ SOP และ Narrative Fields
-            for (const name in singleData) {
-                const value = singleData[name];
-                
-                // Collect SOP values (name: A11_SOP)
-                if (name.match(/^[A-G][0-9][0-9]_SOP$/) || name === 'E3_SOP') {
-                    data[name] = value;
-                } 
-                // จัดการ Narrative Fields: คัดลอกค่าเดียวไปยัง 4 ช่อง (N_T, N_E, N_U, N_C)
-                else if (name.match(/_N_T$/) || name === 'E3_N_T') {
-                    const base = name.replace('_N_T', '');
-                    data[`${base}_N_T`] = value; 
-                    data[`${base}_N_E`] = value; 
-                    data[`${base}_N_U`] = value; 
-                    data[`${base}_N_C`] = value; 
-                }
-            }
-            
-            saveDataLocally(data);
-            form.reset();
-        });
-
+        // --- MAIN SUBMISSION LOGIC ---
         document.addEventListener('DOMContentLoaded', () => {
-            generateChecklistHTML(); 
-            updateOnlineStatus();
-            updatePendingUI();
+            const formElement = document.getElementById('checklistForm');
+            
+            updatePendingSyncUI(); 
+            generateChecklistHTML(); // สร้างตารางเมื่อ DOM โหลดเสร็จ
 
-            pendingList.addEventListener('click', (e) => {
-                if (e.target && e.target.classList.contains('delete-btn')) {
-                    deletePendingItem(e.target.dataset.timestamp);
+            formElement.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const formData = new FormData(formElement);
+                const data = {};
+                const temData = {};
+                const allInputs = formElement.querySelectorAll('input, select, textarea');
+
+
+                // 1. รวบรวม Checkbox/Radio และ Simple Inputs
+                allInputs.forEach(input => {
+                    const name = input.name;
+                    const value = input.value;
+                    
+                    if (!name) return;
+
+                    if (input.type === 'checkbox' || input.type === 'radio') {
+                        if (input.checked) {
+                            if (!temData.hasOwnProperty(name)) {
+                                temData[name] = [];
+                            }
+                            temData[name].push(value); 
+                        }
+                    } else {
+                        // Simple Input (Text/Date/Select/Textarea)
+                        data[name] = formData.get(name) || "";
+                    }
+                });
+
+                // 2. รวม TEM Checkbox/Radio ที่เป็น Array เข้าสู่ Object หลัก
+                for (const name in temData) {
+                    data[name] = temData[name].join(' | ');
+                }
+
+                // 3. เพิ่ม Timestamp
+                data['Observation_Timestamp'] = new Date().toISOString(); 
+                
+                // 4. ส่งข้อมูล
+                const success = await sendDataToServer(data);
+                
+                if (success) {
+                    Swal.fire('สำเร็จ', 'บันทึกรายงานลง Drive เรียบร้อย', 'success');
+                } else {
+                    saveDataLocally(data); 
+                }
+                
+                formElement.reset();
+            });
+            
+            // Event listener สำหรับปุ่ม Sync
+            document.getElementById('pendingSync').addEventListener('click', (e) => {
+                if (e.target.tagName === 'BUTTON') {
+                    resyncData();
                 }
             });
-
-            manualSyncBtn.addEventListener('click', syncData);
-
-            window.addEventListener('online', updateOnlineStatus);
-            window.addEventListener('offline', updateOnlineStatus);
         });
     </script>
 </body>
