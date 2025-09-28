@@ -7,152 +7,174 @@
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#DC2626"/>
     <link rel="apple-touch-icon" href="icon-192.png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;700&display=swap" rel="stylesheet">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
+        body {
+            font-family: 'Noto Sans Thai', sans-serif;
+        }
         .required-asterisk::after { content: " *"; color: #ef4444; }
-        .checklist-container { overflow-x: auto; }
-        .checklist-table { min-width: 900px; }
-        .checklist-table th, .checklist-table td { padding: 4px; border: 1px solid #e5e7eb; vertical-align: middle; }
-        .checklist-table th { background-color: #f3f4f6; text-align: left; font-size: 0.7rem; color: #374151; font-weight: 600; }
-        .checklist-item-group td { background-color: #f0f0f0; font-weight: bold; font-size: 0.8rem; padding: 6px 4px; }
         .checkbox-container { display: flex; flex-wrap: wrap; gap: 4px 6px; font-size: 0.75rem; }
         .sop-dropdown, .narrative-textarea { height: 38px; font-size: 0.75rem; border-radius: 6px; }
-        .bg-t { background-color: #e6ffec; } .bg-e { background-color: #fff9e6; } .bg-u { background-color: #ffe6e6; } .bg-c { background-color: #e6f0ff; }
-        .checklist-table td { font-size: 0.75rem; }
-        .sop-fail-row { background-color: #fee2e2 !important; }
+        .bg-t { background-color: #e6ffec; } 
+        .bg-e { background-color: #fff9e6; } 
+        .bg-u { background-color: #ffe6e6; } 
+        .bg-c { background-color: #e6f0ff; }
+        
+        .sop-fail-row { background-color: #fee2e2 !important; border: 1px solid #f87171; }
+        .sop-pass-row { background-color: #e6ffec !important; border: 1px solid #6ee7b7; }
 
-#network-status-banner {
-    /* position: fixed; ไม่ต้องใช้แล้ว */
-    padding: 8px;
-    text-align: center;
-    font-weight: bold;
-    color: white;
-    transition: background-color 0.3s ease;
-    border-radius: 8px; /* << เพิ่มความโค้งมนให้เข้ากัน */
-    margin-bottom: 24px; /* << เพิ่มระยะห่างจากหัวข้อหลัก */
-}
+        #network-status-banner {
+            padding: 8px;
+            text-align: center;
+            font-weight: bold;
+            color: white;
+            transition: background-color 0.3s ease;
+        }
         .status-online { background-color: #16a34a; }
         .status-offline { background-color: #71717a; }
+
+        .checklist-card {
+            border: 1px solid #e5e7eb;
+            transition: box-shadow 0.2s ease-in-out, background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+        }
+        .checklist-card:focus-within {
+             box-shadow: 0 0 0 2px #ef4444;
+             border-color: #ef4444;
+        }
+        .checklist-item-group {
+            background-color: #f0f0f0; 
+            font-weight: bold; 
+            font-size: 0.9rem;
+            padding: 8px 16px;
+            border-radius: 8px;
+            margin-top: 24px;
+            margin-bottom: 12px;
+        }
     </style>
 </head>
 <body class="bg-gray-100 p-4 sm:p-8">
 
-    <div id="network-status-banner"></div>
+    <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-2xl">
+        <div id="network-status-banner" class="rounded-t-xl -mt-6 -mx-6 sm:-mt-10 sm:-mx-10 mb-6"></div>
+        <div class="p-6 sm:p-10 pt-0 sm:pt-0">
+            <h1 class="text-3xl font-extrabold text-red-600 mb-6 text-center">Cabin Crew LOSA Checklist</h1>
+            <form id="checklistForm">
 
-    <div class="max-w-4xl mx-auto bg-white p-6 sm:p-10 rounded-xl shadow-2xl">
-        <h1 class="text-3xl font-extrabold text-red-600 mb-6 text-center">Cabin Crew LOSA Checklist</h1>
-        <form id="checklistForm">
-
-            <section class="mb-8 p-6 bg-red-50 border-l-4 border-red-500 rounded-lg shadow-inner">
-                <h2 class="text-xl font-bold text-red-800 mb-4">I. Flight & Audit Details</h2>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4 text-sm">
-                    <div>
-                        <label for="observationDate" class="block text-gray-700 font-bold mb-1 required-asterisk">Date of Observation:</label>
-                        <input type="date" id="observationDate" name="observationDate" class="w-full px-3 py-2 border rounded-lg" required>
+                <section class="mb-8 p-6 bg-red-50 border-l-4 border-red-500 rounded-lg shadow-inner">
+                    <h2 class="text-xl font-bold text-red-800 mb-4">I. Flight & Audit Details</h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4 text-sm">
+                        <div>
+                            <label for="observationDate" class="block text-gray-700 font-bold mb-1 required-asterisk">Date of Observation:</label>
+                            <input type="date" id="observationDate" name="observationDate" class="w-full px-3 py-2 border rounded-lg" required>
+                        </div>
+                        <div>
+                            <label for="flightNumberNew" class="block text-gray-700 font-bold mb-1 required-asterisk">Flight Number:</label>
+                            <input type="text" id="flightNumberNew" name="flightNumberNew" class="w-full px-3 py-2 border rounded-lg" placeholder="e.g., FD3001" required>
+                        </div>
+                        <div>
+                            <label for="routeFrom" class="block text-gray-700 font-bold mb-1">Route (From):</label>
+                            <input type="text" id="routeFrom" name="routeFrom" class="w-full px-3 py-2 border rounded-lg" placeholder="e.g., BKK">
+                        </div>
+                        <div>
+                            <label for="routeTo" class="block text-gray-700 font-bold mb-1">Route (To):</label>
+                            <input type="text" id="routeTo" name="routeTo" class="w-full px-3 py-2 border rounded-lg" placeholder="e.g., CNX">
+                        </div>
+                        <div>
+                            <label for="aircraftType" class="block text-gray-700 font-bold mb-1">Aircraft Type:</label>
+                            <input type="text" id="aircraftType" name="aircraftType" class="w-full px-3 py-2 border rounded-lg" placeholder="e.g., A320">
+                        </div>
+                        <div>
+                            <label for="observerId" class="block text-gray-700 font-bold mb-1">Observer ID:</label>
+                            <input type="text" id="observerId" name="observerId" class="w-full px-3 py-2 border rounded-lg" placeholder="e.g., LOSA001">
+                        </div>
+                        <div>
+                            <label for="crewObserved" class="block text-gray-700 font-bold mb-1">No. of Cabin Crew Observed:</label>
+                            <input type="number" id="crewObserved" name="crewObserved" class="w-full px-3 py-2 border rounded-lg" placeholder="e.g., 4">
+                        </div>
+                        <div>
+                            <label for="loadFactor" class="block text-gray-700 font-bold mb-1">Load Factor (%):</label>
+                            <input type="text" id="loadFactor" name="loadFactor" class="w-full px-3 py-2 border rounded-lg" placeholder="e.g., 85%">
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label for="inspectorName" class="block text-gray-700 font-bold mb-1 required-asterisk">Inspector Name:</label>
+                            <select id="inspectorName" name="inspectorName" class="w-full px-3 py-2 border rounded-lg bg-white" required>
+                                <option value="">-- Select Inspector --</option>
+                                <option value="Naparin Boonchuaylue">Naparin Boonchuaylue</option>
+                                <option value="Khathawut Benjachinsuwan">Khathawut Benjachinsuwan</option>
+                                <option value="Parichat Srithongkul">Parichat Srithongkul</option>
+                                <option value="Twankorn Chen">Twankorn Chen</option>
+                                <option value="Phinlaphat Aphinyaupatham">Phinlaphat Aphinyaupatham</option>
+                                <option value="Alisara Usavagovitwong">Alisara Usavagovitwong</option>
+                                <option value="Janpen Vorawanitcha">Janpen Vorawanitcha</option>
+                                <option value="Adisorn Usmanbaha">Adisorn Usmanbaha</option>
+                                <option value="Chotika Totrakool">Chotika Totrakool</option>
+                                <option value="Kittitat Chanta-amornlertkul">Kittitat Chanta-amornlertkul</option>
+                                <option value="Busabong Promkhuntod">Busabong Promkhuntod</option>
+                            </select>
+                        </div>
                     </div>
-                    <div>
-                        <label for="flightNumberNew" class="block text-gray-700 font-bold mb-1 required-asterisk">Flight Number:</label>
-                        <input type="text" id="flightNumberNew" name="flightNumberNew" class="w-full px-3 py-2 border rounded-lg" placeholder="e.g., FD3001" required>
+                </section>
+                
+                <h2 class="text-lg font-bold text-gray-800 mb-4">III. Observational Checklist by Flight Phase</h2>
+                <div id="checklist-container">
                     </div>
-                    <div>
-                        <label for="routeFrom" class="block text-gray-700 font-bold mb-1">Route (From):</label>
-                        <input type="text" id="routeFrom" name="routeFrom" class="w-full px-3 py-2 border rounded-lg" placeholder="e.g., BKK">
+                
+                <hr class="my-6">
+                
+                <section class="mb-8 p-6 bg-yellow-50 border-l-4 border-yellow-500 rounded-lg shadow-inner">
+                    <h2 class="text-lg font-bold text-yellow-800 mb-4">IV. Overall Observations & Summary</h2>
+                    <div class="mb-4 text-sm">
+                        <label for="sigThreat" class="block text-gray-700 font-bold mb-1">Most significant Threat(s):</label>
+                        <textarea id="sigThreat" name="sigThreat" rows="2" class="w-full px-3 py-2 border rounded-lg"></textarea>
                     </div>
-                    <div>
-                        <label for="routeTo" class="block text-gray-700 font-bold mb-1">Route (To):</label>
-                        <input type="text" id="routeTo" name="routeTo" class="w-full px-3 py-2 border rounded-lg" placeholder="e.g., CNX">
+                    <div class="mb-4 text-sm">
+                        <label for="sigError" class="block text-gray-700 font-bold mb-1">Most significant Error(s):</label>
+                        <textarea id="sigError" name="sigError" rows="2" class="w-full px-3 py-2 border rounded-lg"></textarea>
                     </div>
-                    <div>
-                        <label for="aircraftType" class="block text-gray-700 font-bold mb-1">Aircraft Type:</label>
-                        <input type="text" id="aircraftType" name="aircraftType" class="w-full px-3 py-2 border rounded-lg" placeholder="e.g., A320">
+                    <div class="mb-4 text-sm">
+                        <label for="effectiveCm" class="block text-gray-700 font-bold mb-1">Most effective Countermeasure(s):</label>
+                        <textarea id="effectiveCm" name="effectiveCm" rows="2" class="w-full px-3 py-2 border rounded-lg"></textarea>
                     </div>
-                    <div>
-                        <label for="observerId" class="block text-gray-700 font-bold mb-1">Observer ID:</label>
-                        <input type="text" id="observerId" name="observerId" class="w-full px-3 py-2 border rounded-lg" placeholder="e.g., LOSA001">
+                    <div class="mb-4 text-sm">
+                        <label for="generalComments" class="block text-gray-700 font-bold mb-1">General comments:</label>
+                        <textarea id="generalComments" name="generalComments" rows="3" class="w-full px-3 py-2 border rounded-lg"></textarea>
                     </div>
-                    <div>
-                        <label for="crewObserved" class="block text-gray-700 font-bold mb-1">No. of Cabin Crew Observed:</label>
-                        <input type="number" id="crewObserved" name="crewObserved" class="w-full px-3 py-2 border rounded-lg" placeholder="e.g., 4">
+                    <div class="mb-4 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                        <div>
+                            <label for="areasOfStrength" class="block text-gray-700 font-bold mb-1">Areas of strength:</label>
+                            <textarea id="areasOfStrength" name="areasOfStrength" rows="2" class="w-full px-3 py-2 border rounded-lg"></textarea>
+                        </div>
+                        <div>
+                            <label for="opportunitiesForImprovement" class="block text-gray-700 font-bold mb-1">Opportunities for improvement:</label>
+                            <textarea id="opportunitiesForImprovement" name="opportunitiesForImprovement" rows="2" class="w-full px-3 py-2 border rounded-lg"></textarea>
+                        </div>
                     </div>
-                    <div>
-                        <label for="loadFactor" class="block text-gray-700 font-bold mb-1">Load Factor (%):</label>
-                        <input type="text" id="loadFactor" name="loadFactor" class="w-full px-3 py-2 border rounded-lg" placeholder="e.g., 85%">
+                    <div class="mb-4 text-sm">
+                        <label for="observerSignature" class="block text-gray-700 font-bold mb-1">Observer's Signature:</label>
+                        <input type="text" id="observerSignature" name="observerSignature" class="w-full px-3 py-2 border rounded-lg">
                     </div>
-                    <div class="sm:col-span-2">
-                        <label for="inspectorName" class="block text-gray-700 font-bold mb-1 required-asterisk">Inspector Name:</label>
-                        <select id="inspectorName" name="inspectorName" class="w-full px-3 py-2 border rounded-lg bg-white" required>
-                            <option value="">-- Select Inspector --</option>
-                            <option value="Naparin Boonchuaylue">Naparin Boonchuaylue</option>
-                            <option value="Khathawut Benjachinsuwan">Khathawut Benjachinsuwan</option>
-                            <option value="Parichat Srithongkul">Parichat Srithongkul</option>
-                            <option value="Twankorn Chen">Twankorn Chen</option>
-                            <option value="Phinlaphat Aphinyaupatham">Phinlaphat Aphinyaupatham</option>
-                            <option value="Alisara Usavagovitwong">Alisara Usavagovitwong</option>
-                            <option value="Janpen Vorawanitcha">Janpen Vorawanitcha</option>
-                            <option value="Adisorn Usmanbaha">Adisorn Usmanbaha</option>
-                            <option value="Chotika Totrakool">Chotika Totrakool</option>
-                            <option value="Kittitat Chanta-amornlertkul">Kittitat Chanta-amornlertkul</option>
-                            <option value="Busabong Promkhuntod">Busabong Promkhuntod</option>
-                        </select>
+                    <div class="mb-4 text-sm">
+                        <label for="reportCompletionDate" class="block text-gray-700 font-bold mb-1">Date of Report Completion:</label>
+                        <input type="date" id="reportCompletionDate" name="reportCompletionDate" class="w-full px-3 py-2 border rounded-lg">
                     </div>
-                </div>
-            </section>
+                </section>
+                
+                <button type="submit" class="w-full bg-red-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-red-700 mt-6 shadow-xl">
+                    🚀 Submit Report
+                </button>
+                
+            </form>
             
-            <h2 class="text-lg font-bold text-gray-800 mb-4">III. Observational Checklist by Flight Phase</h2>
-            <div id="checklist-container" class="checklist-container">
-                </div>
-            
-            <hr class="my-6">
-            
-            <section class="mb-8 p-6 bg-yellow-50 border-l-4 border-yellow-500 rounded-lg shadow-inner">
-                <h2 class="text-lg font-bold text-yellow-800 mb-4">IV. Overall Observations & Summary</h2>
-                <div class="mb-4 text-sm">
-                    <label for="sigThreat" class="block text-gray-700 font-bold mb-1">Most significant Threat(s):</label>
-                    <textarea id="sigThreat" name="sigThreat" rows="2" class="w-full px-3 py-2 border rounded-lg"></textarea>
-                </div>
-                <div class="mb-4 text-sm">
-                    <label for="sigError" class="block text-gray-700 font-bold mb-1">Most significant Error(s):</label>
-                    <textarea id="sigError" name="sigError" rows="2" class="w-full px-3 py-2 border rounded-lg"></textarea>
-                </div>
-                <div class="mb-4 text-sm">
-                    <label for="effectiveCm" class="block text-gray-700 font-bold mb-1">Most effective Countermeasure(s):</label>
-                    <textarea id="effectiveCm" name="effectiveCm" rows="2" class="w-full px-3 py-2 border rounded-lg"></textarea>
-                </div>
-                <div class="mb-4 text-sm">
-                    <label for="generalComments" class="block text-gray-700 font-bold mb-1">General comments:</label>
-                    <textarea id="generalComments" name="generalComments" rows="3" class="w-full px-3 py-2 border rounded-lg"></textarea>
-                </div>
-                <div class="mb-4 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-                    <div>
-                        <label for="areasOfStrength" class="block text-gray-700 font-bold mb-1">Areas of strength:</label>
-                        <textarea id="areasOfStrength" name="areasOfStrength" rows="2" class="w-full px-3 py-2 border rounded-lg"></textarea>
-                    </div>
-                    <div>
-                        <label for="opportunitiesForImprovement" class="block text-gray-700 font-bold mb-1">Opportunities for improvement:</label>
-                        <textarea id="opportunitiesForImprovement" name="opportunitiesForImprovement" rows="2" class="w-full px-3 py-2 border rounded-lg"></textarea>
-                    </div>
-                </div>
-                <div class="mb-4 text-sm">
-                    <label for="observerSignature" class="block text-gray-700 font-bold mb-1">Observer's Signature:</label>
-                    <input type="text" id="observerSignature" name="observerSignature" class="w-full px-3 py-2 border rounded-lg">
-                </div>
-                <div class="mb-4 text-sm">
-                    <label for="reportCompletionDate" class="block text-gray-700 font-bold mb-1">Date of Report Completion:</label>
-                    <input type="date" id="reportCompletionDate" name="reportCompletionDate" class="w-full px-3 py-2 border rounded-lg">
-                </div>
-            </section>
-            
-            <button type="submit" class="w-full bg-red-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-red-700 mt-6 shadow-xl">
-                🚀 Submit Report to Firebase
-            </button>
-            
-        </form>
-        
-        <div id="pending-firebase-sync" class="mt-8 p-4 bg-blue-100 border border-blue-400 rounded-lg hidden">
-            <p class="font-bold text-blue-700">🔄 รายการที่กำลังรอ Sync ขึ้น Cloud:</p>
-            <ul id="pending-list" class="list-disc pl-5 mt-2 text-sm text-blue-600"></ul>
+            <div id="pending-firebase-sync" class="mt-8 p-4 bg-blue-100 border border-blue-400 rounded-lg hidden">
+                <p class="font-bold text-blue-700">🔄 รายการที่กำลังรอ Sync:</p>
+                <ul id="pending-list" class="list-disc pl-5 mt-2 text-sm text-blue-600"></ul>
+            </div>
         </div>
     </div>
 
@@ -173,19 +195,15 @@
         };
         // =================================================================
 
-        // 2. Initialize Firebase and Firestore
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
-
-        // 3. Enable Offline Persistence
-        db.enablePersistence()
-          .catch((err) => {
-              if (err.code == 'failed-precondition') {
-                  console.warn("Firestore persistence failed, probably due to multiple open tabs.");
-              } else if (err.code == 'unimplemented') {
-                  console.warn("Firestore persistence is not supported in this browser.");
-              }
-          });
+        db.enablePersistence().catch((err) => {
+            if (err.code == 'failed-precondition') {
+                console.warn("Firestore persistence failed, probably due to multiple open tabs.");
+            } else if (err.code == 'unimplemented') {
+                console.warn("Firestore persistence is not supported in this browser.");
+            }
+        });
 
         const TEM_CODES = {
             THREATS: { T_TE: "TE: Environmental", T_TO: "TO: Operational", T_TC: "TC: Cabin/Passenger", T_TT: "TT: Team/Crew", T_TL: "TL: Latent" },
@@ -230,26 +248,55 @@
             const checklistContainer = document.getElementById('checklist-container');
             let html = '';
             CHECKLIST_DEFINITIONS.forEach(section => {
-                html += `<div class="mb-8"><h3 class="text-md font-bold text-white bg-red-600 p-2 rounded-t-lg">${section.title}</h3><div class="overflow-x-auto"><table class="checklist-table w-full"><thead><tr><th class="w-2/5">Check Item / Area of Observation</th><th>SOP Met (Y/N/NA)</th><th class="bg-t">Threats</th><th class="bg-e">Errors</th><th class="bg-u">UCS</th><th class="bg-c">CM</th><th class="w-1/4">Narrative/Comments</th></tr></thead><tbody>`;
+                html += `<div class="mb-8"><h3 class="text-md font-bold text-white bg-red-600 p-2 rounded-t-lg">${section.title}</h3><div class="p-2 border border-t-0 rounded-b-lg">`;
                 section.items.forEach(item => {
+                    if (item.isGroup && item.subItems) {
+                        html += `<div class="checklist-item-group">${item.label}</div>`;
+                    }
                     const itemsToRender = item.isGroup && item.subItems ? item.subItems : [item];
-                    if (item.isGroup && item.subItems) { html += `<tr class="checklist-item-group"><td colspan="7" class="text-sm font-semibold">${item.label}</td></tr>`; }
                     itemsToRender.forEach(subItem => {
                         const baseName = `${subItem.id}`;
-                        html += `<tr class="checklist-item text-xs"><td class="font-normal">${subItem.label}</td><td>${createDropdown(`${baseName}_SOP`, true)}</td><td class="bg-t">${createCheckboxGroup(baseName, 'T', TEM_OPTIONS_MAP.Threats)}</td><td class="bg-e">${createCheckboxGroup(baseName, 'E', TEM_OPTIONS_MAP.Errors)}</td><td class="bg-u">${createCheckboxGroup(baseName, 'U', TEM_OPTIONS_MAP.UCS)}</td><td class="bg-c">${createCheckboxGroup(baseName, 'C', TEM_OPTIONS_MAP.Countermeasures)}</td><td>${createTextArea(`${baseName}_Narrative`, 'Describe here...')}</td></tr>`;
+                        html += `<div class="checklist-card rounded-lg p-3 md:p-4 mb-3" id="card-${baseName}">
+                                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+                                        <p class="font-semibold text-gray-800 flex-grow">${subItem.label}</p>
+                                        <div class="flex items-center gap-2 flex-shrink-0 w-full sm:w-auto">
+                                            <label for="${baseName}_SOP" class="font-bold text-sm text-gray-600">SOP Met:</label>
+                                            ${createDropdown(`${baseName}_SOP`, true)}
+                                        </div>
+                                    </div>
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4 text-xs">
+                                        <div class="bg-t/60 p-2 rounded-md"><h4 class="font-bold text-sm text-green-800 mb-1">Threats</h4>${createCheckboxGroup(baseName, 'T', TEM_OPTIONS_MAP.Threats)}</div>
+                                        <div class="bg-e/60 p-2 rounded-md"><h4 class="font-bold text-sm text-yellow-800 mb-1">Errors</h4>${createCheckboxGroup(baseName, 'E', TEM_OPTIONS_MAP.Errors)}</div>
+                                        <div class="bg-u/60 p-2 rounded-md"><h4 class="font-bold text-sm text-red-800 mb-1">UCS</h4>${createCheckboxGroup(baseName, 'U', TEM_OPTIONS_MAP.UCS)}</div>
+                                        <div class="bg-c/60 p-2 rounded-md"><h4 class="font-bold text-sm text-blue-800 mb-1">CM</h4>${createCheckboxGroup(baseName, 'C', TEM_OPTIONS_MAP.Countermeasures)}</div>
+                                    </div>
+                                    <div>
+                                        <label for="${baseName}_Narrative" class="font-bold text-sm text-gray-600">Narrative/Comments:</label>
+                                        ${createTextArea(`${baseName}_Narrative`, 'Describe here...')}
+                                    </div>
+                                 </div>`;
                     });
                 });
-                html += `</tbody></table></div></div>`;
+                html += `</div></div>`;
             });
             checklistContainer.innerHTML = html;
         }
         function addSopChangeEventHandlers() {
             document.getElementById('checklist-container').addEventListener('change', (event) => {
                 if (event.target && event.target.matches('select[name$="_SOP"]')) {
-                    const tableRow = event.target.closest('tr');
-                    if (tableRow) {
-                        if (event.target.value === 'N') { tableRow.classList.add('sop-fail-row'); } 
-                        else { tableRow.classList.remove('sop-fail-row'); }
+                    const baseId = event.target.name.replace('_SOP', '');
+                    const card = document.getElementById(`card-${baseId}`);
+                    if (card) {
+                        if (event.target.value === 'Y') {
+                            card.classList.add('sop-pass-row');
+                            card.classList.remove('sop-fail-row');
+                        } else if (event.target.value === 'N') {
+                            card.classList.add('sop-fail-row');
+                            card.classList.remove('sop-pass-row');
+                        } else {
+                            card.classList.remove('sop-fail-row');
+                            card.classList.remove('sop-pass-row');
+                        }
                     }
                 }
             });
@@ -270,10 +317,10 @@
             function updateNetworkStatus() {
                 if (navigator.onLine) {
                     statusBanner.textContent = '🟢 Online - All data will be synced automatically.';
-                    statusBanner.className = 'status-online';
+                    statusBanner.className = 'status-online rounded-t-xl -mt-6 -mx-6 sm:-mt-10 sm:-mx-10 mb-6';
                 } else {
                     statusBanner.textContent = '⚪ Offline - Your work is saved locally.';
-                    statusBanner.className = 'status-offline';
+                    statusBanner.className = 'status-offline rounded-t-xl -mt-6 -mx-6 sm:-mt-10 sm:-mx-10 mb-6';
                 }
             }
             window.addEventListener('online', updateNetworkStatus);
@@ -376,7 +423,10 @@
                             Swal.fire('Saved Locally!', 'Report has been saved. It will sync automatically when online.', 'info');
                             form.reset();
                             setTodayDate();
-                            document.querySelectorAll('.sop-fail-row').forEach(row => row.classList.remove('sop-fail-row'));
+                            document.querySelectorAll('.sop-fail-row, .sop-pass-row').forEach(card => {
+                                card.classList.remove('sop-fail-row');
+                                card.classList.remove('sop-pass-row');
+                            });
                             
                             if (navigator.onLine) {
                                 pendingWrites[docId].status = 'Syncing...';
