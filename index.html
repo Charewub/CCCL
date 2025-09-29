@@ -324,16 +324,20 @@
             document.getElementById('reportCompletionDate').value = today;
         }
 
-        // --- UPDATED: Export to PDF Function with CSS Handling for ALL input types ---
+        // --- FINAL UPDATED: Export to PDF Function with CSS and Mobile Scale Fix ---
         async function exportToPDF() {
             const { jsPDF } = window.jspdf; 
             const element = document.getElementById('capture-content');
             const flightNumber = document.getElementById('flightNumberNew').value || 'LOSA_Report';
             const date = document.getElementById('observationDate').value || new Date().toISOString().split('T')[0];
 
+            // Mobile/Desktop Scale Detection
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            const scaleFactor = isMobile ? 1 : 2; // Use scale 1 for mobile to avoid memory limits
+            
             Swal.fire({
                 title: 'Generating PDF...',
-                text: 'Preparing layout and processing pages. Please wait.',
+                text: `Preparing layout (Scale: ${scaleFactor}). Please wait.`,
                 didOpen: () => {
                     Swal.showLoading();
                 },
@@ -350,12 +354,11 @@
                 #capture-content textarea, 
                 #capture-content select {
                     height: auto !important;
-                    min-height: 38px; /* Maintain minimum height for consistency */
+                    min-height: 38px; 
                     white-space: normal; 
                     overflow: visible !important;
                     padding-top: 5px; 
                     padding-bottom: 5px;
-                    /* Ensure date/number inputs also expand if necessary */
                     box-sizing: border-box !important;
                 }
                 /* Hide buttons, status, and pending areas in the screenshot/PDF */
@@ -366,9 +369,9 @@
             document.head.appendChild(tempStyle);
 
             try {
-                // 2. Convert the entire element to a single canvas image
+                // 2. Convert the entire element to a single canvas image using the adjusted scale
                 const canvas = await html2canvas(element, {
-                    scale: 2, 
+                    scale: scaleFactor, 
                     allowTaint: true,
                     useCORS: true,
                     windowWidth: element.scrollWidth,
@@ -378,7 +381,6 @@
                 // 3. Initialize jsPDF and handle multi-page conversion
                 const imgData = canvas.toDataURL('image/jpeg', 0.9);
                 
-                // A4 dimensions in mm (210 x 297)
                 const pdf = new jsPDF('p', 'mm', 'a4'); 
                 const pdfWidth = pdf.internal.pageSize.getWidth();
                 const pdfHeight = pdf.internal.pageSize.getHeight();
@@ -396,7 +398,6 @@
                         pdf.addPage();
                     }
                     
-                    // Add image portion: position is negative to simulate cropping from the top of the full image
                     pdf.addImage(imgData, 'JPEG', 0, -position, pdfWidth, height);
 
                     remainingHeight -= pdfHeight;
@@ -419,7 +420,7 @@
             } catch(error) {
                 Swal.close();
                 console.error('PDF Export Error:', error);
-                Swal.fire('Export Failed', 'Could not generate PDF. Please check console for details.', 'error');
+                Swal.fire('Export Failed', 'PDF creation failed. Please check console for details.', 'error');
             } finally {
                 // 5. Remove the temporary CSS style immediately after use
                 const cleanupStyle = document.getElementById('export-fix-style');
