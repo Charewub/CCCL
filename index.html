@@ -24,26 +24,24 @@
         .required-asterisk::after { content: " *"; color: #ef4444; }
         .checkbox-container { display: flex; flex-wrap: wrap; gap: 4px 6px; font-size: 0.75rem; }
         
-        /* === START OF DISPLAY FIX === */
-        /* Adjusted height/padding for inputs to ensure full text is visible on iOS */
+        /* === Input Display Fix for all devices (including iOS) === */
         .sop-dropdown, 
         .narrative-textarea,
-        /* Target all inputs for consistent height on display */
         input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]):not([type="reset"]) {
-            height: auto; /* Allow content to dictate height */
+            height: auto; 
             min-height: 38px;
-            font-size: 1rem; /* Increase font size slightly for better visibility */
-            padding-top: 8px; /* Increased vertical padding */
-            padding-bottom: 8px; /* Increased vertical padding */
+            padding-top: 8px; 
+            padding-bottom: 8px; 
             border-radius: 6px;
-            box-sizing: border-box; /* Crucial for reliable height calculation */
+            box-sizing: border-box; 
         }
         .narrative-textarea {
-             font-size: 0.75rem; /* Revert checklist textarea font size */
+             min-height: 38px;
+             font-size: 0.75rem;
              padding-top: 5px;
              padding-bottom: 5px;
         }
-        /* === END OF DISPLAY FIX === */
+        /* End General Input Display Fix */
         
         /* TEM Background Colors */
         .bg-t { background-color: #d1fae5; } 
@@ -187,9 +185,12 @@
                     </div>
                 </section>
                 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
                     <button type="button" id="exportPdfButton" class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 shadow-xl">
                         📄 Export to PDF
+                    </button>
+                    <button type="button" id="exportCsvButton" class="w-full bg-green-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-green-700 shadow-xl">
+                        📊 Export to CSV
                     </button>
                     <button type="submit" class="w-full bg-red-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-red-700 shadow-xl">
                         🚀 Submit Report
@@ -256,7 +257,7 @@
             { id: 'G', title: 'G. Post-Flight / Debrief (Observed if possible)', items: [ { id: 'G1', label: '1. Crew Debrief', isGroup: true, subItems: [ { id: 'G11', label: '- Discussion of flight events' }, { id: 'G12', label: '- Sharing idea' }, { id: 'G13', label: '- Feedback on TEM' } ]}, { id: 'G2', label: '2. Reporting System', isGroup: true, subItems: [ { id: 'G21', label: '- Redeye' } ]} ]}
         ];
         
-        // Helper functions (unchanged)
+        // Helper functions (for generating checklist HTML - unchanged)
 
         function createCheckboxGroup(baseName, typeCode, options) {
             let html = `<div class="checkbox-container">`;
@@ -344,14 +345,110 @@
             document.getElementById('reportCompletionDate').value = today;
         }
 
-        // --- PDF Export Function (FINAL) ---
+        // ====================================================================
+        // == NEW: Export to CSV Function ==
+        // ====================================================================
+        function convertToCSV(data) {
+            const keys = Object.keys(data);
+            const header = keys.join(',');
+            
+            // Function to sanitize data for CSV: escapes quotes and replaces line breaks
+            const sanitize = (value) => {
+                if (value === null || value === undefined) return '';
+                // Ensure value is treated as string
+                let stringValue = String(value);
+                // Escape double quotes and enclose the whole string in double quotes
+                if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
+                    // Replace double quotes with two double quotes
+                    stringValue = stringValue.replace(/"/g, '""');
+                    // Enclose in double quotes
+                    return `"${stringValue}"`;
+                }
+                return stringValue;
+            };
+
+            const row = keys.map(key => sanitize(data[key])).join(',');
+            return header + '\n' + row;
+        }
+
+        function exportToCSV() {
+            const form = document.getElementById('checklistForm');
+            const formData = new FormData(form);
+            const reportData = {};
+            const allFormKeys = getAllFormKeys();
+            const submittedCheckboxes = {};
+
+            // 1. Collect and process data (same logic as form submission)
+            allFormKeys.forEach(key => { reportData[key] = ""; });
+
+            for (const [key, value] of formData.entries()) {
+                const trimmedValue = value.trim();
+                const element = form.elements[key];
+                
+                if (element && element.type === 'checkbox') {
+                    if (!submittedCheckboxes[key]) submittedCheckboxes[key] = [];
+                    submittedCheckboxes[key].push(trimmedValue);
+                } 
+                else if (trimmedValue !== "") {
+                    if (element && element.type === 'number') {
+                         reportData[key] = parseFloat(trimmedValue);
+                    } else {
+                         reportData[key] = trimmedValue;
+                    }
+                }
+            }
+            
+            for (const key in submittedCheckboxes) {
+                if (submittedCheckboxes[key].length > 0) {
+                    reportData[key] = submittedCheckboxes[key].join(' | ');
+                }
+            }
+            
+            // Add Timestamp placeholder (since this is a client-side download)
+            reportData.submissionTimestamp = new Date().toISOString(); 
+
+            // 2. Convert to CSV format
+            const csvContent = convertToCSV(reportData);
+            
+            // 3. Create Blob and download
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const date = document.getElementById('observationDate').value || new Date().toISOString().split('T')[0];
+            const flightNumber = document.getElementById('flightNumberNew').value || 'LOSA_Report';
+            const filename = `${date}_${flightNumber}_Data.csv`;
+
+            if (navigator.msSaveBlob) { // IE 10+
+                navigator.msSaveBlob(blob, filename);
+            } else {
+                const link = document.createElement('a');
+                if (link.download !== undefined) {
+                    const url = URL.createObjectURL(blob);
+                    link.setAttribute('href', url);
+                    link.setAttribute('download', filename);
+                    link.style.visibility = 'hidden';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                }
+            }
+
+            Swal.fire({
+                icon: 'info',
+                title: 'CSV Exported!',
+                text: `Data saved as ${filename}. Note: This only exports the current unsynced data.`,
+                timer: 3000,
+                showConfirmButton: false
+            });
+        }
+        // ====================================================================
+
+
+        // --- Export to PDF Function (kept for PDF button) ---
         async function exportToPDF() {
             const { jsPDF } = window.jspdf; 
             const element = document.getElementById('capture-content');
             const flightNumber = document.getElementById('flightNumberNew').value || 'LOSA_Report';
             const date = document.getElementById('observationDate').value || new Date().toISOString().split('T')[0];
 
-            // Mobile/Desktop Scale Detection
             const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
             const scaleFactor = isMobile ? 1 : 2; 
             
@@ -365,23 +462,20 @@
                 allowEscapeKey: false
             });
 
-            // 1. Add Temporary Print/Export CSS to fix input display and layout issues
             const tempStyle = document.createElement('style');
             tempStyle.id = 'export-fix-style';
             tempStyle.textContent = `
-                /* Allow ALL input types, textareas, and selects to render full content vertically */
                 #capture-content input, 
                 #capture-content textarea, 
                 #capture-content select {
                     height: auto !important;
-                    min-height: 44px; /* Ensured minimum height for better text visibility */
+                    min-height: 44px; 
                     white-space: normal; 
                     overflow: visible !important;
                     padding-top: 5px; 
                     padding-bottom: 5px;
                     box-sizing: border-box !important;
                 }
-                /* Hide buttons, status, and pending areas in the screenshot/PDF */
                 #network-status-banner, #capture-content button, #pending-firebase-sync {
                     display: none !important;
                 }
@@ -389,7 +483,6 @@
             document.head.appendChild(tempStyle);
 
             try {
-                // 2. Convert the entire element to a single canvas image using the adjusted scale
                 const canvas = await html2canvas(element, {
                     scale: scaleFactor, 
                     allowTaint: true,
@@ -398,7 +491,6 @@
                     windowHeight: element.scrollHeight
                 });
                 
-                // 3. Initialize jsPDF and handle multi-page conversion
                 const imgData = canvas.toDataURL('image/jpeg', 0.9);
                 
                 const pdf = new jsPDF('p', 'mm', 'a4'); 
@@ -424,7 +516,6 @@
                     position += pdfHeight; 
                 }
 
-                // 4. Save the PDF
                 const filename = `${date}_${flightNumber}_LOSA.pdf`;
                 pdf.save(filename);
 
@@ -442,7 +533,6 @@
                 console.error('PDF Export Error:', error);
                 Swal.fire('Export Failed', 'PDF creation failed. Please check console for details.', 'error');
             } finally {
-                // 5. Remove the temporary CSS style immediately after use
                 const cleanupStyle = document.getElementById('export-fix-style');
                 if (cleanupStyle) {
                     cleanupStyle.remove();
@@ -452,15 +542,42 @@
         // --- End Export to PDF Function ---
 
 
+        function getAllFormKeys() {
+            const keys = new Set([
+                'observationDate', 'flightNumberNew', 'routeFrom', 'routeTo', 
+                'aircraftType', 'observerId', 'crewObserved', 'loadFactor', 'inspectorName',
+                'sigThreat', 'sigError', 'effectiveCm', 'generalComments', 
+                'areasOfStrength', 'opportunitiesForImprovement', 'observerSignature', 'reportCompletionDate'
+            ]);
+
+            CHECKLIST_DEFINITIONS.forEach(section => {
+                section.items.forEach(item => {
+                    const itemsToProcess = item.isGroup && item.subItems ? item.subItems : [item];
+                    itemsToProcess.forEach(subItem => {
+                        const baseName = subItem.id;
+                        keys.add(`${baseName}_SOP`);
+                        keys.add(`${baseName}_Narrative`);
+                        Object.keys(TEM_OPTIONS_MAP).forEach(typeCode => {
+                            keys.add(`${baseName}_${typeCode}`);
+                        });
+                    });
+                });
+            });
+
+            return Array.from(keys);
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             const form = document.getElementById('checklistForm');
-            const exportButton = document.getElementById('exportPdfButton');
+            const exportPdfButton = document.getElementById('exportPdfButton');
+            const exportCsvButton = document.getElementById('exportCsvButton'); // NEW
 
             generateChecklistHTML();
             addSopChangeEventHandlers();
             setTodayDate();
 
-            exportButton.addEventListener('click', exportToPDF);
+            exportPdfButton.addEventListener('click', exportToPDF);
+            exportCsvButton.addEventListener('click', exportToCSV); // NEW Event Listener
             
             // Network Status Logic (unchanged)
             const statusBanner = document.getElementById('network-status-banner');
@@ -496,32 +613,6 @@
                 }
             }
             
-            function getAllFormKeys() {
-                const keys = new Set([
-                    'observationDate', 'flightNumberNew', 'routeFrom', 'routeTo', 
-                    'aircraftType', 'observerId', 'crewObserved', 'loadFactor', 'inspectorName',
-                    'sigThreat', 'sigError', 'effectiveCm', 'generalComments', 
-                    'areasOfStrength', 'opportunitiesForImprovement', 'observerSignature', 'reportCompletionDate'
-                ]);
-
-                CHECKLIST_DEFINITIONS.forEach(section => {
-                    section.items.forEach(item => {
-                        const itemsToProcess = item.isGroup && item.subItems ? item.subItems : [item];
-                        itemsToProcess.forEach(subItem => {
-                            const baseName = subItem.id;
-                            keys.add(`${baseName}_SOP`);
-                            keys.add(`${baseName}_Narrative`);
-                            Object.keys(TEM_OPTIONS_MAP).forEach(typeCode => {
-                                keys.add(`${baseName}_${typeCode}`);
-                            });
-                        });
-                    });
-                });
-
-                return Array.from(keys);
-            }
-
-
             form.addEventListener('submit', (e) => {
                 e.preventDefault();
                 const submitButton = e.target.querySelector('button[type="submit"]');
