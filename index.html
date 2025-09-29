@@ -14,20 +14,26 @@
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
     <style>
         body {
             font-family: 'Noto Sans Thai', sans-serif;
         }
         .required-asterisk::after { content: " *"; color: #ef4444; }
         .checkbox-container { display: flex; flex-wrap: wrap; gap: 4px 6px; font-size: 0.75rem; }
-        .sop-dropdown, .narrative-textarea { height: 38px; font-size: 0.75rem; border-radius: 6px; }
-        .bg-t { background-color: #e6ffec; } 
-        .bg-e { background-color: #fff9e6; } 
-        .bg-u { background-color: #ffe6e6; } 
-        .bg-c { background-color: #e6f0ff; }
+        .sop-dropdown, .narrative-textarea { height: 38px; font-size: 0.75rem; border-radius: 6px; } 
         
+        /* TEM Background Colors */
+        .bg-t { background-color: #d1fae5; } 
+        .bg-e { background-color: #fef9c3; } 
+        .bg-u { background-color: #fee2e2; } 
+        .bg-c { background-color: #dbeafe; } 
+        
+        /* Row Highlighting based on SOP Met */
         .sop-fail-row { background-color: #fee2e2 !important; border: 1px solid #f87171; }
-        .sop-pass-row { background-color: #e6ffec !important; border: 1px solid #6ee7b7; }
+        .sop-pass-row { background-color: #d1fae5 !important; border: 1px solid #6ee7b7; }
 
         #network-status-banner {
             padding: 8px;
@@ -43,12 +49,8 @@
             border: 1px solid #e5e7eb;
             transition: box-shadow 0.2s ease-in-out, background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
         }
-        .checklist-card:focus-within {
-             box-shadow: 0 0 0 2px #ef4444;
-             border-color: #ef4444;
-        }
         .checklist-item-group {
-            background-color: #f0f0f0; 
+            background-color: #e5e7eb; 
             font-weight: bold; 
             font-size: 0.9rem;
             padding: 8px 16px;
@@ -60,7 +62,7 @@
 </head>
 <body class="bg-gray-100 p-4 sm:p-8">
 
-    <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-2xl">
+    <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-2xl" id="capture-content">
         <div id="network-status-banner" class="rounded-t-xl -mt-6 -mx-6 sm:-mt-10 sm:-mx-10 mb-6"></div>
         <div class="p-6 sm:p-10 pt-0 sm:pt-0">
             <h1 class="text-3xl font-extrabold text-red-600 mb-6 text-center">Cabin Crew LOSA Checklist</h1>
@@ -125,7 +127,7 @@
                 <div id="checklist-container">
                     </div>
                 
-                <hr class="my-6">
+                <hr class="my-6 border-red-200">
                 
                 <section class="mb-8 p-6 bg-yellow-50 border-l-4 border-yellow-500 rounded-lg shadow-inner">
                     <h2 class="text-lg font-bold text-yellow-800 mb-4">IV. Overall Observations & Summary</h2>
@@ -165,9 +167,14 @@
                     </div>
                 </section>
                 
-                <button type="submit" class="w-full bg-red-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-red-700 mt-6 shadow-xl">
-                    🚀 Submit Report
-                </button>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
+                    <button type="button" id="exportPdfButton" class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 shadow-xl">
+                        📄 Export to PDF
+                    </button>
+                    <button type="submit" class="w-full bg-red-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-red-700 shadow-xl">
+                        🚀 Submit Report
+                    </button>
+                </div>
                 
             </form>
             
@@ -186,15 +193,16 @@
         // == 1. PASTE YOUR FIREBASE CONFIG HERE ==
         // =================================================================
         const firebaseConfig = {
-    apiKey: "AIzaSyCLVscz3gGmZThIHJRnGtfkZPV865tAOV8",
-    authDomain: "losafortaatmc.firebaseapp.com",
-    projectId: "losafortaatmc",
-    storageBucket: "losafortaatmc.firebasestorage.app",
-    messagingSenderId: "1037184939611",
-    appId: "1:1037184939611:web:ce6571f53cb3f544e0717e",
+            apiKey: "AIzaSyCLVscz3gGmZThIHJRnGtfkZPV865tAOV8", // <<< REPLACE WITH YOUR API KEY
+            authDomain: "losafortaatmc.firebaseapp.com",
+            projectId: "losafortaatmc",
+            storageBucket: "losafortaatmc.firebasestorage.app",
+            messagingSenderId: "1037184939611",
+            appId: "1:1037184939611:web:ce6571f53cb3f544e0717e",
         };
         // =================================================================
 
+        // Initialize Firebase and Firestore
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         db.enablePersistence().catch((err) => {
@@ -205,13 +213,19 @@
             }
         });
 
+        // TEM Definitions (unchanged)
         const TEM_CODES = {
             THREATS: { T_TE: "TE: Environmental", T_TO: "TO: Operational", T_TC: "TC: Cabin/Passenger", T_TT: "TT: Team/Crew", T_TL: "TL: Latent" },
             ERRORS: { E_EP: "EP: Procedural", E_EC: "EC: Communication", E_ED: "ED: Decision", E_ES: "ES: Skill-based", E_EV: "EV: Violation (Intentional)" },
             UCS: { U_SOP: "UCS-SOP: Deviation from SOP", U_EQP: "UCS-EQP: Incorrect Equipment use", U_PAX: "UCS-PAX: Compromised PAX safety", U_COM: "UCS-COM: Degraded Communication" },
             CM: { C_PLN: "CM-PLN: Planning", C_SOP: "CM-SOP: Procedural", C_COM: "CM-COM: Communication", C_MON: "CM-MON: Monitoring", C_WSM: "CM-WSM: Workload/Systems Management", C_SPT: "CM-SPT: Support/Teamwork" }
         };
-        const TEM_OPTIONS_MAP = { 'Threats': TEM_CODES.THREATS, 'Errors': TEM_CODES.ERRORS, 'UCS': TEM_CODES.UCS, 'Countermeasures': TEM_CODES.CM };
+        const TEM_OPTIONS_MAP = { 
+            'T': TEM_CODES.THREATS, 
+            'E': TEM_CODES.ERRORS, 
+            'U': TEM_CODES.UCS, 
+            'C': TEM_CODES.CM 
+        };
         const CHECKLIST_DEFINITIONS = [
             { id: 'A', title: 'A. Pre-Flight & Crew Briefing', items: [ { id: 'A1', label: '1. Crew Briefing (All Crew - Flight & Cabin)', isGroup: true, subItems: [ { id: 'A11', label: '- Attendance/ Punctuality/ Grooming' }, { id: 'A12', label: '- Documentation (Flight document)' }, { id: 'A13', label: '- Review updated safety information' }, { id: 'A14', label: '- Safety/First aid/Security/DG Review' }, { id: 'A15', label: '- Service Review (if applicable)' }, { id: 'A16', label: '- TEM discussion (anticipated threats)' }, { id: 'A17', label: '- Crew Co-ordination & Communication established' } ]}, { id: 'A2', label: '2. Cabin Crew Briefing (Cabin Specific)', isGroup: true, subItems: [ { id: 'A21', label: '- Allocation of CC station' }, { id: 'A22', label: '- A/C type and equipment fitted' }, { id: 'A23', label: '- Emergency Procedures Review' }, { id: 'A24', label: '- Security Procedures Review (e.g., checked, search, risk level)' }, { id: 'A25', label: '- Special Categoried Passenger Info (e.g., PRMs, YPTA)' } ]}, { id: 'A3', label: '3. Pre-Flight Cabin Checks', isGroup: true, subItems: [ { id: 'A31', label: '- Doors (pre-flight check, serviceablility)' }, { id: 'A32', label: '- Emergency Equipment (location, serviceability)' }, { id: 'A33', label: '- Security Checks (cabin, lavatories, galleys, attendant station)' }, { id: 'A34', label: '- Cabin Cleanliness & Appearance' }, { id: 'A35', label: '- Catering/Supplies (if applicable)' }, { id: 'A36', label: '- Interphone/PA System Check' } ]} ]},
             { id: 'B', title: 'B. Boarding', items: [ { id: 'B1', label: '1. Passenger Greeting & Assistance', isGroup: true, subItems: [ { id: 'B11', label: '- Monitoring carry-on baggage (size, quantity)' }, { id: 'B12', label: '- Refuelling procedure' }, { id: 'B13', label: '- Exit row briefing & compliance' }, { id: 'B14', label: '- Assistance and briefing to special categoried passengers (e.g., PRMs)' }, { id: 'B15', label: '- Managing passenger flow' } ]}, { id: 'B2', label: '2. Pre-Departure Cabin Secure', isGroup: true, subItems: [ { id: 'B21', label: '- Overhead bins closed' }, { id: 'B22', label: '- Galley equipment secured' }, { id: 'B23', label: '- Doors/Aisles/Exits clear' }, { id: 'B24', label: '- Passenger count reconciliation' }, { id: 'B25', label: '- Doors armed / Cross-check procedure' }, { id: 'B26', label: '- Welcome Announcement' } ]}, { id: 'B3', label: '3. Safety Demonstration', isGroup: true, subItems: [ { id: 'B31', label: '- Clarity, accuracy, visibility' }, { id: 'B32', label: '- Passenger attentiveness (managed if needed)' } ]} ]},
@@ -222,6 +236,8 @@
             { id: 'G', title: 'G. Post-Flight / Debrief (Observed if possible)', items: [ { id: 'G1', label: '1. Crew Debrief', isGroup: true, subItems: [ { id: 'G11', label: '- Discussion of flight events' }, { id: 'G12', label: '- Sharing idea' }, { id: 'G13', label: '- Feedback on TEM' } ]}, { id: 'G2', label: '2. Reporting System', isGroup: true, subItems: [ { id: 'G21', label: '- Redeye' } ]} ]}
         ];
         
+        // Helper functions (unchanged)
+
         function createCheckboxGroup(baseName, typeCode, options) {
             let html = `<div class="checkbox-container">`;
             for (const code in options) {
@@ -234,6 +250,7 @@
             }
             return html + `</div>`;
         }
+        
         function createDropdown(name, isSOP = false) {
             const select = document.createElement('select');
             select.name = name;
@@ -241,9 +258,11 @@
             if (isSOP) { select.innerHTML = `<option value="" selected>--</option><option value="Y">Y</option><option value="N">N</option><option value="NA">NA</option>`; }
             return select.outerHTML;
         }
+        
         function createTextArea(name, placeholder) {
             return `<textarea name="${name}" rows="1" class="w-full border rounded-lg narrative-textarea" placeholder="${placeholder}"></textarea>`;
         }
+        
         function generateChecklistHTML() {
             const checklistContainer = document.getElementById('checklist-container');
             let html = '';
@@ -257,62 +276,172 @@
                     itemsToRender.forEach(subItem => {
                         const baseName = `${subItem.id}`;
                         html += `<div class="checklist-card rounded-lg p-3 md:p-4 mb-3" id="card-${baseName}">
-                                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
-                                        <p class="font-semibold text-gray-800 flex-grow">${subItem.label}</p>
-                                        <div class="flex items-center gap-2 flex-shrink-0 w-full sm:w-auto">
-                                            <label for="${baseName}_SOP" class="font-bold text-sm text-gray-600">SOP Met:</label>
-                                            ${createDropdown(`${baseName}_SOP`, true)}
+                                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+                                            <p class="font-semibold text-gray-800 flex-grow">${subItem.label}</p>
+                                            <div class="flex items-center gap-2 flex-shrink-0 w-full sm:w-auto">
+                                                <label for="${baseName}_SOP" class="font-bold text-sm text-gray-600">SOP Met:</label>
+                                                ${createDropdown(`${baseName}_SOP`, true)}
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4 text-xs">
-                                        <div class="bg-t/60 p-2 rounded-md"><h4 class="font-bold text-sm text-green-800 mb-1">Threats</h4>${createCheckboxGroup(baseName, 'T', TEM_OPTIONS_MAP.Threats)}</div>
-                                        <div class="bg-e/60 p-2 rounded-md"><h4 class="font-bold text-sm text-yellow-800 mb-1">Errors</h4>${createCheckboxGroup(baseName, 'E', TEM_OPTIONS_MAP.Errors)}</div>
-                                        <div class="bg-u/60 p-2 rounded-md"><h4 class="font-bold text-sm text-red-800 mb-1">UCS</h4>${createCheckboxGroup(baseName, 'U', TEM_OPTIONS_MAP.UCS)}</div>
-                                        <div class="bg-c/60 p-2 rounded-md"><h4 class="font-bold text-sm text-blue-800 mb-1">CM</h4>${createCheckboxGroup(baseName, 'C', TEM_OPTIONS_MAP.Countermeasures)}</div>
-                                    </div>
-                                    <div>
-                                        <label for="${baseName}_Narrative" class="font-bold text-sm text-gray-600">Narrative/Comments:</label>
-                                        ${createTextArea(`${baseName}_Narrative`, 'Describe here...')}
-                                    </div>
-                                 </div>`;
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4 text-xs">
+                                            <div class="bg-t p-2 rounded-md"><h4 class="font-bold text-sm text-green-800 mb-1">Threats</h4>${createCheckboxGroup(baseName, 'T', TEM_OPTIONS_MAP.T)}</div>
+                                            <div class="bg-e p-2 rounded-md"><h4 class="font-bold text-sm text-yellow-800 mb-1">Errors</h4>${createCheckboxGroup(baseName, 'E', TEM_OPTIONS_MAP.E)}</div>
+                                            <div class="bg-u p-2 rounded-md"><h4 class="font-bold text-sm text-red-800 mb-1">UCS</h4>${createCheckboxGroup(baseName, 'U', TEM_OPTIONS_MAP.U)}</div>
+                                            <div class="bg-c p-2 rounded-md"><h4 class="font-bold text-sm text-blue-800 mb-1">CM</h4>${createCheckboxGroup(baseName, 'C', TEM_OPTIONS_MAP.C)}</div>
+                                        </div>
+                                        <div>
+                                            <label for="${baseName}_Narrative" class="font-bold text-sm text-gray-600">Narrative/Comments:</label>
+                                            ${createTextArea(`${baseName}_Narrative`, 'Describe here...')}
+                                        </div>
+                                    </div>`;
                     });
                 });
                 html += `</div></div>`;
             });
             checklistContainer.innerHTML = html;
         }
+        
         function addSopChangeEventHandlers() {
             document.getElementById('checklist-container').addEventListener('change', (event) => {
                 if (event.target && event.target.matches('select[name$="_SOP"]')) {
                     const baseId = event.target.name.replace('_SOP', '');
                     const card = document.getElementById(`card-${baseId}`);
                     if (card) {
+                        card.classList.remove('sop-fail-row', 'sop-pass-row');
                         if (event.target.value === 'Y') {
                             card.classList.add('sop-pass-row');
-                            card.classList.remove('sop-fail-row');
                         } else if (event.target.value === 'N') {
                             card.classList.add('sop-fail-row');
-                            card.classList.remove('sop-pass-row');
-                        } else {
-                            card.classList.remove('sop-fail-row');
-                            card.classList.remove('sop-pass-row');
                         }
                     }
                 }
             });
         }
+        
         function setTodayDate() {
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('observationDate').value = today;
             document.getElementById('reportCompletionDate').value = today;
         }
 
+        // --- UPDATED: Export to PDF Function with CSS Handling for ALL input types ---
+        async function exportToPDF() {
+            const { jsPDF } = window.jspdf; 
+            const element = document.getElementById('capture-content');
+            const flightNumber = document.getElementById('flightNumberNew').value || 'LOSA_Report';
+            const date = document.getElementById('observationDate').value || new Date().toISOString().split('T')[0];
+
+            Swal.fire({
+                title: 'Generating PDF...',
+                text: 'Preparing layout and processing pages. Please wait.',
+                didOpen: () => {
+                    Swal.showLoading();
+                },
+                allowOutsideClick: false,
+                allowEscapeKey: false
+            });
+
+            // 1. Add Temporary Print/Export CSS to fix input wrapping/clipping issues
+            const tempStyle = document.createElement('style');
+            tempStyle.id = 'export-fix-style';
+            tempStyle.textContent = `
+                /* Target ALL input types, textareas, and selects */
+                #capture-content input, 
+                #capture-content textarea, 
+                #capture-content select {
+                    height: auto !important;
+                    min-height: 38px; /* Maintain minimum height for consistency */
+                    white-space: normal; 
+                    overflow: visible !important;
+                    padding-top: 5px; 
+                    padding-bottom: 5px;
+                    /* Ensure date/number inputs also expand if necessary */
+                    box-sizing: border-box !important;
+                }
+                /* Hide buttons, status, and pending areas in the screenshot/PDF */
+                #network-status-banner, #capture-content button, #pending-firebase-sync {
+                    display: none !important;
+                }
+            `;
+            document.head.appendChild(tempStyle);
+
+            try {
+                // 2. Convert the entire element to a single canvas image
+                const canvas = await html2canvas(element, {
+                    scale: 2, 
+                    allowTaint: true,
+                    useCORS: true,
+                    windowWidth: element.scrollWidth,
+                    windowHeight: element.scrollHeight
+                });
+                
+                // 3. Initialize jsPDF and handle multi-page conversion
+                const imgData = canvas.toDataURL('image/jpeg', 0.9);
+                
+                // A4 dimensions in mm (210 x 297)
+                const pdf = new jsPDF('p', 'mm', 'a4'); 
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = pdf.internal.pageSize.getHeight();
+
+                const imgWidth = canvas.width;
+                const imgHeight = canvas.height;
+                const ratio = pdfWidth / imgWidth;
+                const height = imgHeight * ratio;
+
+                let position = 0; 
+                let remainingHeight = height;
+
+                while (remainingHeight > 0) {
+                    if (position > 0) {
+                        pdf.addPage();
+                    }
+                    
+                    // Add image portion: position is negative to simulate cropping from the top of the full image
+                    pdf.addImage(imgData, 'JPEG', 0, -position, pdfWidth, height);
+
+                    remainingHeight -= pdfHeight;
+                    position += pdfHeight; 
+                }
+
+                // 4. Save the PDF
+                const filename = `${date}_${flightNumber}_LOSA.pdf`;
+                pdf.save(filename);
+
+                Swal.close();
+                Swal.fire({
+                    icon: 'success',
+                    title: 'PDF Export Complete!',
+                    text: `Saved report as ${filename}`,
+                    timer: 3000,
+                    showConfirmButton: false
+                });
+
+            } catch(error) {
+                Swal.close();
+                console.error('PDF Export Error:', error);
+                Swal.fire('Export Failed', 'Could not generate PDF. Please check console for details.', 'error');
+            } finally {
+                // 5. Remove the temporary CSS style immediately after use
+                const cleanupStyle = document.getElementById('export-fix-style');
+                if (cleanupStyle) {
+                    cleanupStyle.remove();
+                }
+            }
+        }
+        // --- End Export to PDF Function ---
+
+
         document.addEventListener('DOMContentLoaded', () => {
             const form = document.getElementById('checklistForm');
+            const exportButton = document.getElementById('exportPdfButton');
+
             generateChecklistHTML();
             addSopChangeEventHandlers();
             setTodayDate();
+
+            exportButton.addEventListener('click', exportToPDF);
             
+            // Network Status Logic (unchanged)
             const statusBanner = document.getElementById('network-status-banner');
             function updateNetworkStatus() {
                 if (navigator.onLine) {
@@ -345,6 +474,32 @@
                     pendingContainer.classList.add('hidden');
                 }
             }
+            
+            function getAllFormKeys() {
+                const keys = new Set([
+                    'observationDate', 'flightNumberNew', 'routeFrom', 'routeTo', 
+                    'aircraftType', 'observerId', 'crewObserved', 'loadFactor', 'inspectorName',
+                    'sigThreat', 'sigError', 'effectiveCm', 'generalComments', 
+                    'areasOfStrength', 'opportunitiesForImprovement', 'observerSignature', 'reportCompletionDate'
+                ]);
+
+                CHECKLIST_DEFINITIONS.forEach(section => {
+                    section.items.forEach(item => {
+                        const itemsToProcess = item.isGroup && item.subItems ? item.subItems : [item];
+                        itemsToProcess.forEach(subItem => {
+                            const baseName = subItem.id;
+                            keys.add(`${baseName}_SOP`);
+                            keys.add(`${baseName}_Narrative`);
+                            Object.keys(TEM_OPTIONS_MAP).forEach(typeCode => {
+                                keys.add(`${baseName}_${typeCode}`);
+                            });
+                        });
+                    });
+                });
+
+                return Array.from(keys);
+            }
+
 
             form.addEventListener('submit', (e) => {
                 e.preventDefault();
@@ -373,22 +528,37 @@
                         submitButton.disabled = true;
 
                         const reportData = {};
-                        const checkboxGroups = {};
+                        const allFormKeys = getAllFormKeys();
                         const formData = new FormData(form);
+                        const submittedCheckboxes = {};
+                        
+                        allFormKeys.forEach(key => {
+                            reportData[key] = "";
+                        });
 
                         for (const [key, value] of formData.entries()) {
-                            if (!value || value.trim() === "") continue;
+                            const trimmedValue = value.trim();
                             const element = form.elements[key];
+                            
                             if (element && element.type === 'checkbox') {
-                                if (!checkboxGroups[key]) checkboxGroups[key] = [];
-                                checkboxGroups[key].push(value);
-                            } else {
-                                reportData[key] = value;
+                                if (!submittedCheckboxes[key]) submittedCheckboxes[key] = [];
+                                submittedCheckboxes[key].push(trimmedValue);
+                            } 
+                            else if (trimmedValue !== "") {
+                                if (element && element.type === 'number') {
+                                     reportData[key] = parseFloat(trimmedValue);
+                                } else {
+                                     reportData[key] = trimmedValue;
+                                }
                             }
                         }
-                        for (const key in checkboxGroups) {
-                            reportData[key] = checkboxGroups[key].join(' | ');
+                        
+                        for (const key in submittedCheckboxes) {
+                            if (submittedCheckboxes[key].length > 0) {
+                                reportData[key] = submittedCheckboxes[key].join(' | ');
+                            }
                         }
+
                         reportData.submissionTimestamp = firebase.firestore.FieldValue.serverTimestamp();
 
                         const newReportRef = db.collection("reports").doc();
@@ -396,44 +566,35 @@
 
                         pendingWrites[docId] = {
                             flightNumber: reportData.flightNumberNew,
-                            status: 'Saving...'
+                            status: navigator.onLine ? 'Syncing...' : 'Queued, waiting for connection...'
                         };
                         updatePendingUI();
                         
                         const unsubscribe = newReportRef.onSnapshot({ includeMetadataChanges: true }, (doc) => {
-                            if (doc.metadata.hasPendingWrites === false) {
-                                if (pendingWrites[docId]) {
-                                    Swal.fire({
-                                        toast: true,
-                                        position: 'top-end',
-                                        icon: 'success',
-                                        title: `Flight ${pendingWrites[docId].flightNumber} has been synced!`,
-                                        showConfirmButton: false,
-                                        timer: 3000
-                                    });
-                                    delete pendingWrites[docId];
-                                    updatePendingUI();
-                                    unsubscribe();
-                                }
+                            if (doc.metadata.hasPendingWrites === false && pendingWrites[docId]) {
+                                Swal.fire({
+                                    toast: true,
+                                    position: 'top-end',
+                                    icon: 'success',
+                                    title: `Flight ${pendingWrites[docId].flightNumber} has been synced!`,
+                                    showConfirmButton: false,
+                                    timer: 3000
+                                });
+                                delete pendingWrites[docId];
+                                updatePendingUI();
+                                unsubscribe();
                             }
                         });
 
                         newReportRef.set(reportData)
                         .then(() => {
-                            Swal.fire('Saved Locally!', 'Report has been saved. It will sync automatically when online.', 'info');
+                            Swal.fire('Saved!', 'Report has been saved. It will sync automatically when online.', 'info');
+                            
                             form.reset();
                             setTodayDate();
                             document.querySelectorAll('.sop-fail-row, .sop-pass-row').forEach(card => {
-                                card.classList.remove('sop-fail-row');
-                                card.classList.remove('sop-pass-row');
+                                card.classList.remove('sop-fail-row', 'sop-pass-row');
                             });
-                            
-                            if (navigator.onLine) {
-                                pendingWrites[docId].status = 'Syncing...';
-                            } else {
-                                pendingWrites[docId].status = 'Queued, waiting for connection...';
-                            }
-                            updatePendingUI();
                         })
                         .catch((error) => {
                             Swal.fire('Local Save Error!', `Could not save the report. Please check console. Error: ${error.message}`, 'error');
